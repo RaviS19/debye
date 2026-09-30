@@ -1,0 +1,12 @@
+{
+  "name": "Debye · Plasma Physics",
+  "short_name": "Debye",
+  "description": "Learn plasma physics with live simulations.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#050b18",
+  "theme_color": "#050b18",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
