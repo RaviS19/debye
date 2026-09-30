@@ -1,7 +1,8 @@
-import { useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { touchSim } from '../store/store'
 
-/** Card chrome shared by all simulations. Records the first interaction for XP and badges. */
+/** Card chrome shared by all simulations. Records the first interaction for XP and badges, and if a sim
+ *  runs for a while with nobody touching it, lights up its hint so the learner knows what to try. */
 export function SimFrame({
   id,
   title,
@@ -20,11 +21,18 @@ export function SimFrame({
   hint?: string
 }) {
   const touched = useRef(false)
+  const [idle, setIdle] = useState(false)
   const touch = () => {
+    setIdle(false)
     if (touched.current) return
     touched.current = true
     touchSim(id)
   }
+  useEffect(() => {
+    if (!running || !hint || touched.current) return
+    const t = setTimeout(() => setIdle(true), 40_000)
+    return () => clearTimeout(t)
+  }, [running, hint])
   return (
     <div className="card glow" onPointerDownCapture={touch} onKeyDownCapture={touch}>
       <div className="card-head">
@@ -36,7 +44,12 @@ export function SimFrame({
         </div>
       </div>
       {children}
-      {hint && <p className="dim small" style={{ marginTop: 10, marginBottom: 0 }}>{hint}</p>}
+      {hint && (
+        <p className={`small ${idle ? 'hint-pulse' : 'dim'}`} style={{ marginTop: 10, marginBottom: 0 }}>
+          {idle && <strong>Try this: </strong>}
+          {hint}
+        </p>
+      )}
     </div>
   )
 }

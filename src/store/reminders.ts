@@ -4,6 +4,8 @@
 //  3. an in-app banner when you open the app past your study time and haven't studied yet.
 // Server push arrives with the optional backend in a later phase.
 import { dayKey, getState, setState, type Reminder } from './store'
+import { weekStats, weakSpots } from '../learner/digest'
+import { LESSONS } from '../lessons'
 
 const NUDGES = [
   'Ten minutes of plasma today keeps the streak glowing.',
@@ -38,9 +40,32 @@ export async function requestNotifications(): Promise<NotificationPermission | '
   }
 }
 
+/** One line summing up the last seven days, for the Sunday notification. */
+export function weekSummary() {
+  const s = getState()
+  const w = weekStats(s, LESSONS)
+  const weak = weakSpots(s, LESSONS, 1)[0]
+  const parts = [`${w.xp} XP`, `${w.solved} problem${w.solved === 1 ? '' : 's'}`, `${w.reviews} card${w.reviews === 1 ? '' : 's'}`, `${w.minutes} min`]
+  return `This week: ${parts.join(' · ')}.${w.mastered.length ? ` Mastered ${w.mastered.join(', ')}!` : ''}${weak ? ` Worth another look: ${weak.label}.` : ''}`
+}
+
 /** Called every minute while the app is open. */
 export function tickReminder() {
   const s = getState()
+  const now = new Date()
+  // Weekly digest: Sunday evening, once.
+  if (now.getDay() === 0 && now.getHours() >= 18 && s.lastDigest !== dayKey() && s.xp > 0) {
+    setState((st) => {
+      st.lastDigest = dayKey()
+    })
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      try {
+        new Notification('Debye · your week in plasma', { body: weekSummary(), icon: 'icon.svg', tag: 'debye-weekly' })
+      } catch {
+        /* notifications need a service worker on some mobile browsers */
+      }
+    }
+  }
   if (!reminderDue(s.reminder) || s.lastNotified === dayKey()) return
   setState((st) => {
     st.lastNotified = dayKey()

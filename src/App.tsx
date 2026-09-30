@@ -3,7 +3,11 @@ import { HashRouter, NavLink, Route, Routes, useLocation } from 'react-router-do
 import { Celebrations, Circuit, Logo } from './components/Hud'
 import { Home } from './pages/Home'
 import { LessonPage } from './pages/LessonPage'
-import { MapPage, PlotPage, ProgressPage, ReviewPage, SettingsPage } from './pages/Other'
+import { MapPage, PlotPage, ReviewPage, SettingsPage } from './pages/Other'
+import { YouPage } from './pages/You'
+import { TutorFab, TutorPanel } from './tutor/TutorPanel'
+import { initTutor } from './tutor/state'
+import { startSync, useSyncStatus } from './store/sync'
 import { dueCards, levelFor, useStore } from './store/store'
 import { nudge, reminderDue, tickReminder } from './store/reminders'
 import { LESSONS } from './lessons'
@@ -15,7 +19,7 @@ const NAV = [
   { to: '/map', label: 'Map', icon: '⌬' },
   { to: '/plot', label: 'Plot', icon: '∿' },
   { to: '/review', label: 'Review', icon: '↻' },
-  { to: '/progress', label: 'Badges', icon: '⬡' },
+  { to: '/you', label: 'You', icon: '⬡' },
   { to: '/settings', label: 'Remind', icon: '⏰' },
 ]
 
@@ -39,6 +43,12 @@ function Shell() {
   useEffect(() => {
     if (!loc.hash) window.scrollTo(0, 0)
   }, [loc.pathname, loc.hash])
+
+  useEffect(() => {
+    initTutor()
+    void startSync()
+  }, [])
+  const sync = useSyncStatus()
 
   const lvl = levelFor(s.xp)
   const due = dueCards().length
@@ -70,6 +80,7 @@ function Shell() {
           <div className="nav-stats">
             <span>Rank <b>{lvl.name}</b></span>
             <span><b>{s.xp}</b> XP · 🔥 <b>{s.streak.count}</b> day{s.streak.count === 1 ? '' : 's'}</span>
+            {(sync.state === 'synced' || sync.state === 'saving') && <span className="kbd">☁ {sync.state === 'saving' ? 'saving…' : 'synced across devices'}</span>}
           </div>
         </aside>
         <main className="main">
@@ -89,20 +100,23 @@ function Shell() {
             <Route path="/plot" element={<PlotPage />} />
             <Route path="/plot/:id" element={<PlotPage />} />
             <Route path="/review" element={<ReviewPage />} />
-            <Route path="/progress" element={<ProgressPage />} />
+            <Route path="/you" element={<YouPage />} />
+            <Route path="/progress" element={<YouPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<Home />} />
           </Routes>
         </main>
       </div>
       <nav className="tabbar" aria-label="Main">
-        {NAV.filter((n) => n.label !== 'Badges').map((n) => (
+        {NAV.filter((n) => n.label !== 'Remind').map((n) => (
           <NavLink key={n.to} to={n.to} end={n.to === '/'} className={({ isActive }) => (isActive || (n.label === 'Learn' && learnActive) ? 'active' : '')}>
             <span style={{ fontSize: 18 }} aria-hidden="true">{n.icon}</span>
             {n.label}
           </NavLink>
         ))}
       </nav>
+      <TutorFab />
+      <TutorPanel />
       <Celebrations />
     </>
   )

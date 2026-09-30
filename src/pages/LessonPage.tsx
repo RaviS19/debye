@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { lessonById, LESSONS, MODULES } from '../lessons'
 import { mastery, MASTERY_THRESHOLD } from '../lessons/progress'
 import { ProblemCard, FlashcardView, withMath } from '../components/Learning'
@@ -11,12 +11,15 @@ export function LessonPage() {
   const { id = 'A1' } = useParams()
   const lesson = lessonById(id)
   const s = useStore((s) => s)
+  const { hash } = useLocation()
   useEffect(() => {
     if (!lesson) return
     openLesson(lesson.id)
     ensureCards(lesson.cards.map((c) => c.id))
-    window.scrollTo(0, 0)
-  }, [lesson])
+    const target = hash ? document.getElementById(hash.slice(1)) : null
+    if (target) requestAnimationFrame(() => target.scrollIntoView({ behavior: 'smooth' }))
+    else window.scrollTo(0, 0)
+  }, [lesson, hash])
 
   const m = lesson ? mastery(s, lesson) : 0
   useEffect(() => {
@@ -29,7 +32,7 @@ export function LessonPage() {
       <div className="card glow">
         <span className="pill ghost">Coming in a later phase</span>
         <h1 style={{ marginTop: 12 }}>{mod ? `${mod.id} · ${mod.title}` : 'Not found'}</h1>
-        <p className="dim">This module is on the roadmap. Phase 1 covers A1 to A3.</p>
+        <p className="dim">This module is on the roadmap. Track A (A1 to A11) is ready now.</p>
         <Link className="btn" to="/map">Back to the map</Link>
       </div>
     )

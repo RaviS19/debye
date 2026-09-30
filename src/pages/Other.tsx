@@ -5,9 +5,10 @@ import { status } from '../lessons/progress'
 import { PLOTS, plotById } from '../lessons/plots'
 import { Plotter } from '../components/Plotter'
 import { FlashcardView } from '../components/Learning'
-import { BadgeIcon, Ring } from '../components/Hud'
-import { BADGES } from '../store/badges'
-import { LEVELS, dueCards, ensureCards, levelFor, resetAll, setState, useStore } from '../store/store'
+import { Ring } from '../components/Hud'
+import { dueCards, ensureCards, resetAll, setState, useStore } from '../store/store'
+import { exportCode, importCode, setSyncEnabled, useSyncStatus } from '../store/sync'
+import { rhythm } from '../learner/digest'
 import { downloadIcs, googleCalendarUrl, requestNotifications } from '../store/reminders'
 import { tex } from '../components/Eq'
 
@@ -44,7 +45,7 @@ export function MapPage() {
     <>
       <span className="tag">Concept map</span>
       <h1>The curriculum</h1>
-      <p className="lede">Nodes light up as you master them. Tap an unlit node to open it. Phase 1 covers A1 to A3; the rest are on the roadmap.</p>
+      <p className="lede">Nodes light up as you master them. Tap any node to open it. Track A is ready; Tracks B and C are on the roadmap.</p>
       <div className="card glow map-wrap">
         <svg width="1360" height="410" viewBox="0 0 1360 410" role="img" aria-label="Map of curriculum modules">
           {(['A', 'B', 'C'] as const).map((t) => (
@@ -79,7 +80,7 @@ export function MapPage() {
       <div className="row small dim">
         <span className="pill">Mastered</span>
         <span className="pill ghost">Available</span>
-        <span className="dim">Grey: coming in later phases</span>
+        <span className="dim">Grey: Tracks B and C, coming in later phases</span>
       </div>
     </>
   )
@@ -107,7 +108,7 @@ export function ReviewPage() {
           <Ring value={1} label="✓" color="#4ade80" />
           <h2>All caught up</h2>
           <p className="dim">Nothing is due right now. Open a lesson to add its cards to your deck, or come back later.</p>
-          <button className="btn" onClick={() => ensureCards(all.map((c) => c.id))}>Add every Phase 1 card</button>
+          <button className="btn" onClick={() => ensureCards(all.map((c) => c.id))}>Add every Track A card</button>
         </div>
       )}
     </>
@@ -143,62 +144,6 @@ export function PlotPage() {
   )
 }
 
-// ---------- progress ----------
-export function ProgressPage() {
-  const s = useStore((s) => s)
-  const lvl = levelFor(s.xp)
-  const solved = Object.values(s.problems).filter((p) => p.solved).length
-  const firstTry = Object.values(s.problems).filter((p) => p.firstTry).length
-  return (
-    <>
-      <span className="tag">Progress</span>
-      <h1>{lvl.name}</h1>
-      <p className="lede">Rank {lvl.index + 1} of {LEVELS.length} · {s.xp} XP</p>
-      <div className="grid four">
-        <Stat label="Problems solved" v={solved} />
-        <Stat label="First-try" v={firstTry} />
-        <Stat label="Cards reviewed" v={s.reviews} />
-        <Stat label="Days studied" v={s.studyDays.length} />
-      </div>
-      <h2>Ranks</h2>
-      <div className="card">
-        {LEVELS.map((l, i) => (
-          <div key={l.name} className="row" style={{ justifyContent: 'space-between', padding: '4px 0', color: i <= lvl.index ? 'var(--glow)' : 'var(--text-dim)' }}>
-            <span>{i + 1}. {l.name}</span>
-            <span className="kbd">{l.xp} XP</span>
-          </div>
-        ))}
-      </div>
-      <h2>Badges</h2>
-      <div className="grid three">
-        {BADGES.map((b) => {
-          const got = s.badges[b.id]
-          return (
-            <div key={b.id} className="card" style={{ display: 'flex', gap: 12, alignItems: 'center', opacity: got ? 1 : 0.7 }}>
-              <BadgeIcon glyph={b.glyph} earned={!!got} size={64} />
-              <div>
-                <div className="hud-title" style={{ fontSize: 13 }}>{b.name}</div>
-                <div className="small dim">{b.blurb}</div>
-                {got && <div className="kbd">{new Date(got).toLocaleDateString()}</div>}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-      <p className="dim small">XP: lesson mastered +50 · problem first try +20 (later tries +10) · derivation +15 · new simulation +5 · flashcard +2.</p>
-    </>
-  )
-}
-
-function Stat({ label, v }: { label: string; v: number }) {
-  return (
-    <div className="card" style={{ textAlign: 'center' }}>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: 30, color: 'var(--glow)', textShadow: '0 0 12px #22d3ee' }}>{v}</div>
-      <div className="tag">{label}</div>
-    </div>
-  )
-}
-
 // ---------- settings ----------
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -229,6 +174,7 @@ export function SettingsPage() {
             </button>
           ))}
         </div>
+        <BestTime />
         <p className="dim small" style={{ marginTop: 14 }}>
           Reminders only fire on days you have not studied yet, and a missed day never costs you more than the streak (one missed day is covered by a streak freeze, earned every 7 days).
         </p>
@@ -245,7 +191,7 @@ export function SettingsPage() {
           <div className="card">
             <strong>Notifications</strong>
             <p className="small dim" style={{ marginTop: 8 }}>
-              Pops up at your time while Debye is open or installed. Full background push comes with the sync server in Phase 3.
+              Pops up at your time while Debye is open or installed as an app. For reminders when it is closed, use the calendar alarm.
             </p>
             {perm === 'granted' ? (
               <span className="pill lime">Allowed</span>
@@ -270,17 +216,95 @@ export function SettingsPage() {
         </label>
       </div>
 
+      <SyncCard />
+
       <div className="card">
         <div className="card-head"><span className="pill ghost">Your data</span></div>
-        <p className="small dim">Everything is stored on this device only. Nothing is uploaded.</p>
         <ResetButton />
       </div>
     </>
   )
 }
 
+function BestTime() {
+  const s = useStore((s) => s)
+  const r = rhythm(s)
+  if (r.bestHour === null) return null
+  const t = `${String(r.bestHour).padStart(2, '0')}:00`
+  if (s.reminder.time === t) return <p className="small" style={{ marginTop: 10 }}>This matches when you usually study.</p>
+  return (
+    <p className="small" style={{ marginTop: 10 }}>
+      You usually study around <b>{t}</b>.{' '}
+      <button className="btn small" onClick={() => setState((st) => { st.reminder = { ...st.reminder, time: t } })}>Use {t}</button>
+    </p>
+  )
+}
+
+const SYNC_TEXT: Record<string, string> = {
+  connecting: 'Connecting…',
+  synced: 'On. Progress on your other devices merges in automatically.',
+  saving: 'Saving…',
+  off: 'Off. Progress stays on this device.',
+}
+
+function SyncCard() {
+  const enabled = useStore((s) => s.sync.enabled)
+  const st = useSyncStatus()
+  const [code, setCode] = useState('')
+  const [paste, setPaste] = useState('')
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  return (
+    <div className="card">
+      <div className="card-head"><span className="pill">Sync and transfer</span></div>
+      {st.state === 'unavailable' ? (
+        <p className="small dim">Progress is saved in this browser. Automatic sync works when Debye is opened on claude.ai while signed in; here, use a progress code below to move progress between devices.</p>
+      ) : (
+        <>
+          <label className="row" style={{ cursor: 'pointer' }}>
+            <input type="checkbox" checked={enabled} onChange={(e) => setSyncEnabled(e.target.checked)} />
+            Sync my progress across devices
+          </label>
+          <p className="small" style={{ marginTop: 8 }}>
+            {st.state === 'error' ? st.detail : SYNC_TEXT[st.state]}
+          </p>
+          <p className="small dim">Synced progress is private to your claude.ai account: nobody else who opens Debye can see it. XP, streaks, lessons, problems, flashcard schedules and your study history travel; reminders and display settings stay on each device.</p>
+        </>
+      )}
+      <h3>Progress code</h3>
+      <p className="small dim">Copy a code here and paste it on another device (or into the Android app later). Pasting merges: nothing already on that device is lost.</p>
+      <div className="row">
+        <button className="btn small" onClick={async () => {
+          const c = await exportCode()
+          setCode(c)
+          try {
+            await navigator.clipboard.writeText(c)
+            setMsg({ ok: true, text: 'Code copied to your clipboard.' })
+          } catch {
+            setMsg({ ok: true, text: 'Select the code below and copy it.' })
+          }
+        }}>Create a code</button>
+      </div>
+      {code && <textarea readOnly value={code} rows={3} className="code-box" onFocus={(e) => e.target.select()} aria-label="Your progress code" />}
+      <div className="row" style={{ marginTop: 10 }}>
+        <input type="text" value={paste} onChange={(e) => setPaste(e.target.value)} placeholder="Paste a code from another device" style={{ flex: 1, minWidth: 180 }} aria-label="Progress code to import" />
+        <button className="btn small" disabled={!paste.trim()} onClick={async () => {
+          try {
+            await importCode(paste)
+            setPaste('')
+            setMsg({ ok: true, text: 'Progress merged into this device.' })
+          } catch (e) {
+            setMsg({ ok: false, text: (e as Error).message || 'That code could not be read.' })
+          }
+        }}>Merge it in</button>
+      </div>
+      {msg && <div className={`feedback ${msg.ok ? 'good' : 'bad'}`}>{msg.text}</div>}
+    </div>
+  )
+}
+
 function ResetButton() {
   const [armed, setArmed] = useState(false)
+  const synced = useStore((s) => s.sync.enabled)
   if (!armed)
     return (
       <button className="btn small" style={{ borderColor: 'var(--red)', color: 'var(--red)' }} onClick={() => setArmed(true)}>
@@ -289,7 +313,7 @@ function ResetButton() {
     )
   return (
     <div className="row">
-      <span className="small">Erase all XP, badges, cards and progress on this device?</span>
+      <span className="small">Erase all XP, badges, cards and progress{synced ? ', here and on your synced devices' : ' on this device'}?</span>
       <button className="btn small" style={{ borderColor: 'var(--red)', color: 'var(--red)' }} onClick={() => { resetAll(); setArmed(false) }}>
         Erase everything
       </button>
