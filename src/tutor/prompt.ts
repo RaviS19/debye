@@ -4,6 +4,7 @@ import { LESSONS, lessonById, MODULES } from '../lessons'
 import { conceptMastery, band } from '../learner/concepts'
 import { MISTAKES, patterns } from '../learner/digest'
 import type { ProblemContext, TutorContext } from './state'
+import { SUBJECT } from '../subject'
 
 // ---------- prompt ----------
 /** The lesson as plain text with its maths written back as TeX, read from the page itself. */
@@ -78,14 +79,14 @@ export function instructions(ctx: TutorContext) {
   const mod = lesson ? MODULES.find((m) => m.id === lesson.id) : undefined
   const excerpt = typeof document !== 'undefined' ? pageExcerpt() : ''
   return [
-    'You are the tutor inside Debye, an interactive app that teaches plasma physics. Track A follows F. F. Chen, Introduction to Plasma Physics and Controlled Fusion; later tracks follow Kruer (laser-plasma interactions) and Gibbon (short-pulse lasers).',
+    SUBJECT.tutorPersona,
     '',
     'How to tutor:',
     '- When the learner is working a problem, be Socratic: find where their reasoning went wrong with one short diagnostic question, or give one hint at a time. Do not give the final answer unless they explicitly ask for it after trying.',
-    '- Otherwise explain clearly: physical intuition first, then the equation. SI units. State conventions when they matter (for example which thermal speed is meant, ω versus f).',
+    `- Otherwise explain clearly: intuition first, then the equation. ${SUBJECT.tutorGuidance}`,
     '- Keep replies under about 180 words unless the learner asks for more. Short paragraphs or "- " bullets, no headings. Write maths as $...$ inline and $$...$$ for displayed equations (KaTeX).',
     '- Use what you know about the learner below: build on what they have mastered and be patient with what is shaky, without reciting their statistics back to them.',
-    '- If a question is outside plasma physics, answer briefly and steer back. If you are not sure of a fact, say so.',
+    `- If a question is outside ${SUBJECT.name}, answer briefly and steer back. If you are not sure of a fact, say so. Never reproduce textbook passages; cite sections instead.`,
     '',
     lesson ? `CURRENT LESSON: ${lesson.id} · ${lesson.title} (${lesson.subtitle}). Prerequisites: ${mod?.prereqs.join(', ') || 'none'}.` : 'The learner is not inside a lesson right now.',
     lesson ? `Objectives: ${lesson.objectives.join(' | ')}` : '',
@@ -102,6 +103,6 @@ export function instructions(ctx: TutorContext) {
 export function quickAsks(ctx: TutorContext): string[] {
   if (ctx.problem) return ['Where did I go wrong?', 'Give me a hint, not the answer', 'Which equation applies here?']
   if (ctx.lessonId) return ['Explain the key idea more simply', 'Quiz me on this lesson', 'How does this connect to fusion or lasers?']
-  return ['What should I study next?', 'Quiz me on what I have learned', 'Explain the Debye length in one minute']
+  return SUBJECT.generalAsks
 }
 

@@ -3,6 +3,7 @@ import type { State } from '../store/store'
 import type { Lesson, ModuleInfo } from '../lessons/types'
 import { band, conceptMastery, type ConceptState } from './concepts'
 import { predictModel, type PredictModel } from './predict'
+import { SUBJECT } from '../subject'
 
 const DAY = 86400000
 
@@ -92,7 +93,7 @@ export function rhythm(s: Pick<State, 'log'>, now = Date.now()): Rhythm {
 }
 
 export const MISTAKES: Record<string, { label: string; advice: string }> = {
-  pow10: { label: 'Off by a power of ten', advice: 'Check unit prefixes and cm⁻³ versus m⁻³ before you compute.' },
+  pow10: { label: 'Off by a power of ten', advice: SUBJECT.unitsAdvice },
   '2pi': { label: 'Off by 2π', advice: 'Decide up front whether the question wants ω (rad/s) or f (Hz).' },
   high: { label: 'Too high', advice: 'Look for a square root or a factor you forgot to divide by.' },
   low: { label: 'Too low', advice: 'Look for a square root you took twice or a factor you divided by twice.' },

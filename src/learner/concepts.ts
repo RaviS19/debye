@@ -7,6 +7,7 @@
 import type { Attempt, State } from '../store/store'
 import type { Problem } from '../components/Learning'
 import type { Lesson } from '../lessons/types'
+import { SUBJECT } from '../subject'
 
 export const BKT = { L0: 0.25, T: 0.12, S: 0.1, Gnum: 0.06 }
 
@@ -41,16 +42,8 @@ export function bktSoft(pL: number, w: number, G: number) {
   return post + (1 - post) * BKT.T
 }
 
-const PROPER: Record<string, string> = {
-  debye: 'Debye', landau: 'Landau', bohm: 'Bohm', gross: 'Gross', alfven: 'Alfvén', larmor: 'Larmor', lawson: 'Lawson',
-  spitzer: 'Spitzer', child: 'Child', langmuir: 'Langmuir', rayleigh: 'Rayleigh', taylor: 'Taylor', vlasov: 'Vlasov',
-  boltzmann: 'Boltzmann', maxwellian: 'Maxwellian', sagdeev: 'Sagdeev', kdv: 'KdV', kruskal: 'Kruskal', shafranov: 'Shafranov',
-  cma: 'CMA', faraday: 'Faraday', mach: 'Mach', coulomb: 'Coulomb', ohm: 'Ohm', exb: 'E×B', dt: 'D–T', icf: 'ICF',
-  nif: 'NIF', mhd: 'MHD', pic: 'PIC', fdtd: 'FDTD', rt: 'Rayleigh–Taylor', em: 'EM', ecrh: 'ECRH', lh: 'lower hybrid', uh: 'upper hybrid',
-  bosch: 'Bosch', hale: 'Hale', saha: 'Saha', poisson: 'Poisson', fick: 'Fick', einstein: 'Einstein', kinetic: 'kinetic',
-}
 export function conceptLabel(tag: string) {
-  const words = tag.split('-').map((w) => PROPER[w] ?? w)
+  const words = tag.split('-').map((w) => SUBJECT.properNouns[w] ?? w)
   const s = words.join(' ')
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
