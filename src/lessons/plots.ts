@@ -132,4 +132,8 @@ export const PLOTS: PlotSpec[] = [
   },
 ]
 
+// Lesson-specific presets live in plots-<lesson>.ts files that export PLOTS; they are merged here.
+const extra = import.meta.glob<{ PLOTS?: PlotSpec[] }>('./plots-*.ts', { eager: true })
+for (const m of Object.values(extra)) PLOTS.push(...(m.PLOTS ?? []))
+
 export const plotById = (id: string) => PLOTS.find((p) => p.id === id)

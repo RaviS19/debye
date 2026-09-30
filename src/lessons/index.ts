@@ -1,9 +1,13 @@
-import { A1 } from './A1'
-import { A2 } from './A2'
-import { A3 } from './A3'
 import type { Lesson, ModuleInfo } from './types'
 
-export const LESSONS: Lesson[] = [A1, A2, A3]
+// Every src/lessons/A*.tsx (and later B*, C*) that exports a Lesson is registered automatically.
+const files = import.meta.glob<Record<string, unknown>>(['./A*.tsx', './B*.tsx', './C*.tsx'], { eager: true })
+const isLesson = (x: unknown): x is Lesson => !!x && typeof x === 'object' && 'id' in x && 'body' in x && 'problems' in x
+const order = (id: string) => 'ABC'.indexOf(id[0]) * 100 + Number(id.slice(1))
+
+export const LESSONS: Lesson[] = Object.values(files)
+  .flatMap((m) => Object.values(m).filter(isLesson))
+  .sort((a, b) => order(a.id) - order(b.id))
 export const lessonById = (id: string) => LESSONS.find((l) => l.id === id)
 
 export const TRACKS = {

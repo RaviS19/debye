@@ -73,9 +73,10 @@ export function Derivation({ lessonId, id, title, steps }: { lessonId: string; i
 }
 
 // ---------- problems ----------
+/** `concept` is a short tag ("debye-length", "exb-drift") the learner model uses to find weak spots. */
 export type Problem =
-  | { id: string; kind: 'numeric'; prompt: string; answer: number; tol: number; unit: string; hints: string[]; solution: string }
-  | { id: string; kind: 'mcq'; prompt: string; options: string[]; correct: number; hints: string[]; solution: string }
+  | { id: string; kind: 'numeric'; prompt: string; answer: number; tol: number; unit: string; hints: string[]; solution: string; concept?: string }
+  | { id: string; kind: 'mcq'; prompt: string; options: string[]; correct: number; hints: string[]; solution: string; concept?: string }
 
 export function ProblemCard({ p, index }: { p: Problem; index: number }) {
   const rec = useStore((s) => s.problems[p.id])
