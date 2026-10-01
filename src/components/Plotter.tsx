@@ -146,6 +146,7 @@ export function Plotter({ spec, compact }: { spec: PlotSpec; compact?: boolean }
     ctx.rect(padL, padT, pw, ph)
     ctx.clip()
     // markers
+    const placed: { x0: number; x1: number; row: number }[] = []
     for (const m of spec.markers ?? []) {
       ctx.setLineDash([4, 5])
       ctx.strokeStyle = m.color
@@ -158,7 +159,15 @@ export function Plotter({ spec, compact }: { spec: PlotSpec; compact?: boolean }
         ctx.moveTo(px, padT)
         ctx.lineTo(px, padT + ph)
         ctx.stroke()
-        ctx.fillText(m.label, px + 4, padT + 14)
+        // flip the label to the left of the line when it would run past the right edge (phones),
+        // and drop it a row when it would overlap an earlier label
+        const w = ctx.measureText(m.label).width
+        const flip = px + 4 + w > padL + pw
+        const x0 = flip ? px - 4 - w : px + 4
+        let row = 0
+        while (placed.some((q) => q.row === row && x0 < q.x1 + 4 && x0 + w > q.x0 - 4)) row++
+        placed.push({ x0, x1: x0 + w, row })
+        ctx.fillText(m.label, x0, padT + 14 + 14 * row)
       }
       if (m.y) {
         const py = Y(toAxis(m.y(params), spec.y.log))
@@ -334,7 +343,7 @@ export function Plotter({ spec, compact }: { spec: PlotSpec; compact?: boolean }
       )}
       <div className="controls">
         {spec.params.map((p) => (
-          <ParamSlider key={p.key} p={p} value={params[p.key]} onChange={(v) => setParams((s) => ({ ...s, [p.key]: v }))} />
+          <ParamSlider key={p.key} p={p} value={params[p.key] ?? p.value} onChange={(v) => setParams((s) => ({ ...s, [p.key]: v }))} />
         ))}
       </div>
       {!compact && <p className="dim small" style={{ marginTop: 12 }}>{spec.blurb}</p>}

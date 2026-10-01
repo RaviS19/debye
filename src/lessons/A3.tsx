@@ -1,4 +1,4 @@
-import { Eq } from '../components/Eq'
+import { Eq, M } from '../components/Eq'
 import { Derivation } from '../components/Learning'
 import { Plotter } from '../components/Plotter'
 import { MirrorSim } from '../sims/MirrorSim'
@@ -21,6 +21,7 @@ export const A3: Lesson = {
     { id: 'mirror', label: 'Mirror' },
     { id: 'derive', label: 'Loss cone' },
     { id: 'invariants', label: 'J and Φ' },
+    { id: 'next', label: 'Next' },
     { id: 'problems', label: 'Problems' },
   ],
   body: () => (
@@ -103,6 +104,15 @@ export const A3: Lesson = {
             <p style={{ marginTop: 10 }}>The flux enclosed by the slow drift orbit around, say, Earth. Broken most easily, because the drift is the slowest motion.</p>
           </div>
         </div>
+      </section>
+
+      <section id="next">
+        <h2>Where this goes</h2>
+        <p>
+          A4 leaves single particles behind and treats the plasma as a fluid. The mirror comes back in A11: in a tokamak the field is
+          stronger on the inside of the torus, so each field line is a weak mirror with ratio <M>{'(1+\\epsilon)/(1-\\epsilon)'}</M>.
+          Particles inside its loss cone circulate all the way around the torus; the rest bounce and trace the banana orbits you can watch there.
+        </p>
       </section>
     </>
   ),

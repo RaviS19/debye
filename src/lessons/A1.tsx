@@ -24,6 +24,7 @@ export const A1: Lesson = {
     { id: 'parameter', label: 'Plasma parameter' },
     { id: 'oscillation', label: 'Plasma frequency' },
     { id: 'criteria', label: 'Criteria' },
+    { id: 'next', label: 'Next' },
     { id: 'problems', label: 'Problems' },
   ],
   body: () => (
@@ -153,6 +154,17 @@ export const A1: Lesson = {
             <p style={{ marginTop: 10 }}><M>{'\\omega_{pe}\\tau > 1'}</M>. Electrons must oscillate before a collision with neutral atoms interrupts them, or the gas just behaves like a gas.</p>
           </div>
         </div>
+      </section>
+
+      <section id="next">
+        <h2>Where this goes</h2>
+        <p>
+          A2 and A3 follow single particles through electric and magnetic fields. The Boltzmann relation that built the shielding cloud
+          returns in A4 as the electron response along B, and the plasma approximation <M>{'n_i \\approx n_e'}</M> is its large-scale
+          limit. A5 adds pressure to the plasma oscillation and gets the Bohm–Gross waves. A6 shows why light below <M>{'\\omega_{pe}'}</M>
+          cannot get in: it turns around at the critical density, which is where laser–plasma physics (Track B) begins. And A10 meets
+          shielding again at a wall, as the sheath.
+        </p>
       </section>
     </>
   ),

@@ -1,4 +1,4 @@
-import { Eq } from '../components/Eq'
+import { Eq, M } from '../components/Eq'
 import { Derivation } from '../components/Learning'
 import { OrbitSim } from '../sims/OrbitSim'
 import type { Lesson } from './types'
@@ -20,6 +20,7 @@ export const A2: Lesson = {
     { id: 'exb', label: 'E×B drift' },
     { id: 'general', label: 'Any force' },
     { id: 'gradb', label: '∇B drift' },
+    { id: 'next', label: 'Next' },
     { id: 'problems', label: 'Problems' },
   ],
   body: () => (
@@ -129,6 +130,16 @@ export const A2: Lesson = {
           }}
           says="In a tokamak, the field is stronger on the inside of the torus. This drift, plus the curvature drift, separates charges vertically. That is why a tokamak also needs a twist in its field lines."
         />
+      </section>
+
+      <section id="next">
+        <h2>Where this goes</h2>
+        <p>
+          Put the centrifugal force <M>{'m v_\\parallel^2/R_c'}</M> of a particle sliding along a curved field line into the general force
+          drift and you get the curvature drift. A11 adds it to the ∇B drift in a torus, where together they separate the charges and
+          force the field lines to twist. A3 asks what happens when B changes slowly along the orbit (the magnetic mirror), A4 finds a
+          fluid drift with no guiding-centre motion behind it, and A8 turns the gravity drift into the plasma Rayleigh–Taylor instability.
+        </p>
       </section>
     </>
   ),

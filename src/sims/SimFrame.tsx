@@ -22,11 +22,17 @@ export function SimFrame({
 }) {
   const touched = useRef(false)
   const [idle, setIdle] = useState(false)
-  const touch = () => {
+  const touch = (e: { type: string }) => {
     setIdle(false)
     if (touched.current) return
     touched.current = true
-    touchSim(id)
+    // Award after the gesture finishes: a badge modal opened on pointerdown would swallow the click.
+    const ends = e.type === 'pointerdown' ? ['pointerup', 'pointercancel'] : ['keyup']
+    const award = () => {
+      ends.forEach((t) => window.removeEventListener(t, award))
+      setTimeout(() => touchSim(id), 0)
+    }
+    ends.forEach((t) => window.addEventListener(t, award))
   }
   useEffect(() => {
     if (!running || !hint || touched.current) return

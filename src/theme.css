@@ -301,7 +301,8 @@ canvas.sim { width: 100%; display: block; border-radius: 10px; background: rgba(
 
 /* derivation */
 .steps { counter-reset: step; display: grid; gap: 10px; }
-.step { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; animation: rise 0.45s ease both; }
+.step { min-width: 0; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; animation: rise 0.45s ease both; }
+.step .katex-display { overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
 .step-n { font-family: var(--font-display); font-size: 12px; color: var(--cyan); letter-spacing: 0.14em; }
 .step.hidden-step { border-style: dashed; color: var(--text-dim); }
 details.why summary { cursor: pointer; color: var(--cyan); font-size: 14px; margin-top: 6px; }

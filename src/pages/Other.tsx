@@ -124,7 +124,7 @@ export function PlotPage() {
       <>
         <Link className="btn small" to="/plot">← All plots</Link>
         <h1 style={{ marginTop: 14 }}>{spec.title}</h1>
-        <Plotter spec={spec} />
+        <Plotter key={spec.id} spec={spec} />
       </>
     )
   return (

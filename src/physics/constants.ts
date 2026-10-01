@@ -45,7 +45,8 @@ export function lossFraction(R: number): number {
 export function sci(x: number, digits = 3): string {
   if (x === 0 || !isFinite(x)) return String(x)
   const exp = Math.floor(Math.log10(Math.abs(x)))
-  if (exp >= -2 && exp <= 3) return x.toPrecision(digits).replace(/\.?0+$/, '')
+  // Number() drops trailing zeros after the point only (10 stays 10) and expands toPrecision's 1.00e+3
+  if (exp >= -2 && exp <= 3) return String(Number(x.toPrecision(digits)))
   const mant = x / 10 ** exp
   const sup = String(exp).replace(/[-0-9]/g, (d) => '⁻⁰¹²³⁴⁵⁶⁷⁸⁹'['-0123456789'.indexOf(d)])
   return `${mant.toPrecision(digits)}×10${sup}`
