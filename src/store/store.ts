@@ -5,6 +5,21 @@ import { createEmptyCard, forgetting_curve, fsrs, Rating, State as CardState, ty
 export interface ProblemRecord { attempts: number; solved: boolean; firstTry: boolean }
 export interface LessonRecord { opened: string; completed?: string; derivations: string[] }
 export interface Reminder { enabled: boolean; time: string; days: number[] } // days: 0 = Sunday
+export type TutorProvider = 'claude' | 'local'
+export type LocalPreset = 'ollama' | 'lmstudio' | 'llamacpp' | 'jan' | 'custom'
+/** Which model answers in the tutor. Per device and never synced: a local server only exists on one network. */
+export interface TutorModel {
+  provider: TutorProvider
+  preset: LocalPreset
+  /** 'ollama' = Ollama's native API, 'openai' = any OpenAI-compatible server */
+  protocol: 'ollama' | 'openai'
+  baseUrl: string
+  model: string
+  /** optional, sent as a Bearer token only when set */
+  apiKey: string
+  /** the context window asked for (Ollama num_ctx) and the budget the prompt is trimmed to */
+  contextTokens: number
+}
 
 // Event logs are compact tuples so a year of study still fits in one synced document.
 /** [time ms, xp, reason] */
@@ -50,6 +65,7 @@ export interface State {
   sync: { enabled: boolean }
   glow: number
   sound: boolean
+  tutorModel: TutorModel
 }
 
 const KEY = 'debye-state-v1'
@@ -86,6 +102,7 @@ export function fresh(): State {
     sync: { enabled: true },
     glow: 1,
     sound: true,
+    tutorModel: { provider: 'claude', preset: 'ollama', protocol: 'ollama', baseUrl: 'http://localhost:11434', model: '', apiKey: '', contextTokens: 8192 },
   }
 }
 
@@ -103,6 +120,8 @@ export function upgrade(raw: Partial<State>): State {
   const s = { ...base, ...raw } as State
   s.log = { ...base.log, ...(raw.log ?? {}) }
   s.sync = { ...base.sync, ...(raw.sync ?? {}) }
+  // Claude stays the default; a local model takes over only once someone sets one up in Settings.
+  s.tutorModel = { ...base.tutorModel, ...(raw.tutorModel ?? {}) }
   s.cards = reviveCards(s.cards ?? {})
   if (!raw.xpBy || !Object.keys(raw.xpBy).length) s.xpBy = s.xp ? { [s.device]: s.xp } : {}
   if (!raw.reviewsBy || !Object.keys(raw.reviewsBy).length) s.reviewsBy = s.reviews ? { [s.device]: s.reviews } : {}
@@ -157,7 +176,7 @@ export function useStore<T>(sel: (s: State) => T): T {
 /** Erase progress but keep this device's settings. With sync on, the reset reaches other devices too. */
 export function resetAll() {
   const keep = state
-  state = { ...fresh(), device: keep.device, reminder: keep.reminder, glow: keep.glow, sound: keep.sound, sync: keep.sync, retention: keep.retention, epoch: new Date().toISOString() }
+  state = { ...fresh(), device: keep.device, reminder: keep.reminder, glow: keep.glow, sound: keep.sound, sync: keep.sync, retention: keep.retention, tutorModel: keep.tutorModel, epoch: new Date().toISOString() }
   save()
   listeners.forEach((l) => l())
 }

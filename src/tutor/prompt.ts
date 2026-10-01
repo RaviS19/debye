@@ -74,10 +74,11 @@ function problemBlock(p: ProblemContext) {
     .join('\n')
 }
 
-export function instructions(ctx: TutorContext) {
+/** The system prompt. `excerptMax` shrinks the lesson text for local models with small context windows. */
+export function instructions(ctx: TutorContext, excerptMax = 9000) {
   const lesson = ctx.lessonId ? lessonById(ctx.lessonId) : undefined
   const mod = lesson ? MODULES.find((m) => m.id === lesson.id) : undefined
-  const excerpt = typeof document !== 'undefined' ? pageExcerpt() : ''
+  const excerpt = typeof document !== 'undefined' ? pageExcerpt(excerptMax) : ''
   return [
     SUBJECT.tutorPersona,
     '',

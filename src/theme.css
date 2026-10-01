@@ -274,7 +274,7 @@ input[type='range']::-webkit-slider-thumb {
 input[type='range']::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--bg); border: 2px solid var(--glow); box-shadow: 0 0 10px var(--cyan); }
 .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 18px; margin-top: 12px; }
 
-input[type='text'], input[type='number'], input[type='time'], select {
+input[type='text'], input[type='number'], input[type='time'], input[type='url'], input[type='password'], select {
   background: rgba(5, 11, 24, 0.8);
   border: 1px solid var(--line-strong);
   border-radius: 10px;
@@ -418,3 +418,28 @@ button.chip { font-family: var(--font-body); }
   .tutor-panel { top: auto; left: 0; width: 100vw; height: 86vh; border-left: 0; border-top: 1px solid var(--line-strong); border-radius: 16px 16px 0 0; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
 }
 .code-box { width: 100%; margin-top: 10px; font: 12px/1.4 ui-monospace, monospace; color: var(--text-dim); background: rgba(14, 42, 71, 0.6); border: 1px solid var(--line); border-radius: 10px; padding: 8px; resize: vertical; word-break: break-all; }
+
+/* tutor model: settings card and the switch in the tutor panel */
+.tm-choice { display: grid; gap: 8px; margin: 10px 0 4px; }
+.tm-choice label { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; }
+.tm-choice label:has(input:checked) { border-color: var(--line-strong); background: rgba(34, 211, 238, 0.06); box-shadow: inset 0 0 18px rgba(34, 211, 238, 0.08); }
+.tm-choice label.off { cursor: default; }
+.tm-choice label.off b { color: var(--text-dim); }
+.tm-choice input { margin-top: 6px; flex: none; accent-color: var(--cyan); }
+.tm-choice label > span { display: grid; gap: 2px; min-width: 0; }
+.tm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 18px; margin-top: 14px; }
+.tm-grid input, .tm-grid select { width: 100%; min-width: 0; }
+@media (min-width: 640px) { .tm-grid .tm-wide { grid-column: span 2; } } /* room for size and quantization in the model list */
+.tm-reply { margin-top: 12px; }
+.tm-msg p, .tutor-note p { margin: 0; }
+.tm-help { margin-top: 16px; border-left: 2px solid var(--violet); padding: 2px 0 2px 12px; font-size: 14px; }
+.tm-help ul { margin: 6px 0 0; padding-left: 18px; }
+.tm-help li { margin: 4px 0; }
+.tm-help code, .tm-msg code, .tutor-msg code { font: 0.86em/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--glow); background: rgba(14, 42, 71, 0.8); border: 1px solid var(--line); border-radius: 6px; padding: 0 5px; overflow-wrap: anywhere; }
+.tutor-switch { gap: 6px; margin-bottom: 8px; flex-wrap: nowrap; min-width: 0; }
+.tutor-switch .row { gap: 6px; flex-wrap: nowrap; min-width: 0; }
+.tutor-switch .chip { display: inline-block; flex: none; max-width: 200px; padding: 3px 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tutor-switch .chip + .chip { flex: 0 1 auto; min-width: 0; }
+.tutor-switch .model-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tutor-switch a { flex: none; }
+.chip:disabled { opacity: 0.5; cursor: default; }

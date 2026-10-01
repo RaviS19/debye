@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
-import { closeTutor, disableTutor, getSample, HIDE_CODES, openTutor, useTutorAvail, useTutorPanel, type TutorContext } from './state'
+import { Link, useLocation } from 'react-router-dom'
+import { closeTutor, currentProvider, disableTutor, getSample, HIDE_CODES, openTutor, setProvider, useTutor, useTutorAvail, useTutorPanel, type TutorContext } from './state'
 import { instructions, quickAsks } from './prompt'
 import { renderTutor } from './render'
-import { logTutorQuestion } from '../store/store'
+import { chat, explain, fitHistory, hostOf, LocalError, promptBudget, type ChatMessage } from './local'
+import { getState, logTutorQuestion } from '../store/store'
 import { lessonById } from '../lessons'
 
 type Msg = { role: 'user' | 'assistant'; content: string; note?: string }
@@ -33,6 +34,7 @@ export function TutorFab() {
 
 export function TutorPanel() {
   const avail = useTutorAvail()
+  const tutor = useTutor()
   const { open, ctx, nonce } = useTutorPanel()
   const key = keyFor(ctx)
   const [msgs, setMsgs] = useState<Msg[]>([])
@@ -68,21 +70,16 @@ export function TutorPanel() {
   }
 
   async function send(text: string) {
+    const provider = currentProvider()
     const sample = getSample()
     const q = text.trim()
-    if (!sample || !q || busy) return
+    if (!provider || (provider === 'claude' && !sample) || !q || busy) return
     const { ctx: c, key: k } = current.current
     const history = (chats.get(k)?.msgs ?? []).filter((m) => m.content)
     const next: Msg[] = [...history, { role: 'user', content: q }, { role: 'assistant', content: '' }]
     save(next)
     setDraft('')
     setBusy(true)
-    logTutorQuestion(c.lessonId ?? 'general')
-    const turns: ClaudeTurn[] = [
-      { role: 'user', content: instructions(c) + '\n\nThe conversation with the learner follows.' },
-      ...history.slice(-12).map((m) => ({ role: m.role, content: m.content })),
-      { role: 'user', content: q },
-    ]
     const controller = new AbortController()
     ctl.current = controller
     const update = (content: string, note?: string) => {
@@ -94,24 +91,19 @@ export function TutorPanel() {
       if (current.current.key === k) setMsgs(msgs2)
     }
     try {
-      const r = await sample(turns, { signal: controller.signal, cache: false, onText: ({ text }) => update(text) })
-      update(r.text, r.truncated ? 'Cut short. Ask for less at a time.' : undefined)
-    } catch (err) {
-      const e = err as ClaudeSampleError
-      if (HIDE_CODES.includes(e.code)) {
-        update('', 'The tutor is not available in this view.')
-        disableTutor()
-        closeTutor()
-      } else if (e.code === 'cancelled') update(e.text ?? '', 'Stopped.')
-      else if (e.code === 'refused') update('', ERR.refused)
-      else update(e.text ?? '', ERR[e.code] ?? 'The connection was interrupted. Try again.')
+      if (provider === 'local') await askLocal(c, history, q, controller.signal, update)
+      else await askClaude(sample!, c, history, q, controller.signal, update)
     } finally {
       setBusy(false)
       ctl.current = null
+      // Logged once the answer is in: a badge it earns opens a modal, which must not cover Stop mid-answer.
+      logTutorQuestion(c.lessonId ?? 'general')
     }
   }
 
   if (avail !== 'ready' || !open) return null
+  const local = tutor.provider === 'local'
+  const m = tutor.model
 
   const lesson = ctx.lessonId ? lessonById(ctx.lessonId) : undefined
   const pIndex = lesson && ctx.problem ? lesson.problems.findIndex((p) => p.id === ctx.problem!.id) : -1
@@ -132,6 +124,19 @@ export function TutorPanel() {
           )}
           <button className="btn small" onClick={closeTutor} aria-label="Close tutor">✕</button>
         </div>
+        <div className="row tutor-switch">
+          {tutor.both ? (
+            <div className="row" role="group" aria-label="Model">
+              <button className={`pill chip ${local ? 'ghost' : ''}`} aria-pressed={!local} disabled={busy} onClick={() => setProvider('claude')}>Claude</button>
+              <button className={`pill chip ${local ? '' : 'ghost'}`} aria-pressed={local} disabled={busy} onClick={() => setProvider('local')} title={`${m.model} on ${hostOf(m.baseUrl)}`}>
+                {m.model} · local
+              </button>
+            </div>
+          ) : (
+            <span className="kbd model-name">{local ? `${m.model} · local` : 'Claude'}</span>
+          )}
+          <Link to="/settings#tutor-model" className="kbd" onClick={closeTutor} style={{ marginLeft: 'auto' }}>Model settings</Link>
+        </div>
         <div className="tutor-msgs" ref={scroller}>
           {msgs.length === 0 && (
             <p className="dim small" style={{ margin: '4px 2px 10px' }}>
@@ -140,13 +145,13 @@ export function TutorPanel() {
                 : 'Ask anything about what is on your screen. The tutor knows this lesson and which ideas you have already mastered.'}
             </p>
           )}
-          {msgs.map((m, i) =>
-            m.role === 'user' ? (
-              <div key={i} className="tutor-msg user">{m.content}</div>
+          {msgs.map((msg, i) =>
+            msg.role === 'user' ? (
+              <div key={i} className="tutor-msg user">{msg.content}</div>
             ) : (
               <div key={i} className="tutor-msg bot">
-                {m.content ? <div dangerouslySetInnerHTML={{ __html: renderTutor(m.content) }} /> : thinking && i === msgs.length - 1 ? <span className="thinking">Thinking…</span> : null}
-                {m.note && <div className="small dim" style={{ marginTop: 6 }}>{m.note}</div>}
+                {msg.content ? <div dangerouslySetInnerHTML={{ __html: renderTutor(msg.content) }} /> : thinking && i === msgs.length - 1 ? <span className="thinking">Thinking…</span> : null}
+                {msg.note && <div className="small dim tutor-note" style={{ marginTop: 6 }} dangerouslySetInnerHTML={{ __html: renderTutor(msg.note, { maths: false }) }} />}
               </div>
             ),
           )}
@@ -184,8 +189,55 @@ export function TutorPanel() {
             <button type="submit" className="btn primary" disabled={!draft.trim()}>Send</button>
           )}
         </form>
-        <div className="kbd" style={{ marginTop: 6 }}>Uses your Claude account. Answers can be wrong; check them against the lesson.</div>
+        <div className="kbd" style={{ marginTop: 6 }}>
+          {local ? `Runs on ${m.model} at ${hostOf(m.baseUrl)}.` : 'Uses your Claude account.'} Answers can be wrong; check them against the lesson.
+        </div>
       </aside>
     </>
   )
+}
+
+type Update = (content: string, note?: string) => void
+
+async function askClaude(sample: ClaudeSample, c: TutorContext, history: Msg[], q: string, signal: AbortSignal, update: Update) {
+  const turns: ClaudeTurn[] = [
+    { role: 'user', content: instructions(c) + '\n\nThe conversation with the learner follows.' },
+    ...history.slice(-12).map((m) => ({ role: m.role, content: m.content })),
+    { role: 'user', content: q },
+  ]
+  try {
+    const r = await sample(turns, { signal, cache: false, onText: ({ text }) => update(text) })
+    update(r.text, r.truncated ? 'Cut short. Ask for less at a time.' : undefined)
+  } catch (err) {
+    const e = err as ClaudeSampleError
+    if (HIDE_CODES.includes(e.code)) {
+      disableTutor()
+      if (currentProvider() === 'local') update('', `Claude is not available in this view. Ask again to use ${getState().tutorModel.model}.`)
+      else {
+        update('', 'The tutor is not available in this view.')
+        closeTutor()
+      }
+    } else if (e.code === 'cancelled') update(e.text ?? '', 'Stopped.')
+    else if (e.code === 'refused') update('', ERR.refused)
+    else update(e.text ?? '', ERR[e.code] ?? 'The connection was interrupted. Try again.')
+  }
+}
+
+/** Same conversation for a model on the learner's machine, with the prompt sized to its context window. */
+async function askLocal(c: TutorContext, history: Msg[], q: string, signal: AbortSignal, update: Update) {
+  const m = getState().tutorModel
+  const budget = promptBudget(m.contextTokens)
+  const system = instructions(c, budget.excerpt)
+  const messages: ChatMessage[] = [
+    { role: 'system', content: system },
+    ...fitHistory(system, history.slice(-12), q, budget.total).map((h) => ({ role: h.role, content: h.content })),
+    { role: 'user', content: q },
+  ]
+  try {
+    const r = await chat(m, messages, { signal, onText: ({ text }) => update(text) })
+    update(r.text, r.truncated ? 'Cut short: the model reached its length limit. Ask for less at a time, or raise the context size in Model settings.' : undefined)
+  } catch (err) {
+    const e = err instanceof LocalError ? err : new LocalError('network', String(err))
+    update(e.text, e.code === 'cancelled' ? 'Stopped.' : explain(e, m, location.origin))
+  }
 }

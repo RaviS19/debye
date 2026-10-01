@@ -11,6 +11,7 @@ import { exportCode, importCode, setSyncEnabled, useSyncStatus } from '../store/
 import { rhythm } from '../learner/digest'
 import { downloadIcs, googleCalendarUrl, requestNotifications } from '../store/reminders'
 import { tex } from '../components/Eq'
+import { TutorModelCard } from '../tutor/ModelSettings'
 
 // ---------- concept map ----------
 const COLS: Record<string, number> = {}
@@ -215,6 +216,8 @@ export function SettingsPage() {
           Celebration sounds
         </label>
       </div>
+
+      <TutorModelCard />
 
       <SyncCard />
 

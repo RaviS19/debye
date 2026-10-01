@@ -4,7 +4,8 @@
 import type { Card } from 'ts-fsrs'
 import { fresh, LOG_CAPS, reviveCards, type Logs, type State } from './store'
 
-/** The part of the state that travels between devices. Device-local settings stay behind. */
+/** The part of the state that travels between devices. Device-local settings stay behind, including the tutor
+ *  model and its optional API key (tutorModel), which must never leave the device. */
 export type Synced = Pick<
   State,
   'xpBy' | 'streak' | 'studyDays' | 'lessons' | 'problems' | 'cards' | 'reviewsBy' | 'simsUsed' | 'badges' | 'log' | 'epoch'
@@ -61,7 +62,7 @@ export function mergeState(local: State, remoteRaw: Partial<Synced> | undefined 
   let base = local
   if (re > le) {
     // A reset happened elsewhere after this device's progress began: start from a clean slate.
-    base = { ...fresh(), device: local.device, reminder: local.reminder, glow: local.glow, sound: local.sound, sync: local.sync, lastNotified: local.lastNotified, lastDigest: local.lastDigest, epoch: re }
+    base = { ...fresh(), device: local.device, reminder: local.reminder, glow: local.glow, sound: local.sound, sync: local.sync, tutorModel: local.tutorModel, lastNotified: local.lastNotified, lastDigest: local.lastDigest, epoch: re }
   }
   const s = structuredClone(base)
   reviveCards(s.cards)

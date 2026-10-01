@@ -1,9 +1,11 @@
-// AI tutor v1: asks Claude through the artifact runtime's `sample` capability, on the viewer's own account.
-// It only exists when the app is opened on claude.ai; everywhere else the tutor stays hidden.
+// AI tutor. Two ways to answer: Claude through the artifact runtime's `sample` capability (on claude.ai, on the
+// viewer's own account), or a model running on the learner's own machine (local.ts) wherever the page can reach it.
 // This file holds availability and panel state only, so any component can open the tutor cheaply.
-import { useSyncExternalStore } from 'react'
+import { useMemo, useSyncExternalStore } from 'react'
+import { getState, setState, useStore, type TutorModel, type TutorProvider } from '../store/store'
+import { localReady } from './local'
 
-// ---------- availability ----------
+// ---------- Claude availability ----------
 export type TutorAvail = 'checking' | 'ready' | 'off'
 let avail: TutorAvail = 'checking'
 let sampleFn: ClaudeSample | null = null
@@ -33,7 +35,7 @@ export function initTutor() {
   )
 }
 
-export function useTutorAvail() {
+function useClaudeAvail() {
   return useSyncExternalStore(
     (l) => {
       availListeners.add(l)
@@ -43,13 +45,54 @@ export function useTutorAvail() {
   )
 }
 
-/** Errors after which the tutor hides for the rest of this visit. */
+/** Errors after which Claude is off for the rest of this visit (a local model, if set up, takes over). */
 export const HIDE_CODES = ['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed']
 export function disableTutor() {
   setAvail('off')
 }
 export function getSample() {
   return sampleFn
+}
+
+// ---------- which model answers ----------
+/** Inside the claude.ai artifact the page's CSP blocks every other host, localhost included, so a local
+ *  model cannot be reached there (and is not even tried, to keep the console free of CSP errors). */
+export const localBlocked = () => typeof window !== 'undefined' && !!window.claude
+
+/** Claude stays the default. A configured local model answers when it is chosen, or when Claude is not available. */
+export function resolveProvider(m: TutorModel, claude: TutorAvail, blocked: boolean): TutorProvider | null {
+  const local = !blocked && localReady(m)
+  if (m.provider === 'local' && local) return 'local'
+  if (claude === 'ready') return 'claude'
+  if (claude === 'checking' && m.provider === 'claude') return null
+  return local ? 'local' : null
+}
+
+export function currentProvider() {
+  return resolveProvider(getState().tutorModel, avail, localBlocked())
+}
+
+export function setProvider(p: TutorProvider) {
+  setState((s) => {
+    s.tutorModel.provider = p
+  })
+}
+
+/** Everything the tutor UI needs to know about its models. */
+export function useTutor() {
+  const claude = useClaudeAvail()
+  // Every store update clones the state, so select a value that only changes when the model settings do.
+  const key = useStore((s) => JSON.stringify(s.tutorModel))
+  const model = useMemo(() => JSON.parse(key) as TutorModel, [key])
+  const blocked = localBlocked()
+  const local = !blocked && localReady(model)
+  return { provider: resolveProvider(model, claude, blocked), claude, local, blocked, both: claude === 'ready' && local, model }
+}
+
+/** 'ready' when some model can answer. */
+export function useTutorAvail(): TutorAvail {
+  const t = useTutor()
+  return t.provider ? 'ready' : t.claude === 'checking' ? 'checking' : 'off'
 }
 
 // ---------- panel state ----------
