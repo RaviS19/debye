@@ -110,7 +110,7 @@ button, input, select { font: inherit; color: inherit; }
 }
 .nav > * { flex-shrink: 0; }
 .nav .spacer { flex: 1; flex-shrink: 1; }
-.nav a.item.lesson-item { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; padding-top: 6px; padding-bottom: 6px; flex-shrink: 0; }
+.nav a.item.lesson-item { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; padding-top: 6px; padding-bottom: 6px; flex-shrink: 0; scroll-margin-block: 48px; }
 .nav-stats { font-size: 13px; color: var(--text-dim); display: grid; gap: 4px; padding: 8px 12px; }
 .nav-stats b { color: var(--glow); font-family: var(--font-display); }
 
@@ -443,3 +443,8 @@ button.chip { font-family: var(--font-body); }
 .tutor-switch .model-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tutor-switch a { flex: none; }
 .chip:disabled { opacity: 0.5; cursor: default; }
+
+/* lesson page: "Refresh before you start" (learner/prep.ts) */
+.prep { display: grid; gap: 4px; margin: 0 0 16px; padding: 8px 14px; border-left: 2px solid var(--violet); border-radius: 0 10px 10px 0; background: rgba(160, 111, 214, 0.06); }
+.prep-chips { gap: 6px; margin-top: 4px; }
+.prep .chip { gap: 4px; }

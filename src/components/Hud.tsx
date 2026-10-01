@@ -67,12 +67,16 @@ export function Circuit({ className }: { className: string }) {
 
 export function BadgeIcon({ glyph, earned = true, size = 96 }: { glyph: string; earned?: boolean; size?: number }) {
   const col = earned ? '#8fffff' : '#314c72'
+  // 'n_c' draws c as a subscript; three characters or more get a smaller font so they stay inside the hexagon
+  const [base, sub = ''] = glyph.split('_')
+  const fs = base.length + sub.length * 0.6 > 2.4 ? 27 : 34
   return (
-    <svg className={earned ? 'badge-icon' : ''} width={size} height={size} viewBox="0 0 100 100" aria-hidden="true" style={earned ? undefined : { opacity: 0.6 }}>
+    <svg className={earned ? 'badge-icon' : ''} width={size} height={size} viewBox="0 0 100 100" aria-hidden="true" style={{ width: size, height: size, flex: 'none', opacity: earned ? undefined : 0.6 }}>
       <polygon points="50,4 90,27 90,73 50,96 10,73 10,27" fill={earned ? 'rgba(34,211,238,0.12)' : 'transparent'} stroke={col} strokeWidth="2.5" />
       <polygon points="50,14 81,32 81,68 50,86 19,68 19,32" fill="none" stroke={earned ? '#a06fd6' : '#1f3150'} strokeWidth="1.2" strokeDasharray="4 3" />
-      <text x="50" y="62" textAnchor="middle" fontSize="34" fontFamily="Exo, sans-serif" fontWeight="700" fill={earned ? '#fff' : '#314c72'}>
-        {glyph}
+      <text x="50" y={sub ? 59 : 62} textAnchor="middle" fontSize={fs} fontFamily="Exo, sans-serif" fontWeight="700" fill={earned ? '#fff' : '#314c72'}>
+        {base}
+        {sub && <tspan fontSize={Math.round(fs * 0.62)} dy={Math.round(fs * 0.24)}>{sub}</tspan>}
       </text>
     </svg>
   )

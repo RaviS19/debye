@@ -15,6 +15,8 @@ export const TRACKS = {
   B: { name: 'Laser–Plasma', book: 'Kruer' },
   C: { name: 'Short-Pulse & Relativistic', book: 'Gibbon' },
 } as const
+export type TrackId = keyof typeof TRACKS
+export const TRACK_IDS = Object.keys(TRACKS) as TrackId[]
 
 // The full curriculum from the plan. Modules without a Lesson are shown as "coming".
 export const MODULES: ModuleInfo[] = [
@@ -47,3 +49,27 @@ export const MODULES: ModuleInfo[] = [
   { id: 'C7', track: 'C', title: 'Ion acceleration', prereqs: ['C6'] },
   { id: 'C8', track: 'C', title: 'PIC in practice', prereqs: ['C7', 'B9'] },
 ]
+
+/** The track a lesson or module belongs to. */
+export const trackOf = (id: string): TrackId => MODULES.find((m) => m.id === id)?.track ?? (id[0] as TrackId)
+/** The built lessons of a track, in order. */
+export const lessonsOf = (t: TrackId) => LESSONS.filter((l) => trackOf(l.id) === t)
+/** Every module of a track in the curriculum, built or not. */
+export const modulesOf = (t: TrackId) => MODULES.filter((m) => m.track === t)
+/** Tracks with at least one built lesson. */
+export const READY_TRACKS = TRACK_IDS.filter((t) => lessonsOf(t).length > 0)
+/** Tracks with modules still to be built. */
+export const COMING_TRACKS = TRACK_IDS.filter((t) => modulesOf(t).some((m) => !lessonById(m.id)))
+
+/** "A", "A and B", "A, B and C". */
+export function listJoin(xs: string[]) {
+  return xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`
+}
+/** "Track A" or "Tracks A and B". */
+export const tracksPhrase = (ts: TrackId[]) => `Track${ts.length === 1 ? '' : 's'} ${listJoin(ts)}`
+/** "A1 to A11" for the built lessons of a track. */
+export function trackRange(t: TrackId) {
+  const ls = lessonsOf(t)
+  if (!ls.length) return ''
+  return ls.length === 1 ? ls[0].id : `${ls[0].id} to ${ls[ls.length - 1].id}`
+}

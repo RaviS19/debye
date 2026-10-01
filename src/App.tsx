@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { HashRouter, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { Celebrations, Circuit, Logo } from './components/Hud'
 import { Home } from './pages/Home'
@@ -10,7 +10,7 @@ import { initTutor } from './tutor/state'
 import { startSync, useSyncStatus } from './store/sync'
 import { dueCards, levelFor, useStore } from './store/store'
 import { nudge, reminderDue, tickReminder } from './store/reminders'
-import { LESSONS } from './lessons'
+import { READY_TRACKS, TRACKS, lessonsOf } from './lessons'
 import { Link } from 'react-router-dom'
 
 const NAV = [
@@ -75,11 +75,15 @@ function Shell() {
               {n.to === '/review' && due > 0 && <span className="pill" style={{ marginLeft: 'auto', padding: '0 8px' }}>{due}</span>}
             </NavLink>
           ))}
-          <div className="tag" style={{ margin: '16px 12px 4px' }}>Track A · Chen</div>
-          {LESSONS.map((l) => (
-            <NavLink key={l.id} to={`/learn/${l.id}`} className="item lesson-item" title={`${l.id} ${l.title}`}>
-              {s.lessons[l.id]?.completed ? '●' : '○'} {l.id} {l.title}
-            </NavLink>
+          {READY_TRACKS.map((t) => (
+            <Fragment key={t}>
+              <div className="tag" style={{ margin: '16px 12px 4px' }}>Track {t} · {TRACKS[t].book}</div>
+              {lessonsOf(t).map((l) => (
+                <NavLink key={l.id} to={`/learn/${l.id}`} className="item lesson-item" title={`${l.id} ${l.title}`}>
+                  {s.lessons[l.id]?.completed ? '●' : '○'} {l.id} {l.title}
+                </NavLink>
+              ))}
+            </Fragment>
           ))}
           <div className="spacer" />
           <div className="nav-stats">

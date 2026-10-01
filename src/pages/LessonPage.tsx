@@ -1,11 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
-import { lessonById, LESSONS, MODULES } from '../lessons'
+import { lessonById, LESSONS, MODULES, listJoin, READY_TRACKS, TRACKS, trackOf, trackRange } from '../lessons'
 import { mastery, MASTERY_THRESHOLD } from '../lessons/progress'
 import { ProblemCard, FlashcardView, withMath } from '../components/Learning'
 import { Ring } from '../components/Hud'
-import { completeLesson, ensureCards, openLesson, useStore, dueCards } from '../store/store'
-import { useState } from 'react'
+import { completeLesson, ensureCards, openLesson, useStore, dueCards, type State } from '../store/store'
+import { prepCheck } from '../learner/prep'
 
 export function LessonPage() {
   const { id = 'A1' } = useParams()
@@ -32,7 +32,7 @@ export function LessonPage() {
       <div className="card glow">
         <span className="pill ghost">Coming in a later phase</span>
         <h1 style={{ marginTop: 12 }}>{mod ? `${mod.id} · ${mod.title}` : 'Not found'}</h1>
-        <p className="dim">This module is on the roadmap. Track A (A1 to A11) is ready now.</p>
+        <p className="dim">This module is on the roadmap. {listJoin(READY_TRACKS.map((t) => `Track ${t} (${trackRange(t)})`))} {READY_TRACKS.length === 1 ? 'is' : 'are'} ready now.</p>
         <Link className="btn" to="/map">Back to the map</Link>
       </div>
     )
@@ -42,12 +42,13 @@ export function LessonPage() {
   const next = LESSONS[idx + 1]
   const unmet = MODULES.find((x) => x.id === lesson.id)!.prereqs.filter((p) => !s.lessons[p]?.completed)
   const Body = lesson.body
+  const track = trackOf(lesson.id)
 
   return (
     <>
       <div className="row" style={{ justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ flex: 1, minWidth: 240 }}>
-          <span className="tag">Track A · Chen · {lesson.id} · ~{lesson.minutes} min</span>
+          <span className="tag">Track {track} · {TRACKS[track].book} · {lesson.id} · ~{lesson.minutes} min</span>
           <h1>{lesson.title}</h1>
           <p className="lede">{lesson.subtitle}</p>
         </div>
@@ -62,6 +63,8 @@ export function LessonPage() {
           <Link className="btn small" to={`/learn/${unmet[0]}`}>Go to {unmet[0]}</Link>
         </div>
       )}
+
+      <PrepCheck s={s} lessonId={lesson.id} />
 
       <nav className="lesson-nav" aria-label="Sections">
         {lesson.sections.map((sec) => (
@@ -98,9 +101,33 @@ export function LessonPage() {
         ) : (
           <p className="dim" style={{ margin: 0 }}>Keep going: {Math.round(m * 100)}% of {Math.round(MASTERY_THRESHOLD * 100)}% needed.</p>
         )}
-        {next && <Link className="btn primary" style={{ marginTop: 10 }} to={`/learn/${next.id}`}>Next: {next.title}</Link>}
+        {next && (
+          <Link className="btn primary" style={{ marginTop: 10 }} to={`/learn/${next.id}`}>
+            Next: {trackOf(next.id) !== track ? `Track ${trackOf(next.id)} · ` : ''}{next.title}
+          </Link>
+        )}
       </div>
     </>
+  )
+}
+
+/** Predictive gap filling: weak or shaky ideas from the lessons this one builds on, before you start. */
+function PrepCheck({ s, lessonId }: { s: State; lessonId: string }) {
+  const items = useMemo(() => prepCheck(s, lessonId, LESSONS, MODULES), [s, lessonId])
+  if (!items.length) return null
+  return (
+    <div className="prep" role="note">
+      <span className="tag">Refresh before you start</span>
+      <span className="small dim">{lessonId} builds on {items.length === 1 ? 'this idea' : 'these ideas'}, and your answers say {items.length === 1 ? 'it has' : 'they have'} not settled yet.</span>
+      <div className="row prep-chips">
+        {items.map((x) => (
+          <Link key={x.concept} className="pill ghost chip" to={`/learn/${x.lessonId}#problems`} title={`${x.band === 'weak' ? 'Weak' : 'Shaky'}: about ${Math.round(x.p * 100)}% estimated mastery`}>
+            <span className="dot" style={{ background: x.band === 'weak' ? 'var(--red)' : 'var(--amber)' }} />
+            {x.label} · {x.lessonId}
+          </Link>
+        ))}
+      </div>
+    </div>
   )
 }
 

@@ -1,8 +1,8 @@
 # Debye: plasma physics learning app
 
-Phases 0 to 3 of the plan in `../plans/plasma-app-plan.md` (Track A complete): a web app (installable PWA) that teaches
-plasma physics from Chen, with live simulations, equation explainers, a plotter, spaced repetition,
-streaks, badges and reminders.
+Phases 0 to 3 of the plan in `../plans/plasma-app-plan.md` (Tracks A and B), plus the predictive gap filling of
+Phase 4: a web app (installable PWA) that teaches plasma physics from Chen and laser–plasma interactions from Kruer,
+with live simulations, equation explainers, a plotter, spaced repetition, streaks, badges and reminders.
 
 ## Run it
 
@@ -22,13 +22,25 @@ Android shell (`npx cap add android`) when you want a Play Store app.
 at least one live simulation checked against its analytic result in `npm test`, plotter presets,
 six problems and six flashcards.
 
-**Learning engine (Phases 1 to 3 of the plan)**
+**Track B (Kruer), lessons B1 to B9**, laser–plasma interactions in the same format, with the practical laser
+units (W/cm², µm, cm⁻³, keV) next to SI: light in a density gradient and the critical density (B1), collisional
+absorption by inverse bremsstrahlung (B2), resonance absorption (B3), the ponderomotive force (B4), parametric
+instabilities (B5), stimulated Raman and Brillouin scattering (B6), two-plasmon decay and filamentation (B7),
+hot electrons (B8) and the simulation methods of the field (B9). It builds on A5, A6, A9 and A10 (the map draws
+the direct links from A6, A9 and A10). Track C (Gibbon: short-pulse and relativistic plasmas) is on the map as
+the next phase.
+
+**Learning engine (Phases 1 to 3 of the plan, and the start of Phase 4)**
 
 - Spaced repetition with FSRS, plus a *personal memory curve*: after a dozen real reviews the app fits
   how long you hold cards compared with the FSRS average and shifts the schedule to hit your target recall.
 - Learner model: per-concept mastery by Bayesian Knowledge Tracing over every answer (hints and peeks
   count as partial evidence), answer patterns (numeric vs multiple choice, hint rate, usual slips), and a
   small logistic-regression model trained on your own first attempts that predicts where you may struggle.
+- Prep check (Phase 4, predictive gap filling): when you open a lesson, the app looks back at the lessons it
+  builds on. If you mastered them but the learner model still rates some of their ideas weak or shaky, a small
+  *Refresh before you start* note lists up to three, each linked to its problems. It stays quiet without
+  evidence, and once you start the lesson.
 - Next-step suggestions with their reasons, a weekly digest (Home, plus a Sunday notification),
   study-rhythm analysis that suggests a reminder time, struggle detection on problems (two misses or
   ten minutes) and on idle simulations.
@@ -39,7 +51,8 @@ six problems and six flashcards.
 - Cross-device sync on claude.ai through the artifact's private per-user store (`db` + `user`), with a
   merge that never loses progress (per-device counters, unions, newest record wins, resets propagate),
   and a copy-and-paste progress code for anywhere else.
-- XP, ranks, streaks with freezes, 23 badges, confetti; reminders by calendar alarm, banner and notification.
+- XP, ranks, streaks with freezes, 33 badges (one per lesson and one per finished track among them), confetti;
+  reminders by calendar alarm, banner and notification.
 
 ## Use a local model
 
@@ -91,7 +104,7 @@ For development, `node scripts/mock-llm.mjs 11434` fakes both Ollama and an Open
 ```bash
 npm test                              # physics benchmarks + learner model, memory curve, sync merge, local model streams
 node scripts/smoke.mjs <port> A5      # one lesson in Chromium, desktop and phone, with screenshots
-node scripts/smoke-app.mjs <port>     # app pages with a seeded learner, tutor mocked via ?mocktutor
+node scripts/smoke-app.mjs <port>     # app pages with a seeded learner, track structure, map fit, prep check, tutor mocked via ?mocktutor
 node scripts/sync-test.mjs <port>     # two simulated devices sharing a mocked store
 ```
 
@@ -101,8 +114,8 @@ node scripts/sync-test.mjs <port>     # two simulated devices sharing a mocked s
 src/physics/     numerical methods (pure TS) and their Vitest benchmarks
 src/sims/        simulation components
 src/components/  Eq (explainers), Plotter, Learning (derivations, problems, cards), Digest, Hud (theme widgets)
-src/lessons/     A1–A11 content (auto-registered), plot presets, curriculum map, mastery rules
-src/learner/     concept mastery (BKT), struggle predictor, personal memory curve, digest and suggestions
+src/lessons/     A1–A11 and B1–B9 content (auto-registered), plot presets, curriculum and tracks, mastery rules
+src/learner/     concept mastery (BKT), struggle predictor, personal memory curve, digest and suggestions, prep check
 src/tutor/       AI tutor panel, prompt building, reply rendering, local model clients and settings
 src/store/       state and event logs, XP/streaks/FSRS, badges, reminders, sync and merge
 src/subject.ts   the subject-specific bits the learner model and tutor use

@@ -1,5 +1,7 @@
-// Smoke-test the app pages (Home, You, Settings, Review, Map) with a seeded learner, and the tutor panel
-// with a mocked Claude (dev server only, ?mocktutor). Usage: node scripts/smoke-app.mjs <port> [outDir]
+// Smoke-test the app pages (Home, You, Settings, Review, Map, a lesson) with a seeded learner, the track
+// structure (sidebar, Home, lesson tags, map) for every track that has lessons, the "Refresh before you start"
+// prep check, and the tutor panel with a mocked Claude (dev server only, ?mocktutor).
+// Usage: node scripts/smoke-app.mjs <port> [outDir]
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs'
 import { createEmptyCard, fsrs } from 'ts-fsrs'
 import { mkdirSync } from 'node:fs'
@@ -82,6 +84,7 @@ const pages = [
   ['review', '/review'],
   ['map', '/map'],
   ['lesson', '/learn/A3#problems'],
+  ['prep', '/learn/A4'], // A1 and A2 mastered with a few misses: A4 should suggest a refresh
 ]
 for (const [name, viewport] of [['desk', { width: 1280, height: 860 }], ['phone', { width: 390, height: 844 }]]) {
   const ctx = await b.newContext({ viewport, deviceScaleFactor: 1, isMobile: name === 'phone', hasTouch: name === 'phone' })
@@ -97,6 +100,43 @@ for (const [name, viewport] of [['desk', { width: 1280, height: 860 }], ['phone'
     const overflow = await p.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)
     if (overflow) problems.push(`${name} ${pn} page scrolls horizontally`)
     await p.screenshot({ path: `${out}/${name}-${pn}.png`, fullPage: true })
+    if (pn === 'prep' && !(await p.locator('.prep .chip').count())) problems.push(`${name} prep: no "Refresh before you start" card on A4 for the seeded learner`)
+    if (pn === 'map') {
+      // every node and label inside the drawing, so nothing is clipped
+      const out = await p.evaluate(() => {
+        const svg = document.querySelector('.map-wrap svg')
+        const W = +svg.getAttribute('width'), H = +svg.getAttribute('height')
+        return [...svg.querySelectorAll('.map-node, text')].filter((n) => { const b = n.getBBox(); return b.x < 0 || b.y < 0 || b.x + b.width > W + 0.5 || b.y + b.height > H + 0.5 }).map((n) => n.textContent)
+      })
+      out.forEach((t) => problems.push(`${name} map: "${t}" sticks out of the map`))
+    }
+  }
+  // tracks: one sidebar heading and one Home heading per track with lessons, and lesson tags naming their own track
+  if (name === 'desk') {
+    await p.goto(`http://localhost:${port}/#/`)
+    await p.waitForTimeout(800)
+    const navTracks = await p.locator('.nav .tag').allInnerTexts()
+    const homeTracks = (await p.locator('main h2').allInnerTexts()).filter((t) => /^track /i.test(t))
+    if (!navTracks.length) problems.push('sidebar: no track headings')
+    if (navTracks.length !== homeTracks.length) problems.push(`tracks: sidebar ${navTracks.join(', ')} vs Home ${homeTracks.join(', ')}`)
+    const firsts = await p.evaluate(() => {
+      const out = {}
+      for (const a of document.querySelectorAll('.nav a.lesson-item')) {
+        const id = a.getAttribute('href').split('/').pop()
+        out[id[0]] ??= id
+      }
+      return Object.values(out)
+    })
+    for (const id of firsts) {
+      await p.goto(`http://localhost:${port}/#/learn/${id}`)
+      await p.waitForTimeout(800)
+      const tag = await p.locator('main .tag').first().innerText()
+      if (!tag.toUpperCase().startsWith(`TRACK ${id[0]} ·`)) problems.push(`${id}: lesson tag says "${tag}"`)
+      const active = await p.evaluate(() => { const a = document.querySelector('.nav a.lesson-item.active'); if (!a) return false; const r = a.getBoundingClientRect(); return r.top >= -1 && r.bottom <= innerHeight + 1 })
+      if (!active) problems.push(`${id}: current lesson not visible in the sidebar`)
+      if (id !== 'A1') await p.screenshot({ path: `${out}/${name}-lesson-${id}.png` })
+    }
+    console.log(`tracks: ${navTracks.join(' | ')}; first lessons ${firsts.join(', ')}`)
   }
   // struggle + tutor from a problem
   await p.goto(`http://localhost:${port}/?mocktutor#/learn/A3#problems`)

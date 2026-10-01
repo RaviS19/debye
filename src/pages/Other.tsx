@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { MODULES, TRACKS, LESSONS } from '../lessons'
-import { status } from '../lessons/progress'
+import { COMING_TRACKS, MODULES, READY_TRACKS, TRACKS, TRACK_IDS, LESSONS, listJoin, tracksPhrase } from '../lessons'
+import { nextSuggestion, status } from '../lessons/progress'
 import { PLOTS, plotById } from '../lessons/plots'
 import { Plotter } from '../components/Plotter'
 import { FlashcardView } from '../components/Learning'
@@ -14,9 +14,16 @@ import { tex } from '../components/Eq'
 import { TutorModelCard } from '../tutor/ModelSettings'
 
 // ---------- concept map ----------
-const COLS: Record<string, number> = {}
-MODULES.forEach((m) => (COLS[m.id] = +m.id.slice(1)))
-const ROW_Y = { A: 70, B: 205, C: 340 }
+// One row per track. Each later row starts under the lesson it branches from (Track B leaves Track A after A6),
+// so the cross-track prerequisites (A6, A9, A10 into B; B into C) run short and downwards instead of across the map.
+const COL_W = 112
+const ROWS = { A: { y: 86, x0: 56 }, B: { y: 221, x0: 560 }, C: { y: 356, x0: 672 } }
+const nodePos = (id: string) => {
+  const m = MODULES.find((x) => x.id === id)!
+  return { x: ROWS[m.track].x0 + (+m.id.slice(1) - 1) * COL_W, y: ROWS[m.track].y }
+}
+const MAP_W = Math.max(...MODULES.map((m) => nodePos(m.id).x)) + 74
+const MAP_H = ROWS.C.y + 70
 
 /** Split a title into at most two lines of ~15 characters. */
 function wrap(t: string): string[] {
@@ -31,9 +38,30 @@ function wrap(t: string): string[] {
 export function MapPage() {
   const s = useStore((s) => s)
   const nav = useNavigate()
-  const pos = (id: string) => {
-    const m = MODULES.find((x) => x.id === id)!
-    return { x: 56 + (COLS[id] - 1) * 112 + (m.track === 'B' ? 56 : m.track === 'C' ? 112 : 0), y: ROW_Y[m.track] }
+  const pos = nodePos
+  // On a narrow screen the map scrolls sideways: start with the lesson you are on (or should open next) in view.
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const focus = nextSuggestion(s)?.lessonId
+  useEffect(() => {
+    const w = wrapRef.current
+    if (!w || !focus) return
+    const x = nodePos(focus).x
+    if (x > w.clientWidth - 80) w.scrollLeft = x - w.clientWidth / 2
+    // only when the page opens
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  /** Edge path: along a row, node to node (arcing over any node it skips); between rows, from under the title down to the node. */
+  const edge = (from: string, to: string) => {
+    const a = pos(from)
+    const b = pos(to)
+    if (a.y === b.y) {
+      if (b.x - a.x <= COL_W) return `M${a.x + 24} ${a.y} L${b.x - 24} ${b.y}`
+      return `M${a.x + 17} ${a.y - 17} Q${(a.x + b.x) / 2} ${a.y - 62} ${b.x - 17} ${b.y - 17}`
+    }
+    const y0 = a.y + 42 + (wrap(MODULES.find((m) => m.id === from)!.title).length - 1) * 13 + 8
+    const y1 = b.y - 26
+    const ym = (y0 + y1) / 2
+    return `M${a.x} ${y0} C${a.x} ${ym}, ${b.x} ${ym}, ${b.x} ${y1}`
   }
   const style = {
     mastered: { stroke: '#8fffff', fill: 'rgba(34,211,238,0.35)', glow: 'drop-shadow(0 0 10px #22d3ee)', text: '#fff' },
@@ -46,20 +74,28 @@ export function MapPage() {
     <>
       <span className="tag">Concept map</span>
       <h1>The curriculum</h1>
-      <p className="lede">Nodes light up as you master them. Tap any node to open it. Track A is ready; Tracks B and C are on the roadmap.</p>
-      <div className="card glow map-wrap">
-        <svg width="1360" height="410" viewBox="0 0 1360 410" role="img" aria-label="Map of curriculum modules">
-          {(['A', 'B', 'C'] as const).map((t) => (
-            <text key={t} x="6" y={ROW_Y[t] - 44} fill="#869fb2" fontSize="12" fontFamily="Exo" letterSpacing="2">
-              TRACK {t} · {TRACKS[t].name.toUpperCase()} · {TRACKS[t].book.toUpperCase()}
-            </text>
+      <p className="lede">
+        Nodes light up as you master them. Tap any node to open it. {tracksPhrase(READY_TRACKS)} {READY_TRACKS.length === 1 ? 'is' : 'are'} ready
+        {COMING_TRACKS.length ? `; ${listJoin(COMING_TRACKS.map((t) => `${READY_TRACKS.includes(t) ? 'the rest of ' : ''}Track ${t}`))} ${COMING_TRACKS.length === 1 ? 'is' : 'are'} on the roadmap.` : '.'}
+      </p>
+      <div className="card glow map-wrap" ref={wrapRef}>
+        <svg width={MAP_W} height={MAP_H} viewBox={`0 0 ${MAP_W} ${MAP_H}`} role="img" aria-label="Map of curriculum modules">
+          {TRACK_IDS.map((t) => (
+            <g key={t}>
+              <text x="6" y={ROWS[t].y - 50} fill="#869fb2" fontSize="12" fontFamily="Exo" letterSpacing="2">
+                TRACK {t} · {TRACKS[t].name.toUpperCase()} · {TRACKS[t].book.toUpperCase()}
+              </text>
+              {/* a faint rail from the heading to a row that starts further right */}
+              {ROWS[t].x0 > 100 && <path d={`M8 ${ROWS[t].y} H${ROWS[t].x0 - 32}`} stroke="#1c2c48" strokeWidth="1.4" strokeDasharray="2 6" strokeLinecap="round" />}
+            </g>
           ))}
           {MODULES.flatMap((m) =>
             m.prereqs.map((p) => {
-              const a = pos(p)
-              const b = pos(m.id)
-              const lit = s.lessons[p]?.completed
-              return <path key={`${p}-${m.id}`} d={`M${a.x} ${a.y} C ${(a.x + b.x) / 2} ${a.y}, ${(a.x + b.x) / 2} ${b.y}, ${b.x} ${b.y}`} fill="none" stroke={lit ? '#22d3ee' : '#1c2c48'} strokeWidth={lit ? 2 : 1.2} />
+              const lit = s.lessons[p]?.completed && status(s, m.id) !== 'coming'
+              const cross = MODULES.find((x) => x.id === p)!.track !== m.track
+              return (
+                <path key={`${p}-${m.id}`} d={edge(p, m.id)} fill="none" stroke={lit ? '#22d3ee' : cross ? '#3b5680' : '#1c2c48'} strokeWidth={lit ? 2 : 1.4} strokeDasharray={cross ? '6 4' : undefined} />
+              )
             }),
           )}
           {MODULES.map((m) => {
@@ -81,7 +117,15 @@ export function MapPage() {
       <div className="row small dim">
         <span className="pill">Mastered</span>
         <span className="pill ghost">Available</span>
-        <span className="dim">Grey: Tracks B and C, coming in later phases</span>
+        <span className="dim">
+          <svg width="28" height="8" aria-hidden="true" style={{ verticalAlign: 'middle', marginRight: 6 }}><path d="M0 4 H28" stroke="#4b6284" strokeWidth="1.6" strokeDasharray="6 4" /></svg>
+          Builds on another track
+        </span>
+        {COMING_TRACKS.length > 0 && (
+          <span className="dim">
+            Grey: {listJoin(COMING_TRACKS.map((t) => `${READY_TRACKS.includes(t) ? 'the rest of ' : ''}Track ${t} (${TRACKS[t].book})`))}, coming in {COMING_TRACKS.length === 1 ? 'a later phase' : 'later phases'}
+          </span>
+        )}
       </div>
     </>
   )
@@ -109,7 +153,7 @@ export function ReviewPage() {
           <Ring value={1} label="✓" color="#4ade80" />
           <h2>All caught up</h2>
           <p className="dim">Nothing is due right now. Open a lesson to add its cards to your deck, or come back later.</p>
-          <button className="btn" onClick={() => ensureCards(all.map((c) => c.id))}>Add every Track A card</button>
+          <button className="btn" onClick={() => ensureCards(all.map((c) => c.id))}>Add every lesson's cards</button>
         </div>
       )}
     </>

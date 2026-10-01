@@ -4,7 +4,7 @@ export interface Badge {
   id: string
   name: string
   blurb: string
-  glyph: string // short symbol drawn inside the badge
+  glyph: string // short symbol drawn inside the badge; 'n_c' draws c as a subscript
   test: (s: State) => boolean
 }
 
@@ -13,6 +13,7 @@ const firstTry = (s: State) => Object.values(s.problems).filter((p) => p.firstTr
 const derivs = (s: State) => Object.values(s.lessons).reduce((n, l) => n + l.derivations.length, 0)
 const mastered = (id: string) => (s: State) => !!s.lessons[id]?.completed
 export const TRACK_A = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11']
+export const TRACK_B = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9']
 
 export const BADGES: Badge[] = [
   { id: 'first-light', name: 'First Light', blurb: 'Earned your first XP. The discharge has struck.', glyph: '✦', test: (s) => s.xp > 0 },
@@ -28,6 +29,16 @@ export const BADGES: Badge[] = [
   { id: 'sheath', name: 'Sheath Crosser', blurb: 'Mastered A10: sheaths, solitons and the ponderomotive force.', glyph: 'φ', test: mastered('A10') },
   { id: 'lawson', name: 'Lawson Crossed', blurb: 'Mastered A11: the physics of controlled fusion.', glyph: 'Q', test: mastered('A11') },
   { id: 'track-a', name: 'Foundations Complete', blurb: 'Mastered every lesson of Track A. Laser plasmas with Kruer are next.', glyph: 'A', test: (s) => TRACK_A.every((id) => s.lessons[id]?.completed) },
+  { id: 'turning-point', name: 'Turning Point', blurb: 'Mastered B1: light climbing a density ramp to its turning point.', glyph: 'n_c', test: mastered('B1') },
+  { id: 'collision-course', name: 'Collision Course', blurb: 'Mastered B2: inverse bremsstrahlung, collisions turning light into heat.', glyph: 'ν_ei', test: mastered('B2') },
+  { id: 'in-resonance', name: 'In Resonance', blurb: 'Mastered B3: p-polarized light driving a plasma wave at the critical surface.', glyph: 'ε=0', test: mastered('B3') },
+  { id: 'pushed-by-light', name: 'Pushed by Light', blurb: 'Mastered B4: the ponderomotive force, the push of an intensity gradient.', glyph: 'F_p', test: mastered('B4') },
+  { id: 'three-wave', name: 'Three-Wave Mixer', blurb: 'Mastered B5: parametric decay, one wave feeding two above threshold.', glyph: 'ω_0', test: mastered('B5') },
+  { id: 'backscatter', name: 'Backscattered', blurb: 'Mastered B6: stimulated Raman and Brillouin scattering.', glyph: '↩', test: mastered('B6') },
+  { id: 'quarter-critical', name: 'Quarter-Critical', blurb: 'Mastered B7: two-plasmon decay at quarter-critical, and filamentation.', glyph: '¼', test: mastered('B7') },
+  { id: 'superthermal', name: 'Superthermal', blurb: 'Mastered B8: hot electrons, and why a target fears them.', glyph: 'T_h', test: mastered('B8') },
+  { id: 'particle-pusher', name: 'Particle Pusher', blurb: 'Mastered B9: particle-in-cell and the other simulation methods.', glyph: 'PIC', test: mastered('B9') },
+  { id: 'track-b', name: 'Laser–Plasma Complete', blurb: 'Mastered every lesson of Track B. Track C, short-pulse plasmas with Gibbon, is next.', glyph: 'B', test: (s) => TRACK_B.every((id) => s.lessons[id]?.completed) },
   { id: 'sharpshooter', name: 'Sharpshooter', blurb: 'Five problems solved on the first try.', glyph: '◎', test: (s) => firstTry(s) >= 5 },
   { id: 'solver-15', name: 'Problem Crusher', blurb: 'Fifteen problems solved.', glyph: '∑', test: (s) => solved(s) >= 15 },
   { id: 'deriver', name: 'From First Principles', blurb: 'Worked through three derivations.', glyph: '∂', test: (s) => derivs(s) >= 3 },

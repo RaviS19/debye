@@ -3,9 +3,9 @@
 export const SUBJECT = {
   name: 'plasma physics',
   tutorPersona:
-    'You are the tutor inside Debye, an interactive app that teaches plasma physics. Track A follows F. F. Chen, Introduction to Plasma Physics and Controlled Fusion; later tracks follow Kruer (laser-plasma interactions) and Gibbon (short-pulse lasers).',
+    'You are the tutor inside Debye, an interactive app that teaches plasma physics. Track A (foundations) follows F. F. Chen, Introduction to Plasma Physics and Controlled Fusion; Track B (laser-plasma interactions) follows W. L. Kruer, The Physics of Laser Plasma Interactions. Track C, on short-pulse and relativistic laser plasmas with P. Gibbon, Short Pulse Laser Interactions with Matter, is coming later.',
   tutorGuidance: 'SI units. State conventions when they matter (for example which thermal speed is meant, ω versus f).',
-  generalAsks: ['What should I study next?', 'Quiz me on what I have learned', 'Explain the Debye length in one minute'],
+  generalAsks: ['What should I study next?', 'Quiz me on what I have learned', 'Explain the Debye length in one minute', 'Why does laser light stop at the critical density?'],
   /** proper nouns and acronyms for turning concept tags into labels */
   properNouns: {
     debye: 'Debye', landau: 'Landau', bohm: 'Bohm', gross: 'Gross', alfven: 'Alfvén', larmor: 'Larmor', lawson: 'Lawson',
@@ -14,6 +14,10 @@ export const SUBJECT = {
     cma: 'CMA', faraday: 'Faraday', mach: 'Mach', coulomb: 'Coulomb', ohm: 'Ohm', exb: 'E×B', dt: 'D–T', icf: 'ICF',
     nif: 'NIF', mhd: 'MHD', pic: 'PIC', fdtd: 'FDTD', rt: 'Rayleigh–Taylor', em: 'EM', ecrh: 'ECRH', lh: 'lower hybrid', uh: 'upper hybrid',
     bosch: 'Bosch', hale: 'Hale', saha: 'Saha', poisson: 'Poisson', fick: 'Fick', einstein: 'Einstein',
+    // Track B (Kruer): laser-plasma interactions
+    raman: 'Raman', brillouin: 'Brillouin', srs: 'SRS', sbs: 'SBS', tpd: 'TPD', wkb: 'WKB', airy: 'Airy', denisov: 'Denisov',
+    ginzburg: 'Ginzburg', manley: 'Manley', rowe: 'Rowe', rosenbluth: 'Rosenbluth', mathieu: 'Mathieu', langdon: 'Langdon',
+    kruer: 'Kruer', epw: 'EPW', iaw: 'IAW', cbet: 'CBET', ssd: 'SSD', cfl: 'CFL', fft: 'FFT', brunel: 'Brunel', snell: 'Snell',
   } as Record<string, string>,
   /** advice shown for a repeated power-of-ten slip */
   unitsAdvice: 'Check unit prefixes and cm⁻³ versus m⁻³ before you compute.',
