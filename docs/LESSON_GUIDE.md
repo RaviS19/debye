@@ -5,18 +5,21 @@ Read this whole file, then read these reference files before writing anything:
 `src/components/Eq.tsx`, `src/components/Learning.tsx`, `src/components/Plotter.tsx` (types at the top),
 `src/components/useCanvas.ts`, `src/sims/SimFrame.tsx`, `src/sims/MirrorSim.tsx`, `src/sims/PlasmaOscSim.tsx`,
 `src/physics/pic1d.ts`, `src/physics/boris.ts`, `src/physics/constants.ts`, `src/physics/physics.test.ts`.
+For a Track B or C lesson, also read the earlier lessons it builds on (its `prereqs` in `src/lessons/index.ts`, and any
+Track A lesson that already touches the topic) so you cross-reference them and never duplicate one of their sims or plot presets.
 
 The app is a Vite + React 19 + TypeScript static site. Theme: dark navy HUD, glowing cyan
 (`src/theme.css`). Lessons, plots and sims follow the patterns in A1–A3 exactly.
 
 ## Files you may create (and nothing else)
 
-For lesson `A<n>`:
+Lesson ids are a track letter and a number: `A1`–`A11` (Chen), `B1`–`B9` (Kruer), `C1`–`C8` (Gibbon).
+Below, `<L>` stands for your lesson id (for example `B3`).
 
 | File | Contents |
 |---|---|
-| `src/lessons/A<n>.tsx` | `export const A<n>: Lesson = {...}` (auto-registered by filename glob) |
-| `src/lessons/plots-A<n>.ts` | `export const PLOTS: PlotSpec[] = [...]` (auto-merged into the plotter) |
+| `src/lessons/<L>.tsx` | `export const <L>: Lesson = {...}` (auto-registered by filename glob) |
+| `src/lessons/plots-<L>.ts` | `export const PLOTS: PlotSpec[] = [...]` (auto-merged into the plotter) |
 | `src/sims/<Name>Sim.tsx` | one file per simulation component |
 | `src/physics/<name>.ts` | pure numerical code, no DOM, no React |
 | `src/physics/<name>.test.ts` | Vitest benchmarks for that physics code |
@@ -31,30 +34,43 @@ build, and yours must not break theirs. So:
 
 ```bash
 WT=/home/claude/wt-<your-label>
-rm -rf $WT && mkdir -p $WT && cd /home/claude/plasma-app && \
+rm -rf $WT && mkdir -p $WT && cd /home/claude/debye && \
   tar --exclude=node_modules --exclude=dist --exclude=.git -cf - . | tar -xf - -C $WT && \
   ln -s /home/claude/plasma-app/node_modules $WT/node_modules
 cd $WT
 ```
 
 Work and test only in `$WT`. When everything passes, copy **only your own files** back into
-`/home/claude/plasma-app/` at the same paths. Then delete `$WT`. Never run git commands.
+`/home/claude/debye/` (the main repo) at the same paths. Then delete `$WT`. Never run git commands.
 
 ## Lesson object (see `types.ts`)
 
-- `id: 'A<n>'`, `title` (match the curriculum title), `subtitle`, `minutes` (40–60).
-- `refs`: first entry is Chen, *Introduction to Plasma Physics and Controlled Fusion* (3rd ed.) with the
-  chapter number, and section numbers **only if you are certain of them**; otherwise cite the chapter
-  by topic. Add 1–2 companion references (Bellan *Fundamentals of Plasma Physics*; Goldston &
-  Rutherford *Introduction to Plasma Physics*; Fitzpatrick's open lecture notes; Stix; Krall & Trivelpiece;
-  Freidberg *Plasma Physics and Fusion Energy*; Wesson *Tokamaks*; Atzeni & Meyer-ter-Vehn).
+- `id: '<L>'`, `title` (match the curriculum title in `src/lessons/index.ts` MODULES), `subtitle`, `minutes` (40–60).
+- `refs`: the first entry is the track's book with the chapter number, and section numbers **only if you
+  are certain of them**; otherwise cite the chapter by topic.
+  - Track A: Chen, *Introduction to Plasma Physics and Controlled Fusion* (3rd ed.). Companions: Bellan
+    *Fundamentals of Plasma Physics*; Goldston & Rutherford *Introduction to Plasma Physics*; Fitzpatrick's
+    open lecture notes; Stix; Krall & Trivelpiece; Freidberg *Plasma Physics and Fusion Energy*; Wesson *Tokamaks*.
+  - Track B: Kruer, *The Physics of Laser Plasma Interactions* (Addison-Wesley 1988; Westview reprint 2003).
+    Its chapters (verified table of contents): 1 Basic concepts and two-fluid description; 2 Computer
+    simulation of plasmas using particle codes; 3 Electromagnetic wave propagation in plasmas (3.2 WKB,
+    3.3 constant density gradient / Airy); 4 Obliquely incident light (4.1 s-polarized, 4.2 p-polarized:
+    resonance absorption); 5 Collisional absorption; 6 Parametric excitation of electron and ion waves
+    (6.2 the ponderomotive force, 6.6 threshold due to inhomogeneity); 7 Stimulated Raman scattering
+    (7.4 the 2ω_pe instability); 8 Stimulated Brillouin scattering (8.4 the filamentation instability);
+    9 Heating by plasma waves (9.3 trapping, 9.4 wavebreaking); 10 Density profile modification
+    (10.2 steepening); 11 Nonlinear features of underdense plasma instabilities; 12 Electron energy
+    transport; 13 Laser plasma experiments (13.3 heated electron temperatures, 13.7 wavelength scaling).
+    Companions: Atzeni & Meyer-ter-Vehn *The Physics of Inertial Fusion*; Lindl *Inertial Confinement Fusion*
+    (Springer 1998); Drake *High-Energy-Density Physics*; Eliezer *The Interaction of High-Power Lasers
+    with Plasmas*; Michel *Introduction to Laser-Plasma Interactions* (Springer 2023).
 - `objectives`: 3 strings; `$...$` renders as math.
 - `sections`: `{ id, label }` for every `<section id>` in the body, **plus `{ id: 'problems', label: 'Problems' }` last**
   (the lesson page renders the problems section itself).
 - `body: () => (<>...</>)`: `<section id="...">` blocks, each starting with `<h2>`.
-- `problems`: exactly 6. Ids `A<n>-p1`…`A<n>-p6`. At least 3 `numeric`. Every problem has 1–2 hints,
+- `problems`: exactly 6. Ids `<L>-p1`…`<L>-p6`. At least 3 `numeric`. Every problem has 1–2 hints,
   a worked `solution`, and a `concept` tag (short kebab-case, e.g. `'ion-acoustic-speed'`).
-- `cards`: exactly 6 flashcards, ids `A<n>-c1`…`A<n>-c6`.
+- `cards`: exactly 6 flashcards, ids `<L>-c1`…`<L>-c6`.
 
 Required body content per lesson:
 
@@ -62,7 +78,7 @@ Required body content per lesson:
 - **At least 2 `<Eq>` explainers**, each with `symbols` for every tappable symbol, a `says` sentence,
   and `plot="<preset id>"` when a matching plot preset exists.
 - **At least 1 `<Derivation>`** of 4–7 steps, most steps with a `why`. `id` unique within the lesson,
-  `lessonId="A<n>"`.
+  `lessonId="<L>"`.
 - **At least 1 simulation** (the flagship below) and **at least 1 plotter preset** embedded with
   `<Plotter spec={plotById('<id>')!} />` (import `plotById` from `./plots`).
 - A short closing section that connects to the next lesson or to Tracks B/C where natural.
@@ -75,10 +91,10 @@ Required body content per lesson:
 - In problems, cards and objectives, wrap maths in `$...$`.
 - Never leave a KaTeX parse error; the smoke test reports them.
 
-## Plot presets (`plots-A<n>.ts`)
+## Plot presets (`plots-<L>.ts`)
 
 `PlotSpec` from `src/components/Plotter.tsx`. Ids are globally unique kebab-case; prefix them with your
-lesson, e.g. `a5-ion-acoustic`. Import `COLORS` from `../components/useCanvas`. Use log axes for
+lesson, e.g. `a5-ion-acoustic`, `b6-srs-growth`. Import `COLORS` from `../components/useCanvas`. Use log axes for
 quantities spanning decades. Every curve's `fn` must return finite numbers over the axis range
 (return `NaN` where undefined; the plotter breaks the line there). Markers only for well-established values.
 
@@ -109,7 +125,10 @@ quantities spanning decades. Every curve's `fn` must return finite numbers over 
 ## Content standards
 
 - **Original explanations only.** Never reproduce book text. Cite sections instead.
-- **Correct physics.** SI units in formulas. Check every sign, factor of 2, 2π, and whether a thermal
+- **Correct physics.** SI units in formulas. Track B also gives the practical laser units the field uses
+  (intensity in W/cm², wavelength in µm, density in cm⁻³, temperature in keV, e.g. $n_c \approx 1.1\times10^{21}/\lambda_{\mu m}^2$ cm⁻³),
+  always labelled, next to the SI form. Kruer writes in Gaussian units and uses $v_{os} = eE_0/m\omega_0$; when you
+  quote one of his results in SI, convert it and check the conversion numerically. Check every sign, factor of 2, 2π, and whether a thermal
   speed means √(kT/m) or √(2kT/m); say which one you use.
 - **Every numeric answer computed with Python** (`python3 -c ...`) from CODATA constants, not by hand.
   Tolerance 2–5 %. Quote rounded values in solutions consistent with the answer.
@@ -124,11 +143,11 @@ quantities spanning decades. Every curve's `fn` must return finite numbers over 
 2. `npx vitest run src/physics/<name>.test.ts` passes.
 3. Start a dev server on your assigned port:
    `VITE_CACHE_DIR=/tmp/claude-0/vite-cache-<PORT> node node_modules/vite/bin/vite.js --port <PORT> --strictPort > /tmp/claude-0/dev-<PORT>.log 2>&1 & echo $! > /tmp/claude-0/dev-<PORT>.pid`,
-   then `node scripts/smoke.mjs <PORT> A<n> /tmp/claude-0/shots/<label>-A<n>` for each lesson.
+   then `node scripts/smoke.mjs <PORT> <L> /tmp/claude-0/shots/<label>-<L>` for each lesson.
    It must print `no problems`. Then **look at every screenshot** (desktop and phone) with the Read tool
    and fix clipped labels, overlaps, empty or frozen canvases, unreadable text.
 4. Stop your dev server: `kill $(cat /tmp/claude-0/dev-<PORT>.pid)`. (Do not use `pkill -f`: it matches
    and kills your own shell.)
-5. Copy your files back into `/home/claude/plasma-app/`, then run step 1 and step 2 there once more.
+5. Copy your files back into `/home/claude/debye/`, then run step 1 and step 2 there once more.
 
 Do not use any `mcp__hearthbot__` tool. Do not touch `/mnt/project-files`.
