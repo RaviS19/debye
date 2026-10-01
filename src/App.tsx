@@ -44,6 +44,11 @@ function Shell() {
     if (!loc.hash) window.scrollTo(0, 0)
   }, [loc.pathname, loc.hash])
 
+  // keep the current lesson visible in the (scrollable) sidebar
+  useEffect(() => {
+    document.querySelector('.nav a.lesson-item.active')?.scrollIntoView({ block: 'nearest' })
+  }, [loc.pathname])
+
   useEffect(() => {
     initTutor()
     void startSync()
