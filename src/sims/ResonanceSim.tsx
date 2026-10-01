@@ -69,7 +69,7 @@ export function ResonanceSim() {
       while (sw.done < N_SWEEP && performance.now() - t0 < 5) {
         const t = sw.th[sw.done] * deg
         sw.p.push(absorption(k0L, t, nuc, 'p'))
-        sw.s.push(sw.done === 0 ? sw.p[0] : absorption(k0L, t, nuc, 's'))
+        sw.s.push(absorption(k0L, t, nuc, 's'))
         sw.done++
       }
       drawRef.current()

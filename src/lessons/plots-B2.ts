@@ -38,7 +38,7 @@ export const PLOTS: PlotSpec[] = [
     id: 'b2-collision-frequency',
     title: 'Electron–ion collision frequency at the critical density',
     equation: '\\begin{gathered}\\nu_{ei}(n_c) \\approx 2.91\\times10^{-6} \\\\ \\times\\,\\dfrac{Z\\,n_c[\\text{cm}^{-3}]\\ln\\Lambda}{T_{eV}^{3/2}}\\ \\text{s}^{-1}\\end{gathered}',
-    blurb: 'ν_ei evaluated at the critical density of the chosen wavelength, for hydrogen (Z = 1), CH plastic (Z_eff = ⟨Z²⟩/⟨Z⟩ = 5.3), aluminium (13) and gold (about 40 when partly ionized at a few keV). The lines fall as T_e^(−3/2), bent slightly by lnΛ. The dashed line is one thousandth of the laser frequency: in a hot corona ν_ei/ω ≈ 10⁻³, so an electron collides only about once every 160 laser periods and the light is weakly damped and the formulas with ν ≪ ω apply. Lower the wavelength and n_c, hence ν_ei, rises as 1/λ².',
+    blurb: 'ν_ei evaluated at the critical density of the chosen wavelength, for hydrogen (Z = 1), CH plastic (Z_eff = ⟨Z²⟩/⟨Z⟩ = 5.3), aluminium (13) and gold (about 40 when partly ionized at a few keV). The lines fall as T_e^(−3/2), bent slightly by lnΛ (the small kinks are where the NRL formula for lnΛ switches branch, at T_e = 10Z² eV). The dashed line is one thousandth of the laser frequency: in a hot corona ν_ei/ω ≈ 10⁻³, so an electron collides only about once every 160 laser periods and the light is weakly damped and the formulas with ν ≪ ω apply. Lower the wavelength and n_c, hence ν_ei, rises as 1/λ².',
     x: { label: 'T_e (keV)', min: 0.1, max: 10, log: true },
     y: { label: 'ν_ei at n_c (s⁻¹)', min: 1e10, max: 1e16, log: true },
     params: [{ key: 'lam', label: 'Laser wavelength', min: 0.248, max: 1.053, value: 0.351, step: 0.001, unit: 'µm' }],
@@ -54,7 +54,7 @@ export const PLOTS: PlotSpec[] = [
     id: 'b2-absorption-vs-wavelength',
     title: 'Collisional absorption vs laser wavelength',
     equation: '\\begin{gathered}A(\\lambda) = 1 - \\exp\\!\\Big(-\\dfrac{32}{15}\\dfrac{\\nu_c L}{c}\\Big) \\\\ \\dfrac{\\nu_c L}{c} \\approx 3.4\\times10^{-4}\\,\\dfrac{Z\\ln\\Lambda\\,L_{\\mu m}}{\\lambda_{\\mu m}^2\\,T_{keV}^{3/2}}\\end{gathered}',
-    blurb: 'The case for short wavelengths. For a fixed plasma (scale length, temperature, Z), the optical depth grows as 1/λ², so a plasma that absorbs only about half of a 1053 nm beam (Nd:glass, 1ω) absorbs almost all of a 351 nm beam (3ω). This, together with fewer hot electrons from instabilities, is why direct- and indirect-drive fusion moved to frequency-tripled light in the 1980s. Solid: linear ramp at normal incidence; dashed: exponential ramp; amber: linear ramp at 30°, s-polarized. Real coronas are hotter at higher intensity, which pulls all of these down.',
+    blurb: 'The case for short wavelengths. For a fixed plasma (scale length, temperature, Z), the optical depth grows as 1/λ², so a plasma that absorbs only about half of a 1053 nm beam (Nd:glass, 1ω) absorbs almost all of a 351 nm beam (3ω). This, together with fewer hot electrons from instabilities, is why direct- and indirect-drive fusion moved to frequency-tripled light in the 1980s. Markers: 1ω = 1053 nm, 2ω = 527 nm, 3ω = 351 nm, and the 248 nm KrF laser. Solid: linear ramp at normal incidence; dashed: exponential ramp; amber: linear ramp at 30°, s-polarized. Real coronas are hotter at higher intensity, which pulls all of these down.',
     x: { label: 'λ (µm)', min: 0.2, max: 1.2 },
     y: { label: 'absorbed fraction', min: 0, max: 1 },
     params: [
@@ -68,10 +68,10 @@ export const PLOTS: PlotSpec[] = [
       { label: 'linear, 30°', color: COLORS.amber, fn: (lam, p) => absorbed(lam, p.L, p.T, p.Z, 30) },
     ],
     markers: [
-      { label: '1ω 1053 nm', color: COLORS.red, x: () => 1.053 },
-      { label: '2ω 527 nm', color: COLORS.lime, x: () => 0.527 },
-      { label: '3ω 351 nm', color: COLORS.violet, x: () => 0.351 },
-      { label: 'KrF 248 nm', color: COLORS.white, x: () => 0.248 },
+      { label: '1ω', color: COLORS.red, x: () => 1.053 },
+      { label: '2ω', color: COLORS.lime, x: () => 0.527 },
+      { label: '3ω', color: COLORS.violet, x: () => 0.351 },
+      { label: 'KrF', color: COLORS.white, x: () => 0.248 },
     ],
   },
 ]

@@ -15,7 +15,7 @@ import {
   superGaussianF0Ratio,
   type AbsorptionSetup,
 } from './collisionalAbs'
-import { solveWave } from './lightRamp'
+import { peakIntensity, solveWave, swellingPeak } from './lightRamp'
 
 const deg = Math.PI / 180
 
@@ -46,6 +46,19 @@ describe('full-wave absorption in a ramp (E″ + k0²(ε − sin²θ)E = 0, ε =
     for (const q of [0.05, 0.5, 2]) {
       const s = fullWave('linear', 300, q)
       expect(Math.abs((1 - s.R) / absorptionLinear(q) - 1)).toBeLessThan(0.03)
+    }
+  })
+
+  it('reflectivity: −ln|r|² equals the WKB optical depth within 1.5% (linear) and 0.1% (exponential), up to depth 10', () => {
+    // A test on A = 1 − |r|² alone is blind for strong absorption (A ≈ 1 whatever the error); ln|r|² is not.
+    // Measured: linear within 1% (at depth 10 the tiny reflection off the kink at the plasma edge starts to show), exponential 1e-4.
+    for (const q of [0.05, 0.5, 2, 5]) {
+      for (const th of [0, 30, 50]) {
+        const lin = solveWaveNumerov({ ramp: { kind: 'linear', L: 300 }, theta: th * deg, nuc: q / 300, h: 0.25 })
+        expect(Math.abs(-Math.log(lin.R) / ((32 / 15) * q * Math.cos(th * deg) ** 5) - 1)).toBeLessThan(0.015)
+        const ex = solveWaveNumerov({ ramp: { kind: 'exp', L: 300, ncut: 0.001 }, theta: th * deg, nuc: q / 300, h: 0.25 })
+        expect(Math.abs(-Math.log(ex.R) / ((8 / 3) * q * Math.cos(th * deg) ** 3) - 1)).toBeLessThan(0.001)
+      }
     }
   })
 
@@ -101,6 +114,33 @@ describe('Numerov full-wave solver (used by the sim for long ramps)', () => {
     expect(1 - w.R).toBeGreaterThan(0.9999)
     expect(Math.abs(w.heated - (1 - w.R))).toBeLessThan(1e-3)
   })
+})
+
+describe('Numerov solver without collisions (the B1 limit)', () => {
+  it('reflects totally and reproduces the Airy swelling 3.606 (ωL/c)^(1/3) within 0.5% for ωL/c = 200, 1000', () => {
+    for (const k0L of [200, 1000]) {
+      const s = solveWaveNumerov({ ramp: { kind: 'linear', L: k0L }, h: 0.1 })
+      expect(Math.abs(s.R - 1)).toBeLessThan(1e-9)
+      expect(Math.abs(peakIntensity(s).value / swellingPeak(k0L) - 1)).toBeLessThan(0.005)
+    }
+  })
+})
+
+describe('the simulation’s slider corners', () => {
+  it('stay finite, conserve energy to 1e-3 and match the formula within 3%', () => {
+    for (const lamUm of [1.053, 0.351]) for (const T of [0.2, 5]) for (const Z of [1, 60]) for (const Lum of [10, 500]) for (const thetaDeg of [0, 60]) for (const kind of ['linear', 'exp'] as const) {
+      const s: AbsorptionSetup = { lamUm, TeV: T * 1000, Z, Lum, thetaDeg, kind, IWcm2: 1e16, langdon: true }
+      const p = absorptionParams(s)
+      for (const w of [solveAbsorption(s, p.k0L > 3000 ? 0.4 : 0.25, 2), solveAbsorption(s, 0.5, 2)]) {
+        const A = 1 - w.R
+        expect(Number.isFinite(A) && Number.isFinite(w.heated)).toBe(true)
+        expect(A).toBeGreaterThanOrEqual(-1e-9)
+        expect(A).toBeLessThanOrEqual(1 + 1e-9)
+        expect(Math.abs(w.heated - A)).toBeLessThan(1e-3)
+        expect(Math.abs(A / p.formula - 1)).toBeLessThan(0.03)
+      }
+    }
+  }, 20000)
 })
 
 describe('Langdon effect', () => {

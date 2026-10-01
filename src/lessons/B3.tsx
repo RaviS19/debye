@@ -118,7 +118,7 @@ export const B3: Lesson = {
   ],
   objectives: [
     'Explain why only p-polarized light is resonantly absorbed: its field has a component along $\\nabla n$, and $E_x = D_x/(\\varepsilon_0\\varepsilon)$ becomes huge where $\\varepsilon = 0$',
-    'Derive the absorbed fraction $f_A = \\pi k_0L\\,|E_d|^2/E_0^2$, show it does not depend on the damping rate, and estimate it as $f_A \\approx \\phi^2(\\tau)/2$ with $\\tau = (k_0L)^{1/3}\\sin\\theta$',
+    'Derive the absorbed fraction $f_A = \\pi k_0L\\,|E_d|^2/(E_0^2\\cos\\theta)$, show it does not depend on the damping rate, and estimate it as $f_A \\approx \\phi^2(\\tau)/2$ with $\\tau = (k_0L)^{1/3}\\sin\\theta$',
     'Find the best angle of incidence for a given scale length from the exact full-wave curve (peak 49% at $\\tau \\approx 0.68$), and say where Ginzburg’s formula fails',
   ],
   sections: [
@@ -256,7 +256,7 @@ export const B3: Lesson = {
           The p-polarized wave equation can be solved numerically without any approximation, for any angle and ramp, by integrating it from deep
           in the overdense plasma out to the vacuum and splitting the field there into incident and reflected waves. To pass the resonance with
           ν → 0, the integration steps around the pole of 1/ε on a small semicircle in the complex x plane, exactly as Landau’s contour does in A9.
-          Denisov did this calculation in the 1950s. Two facts come out of it, and the simulation below reproduces both.
+          Denisov worked out this problem in the 1950s. Two facts come out of it, and the simulation below reproduces both.
         </p>
         <p>
           First, for k₀L ≳ 10 the absorbed fraction depends on the angle and the scale length only through τ: curves for k₀L = 50, 200 and 800
@@ -285,17 +285,19 @@ export const B3: Lesson = {
         <h2>Angle sweep</h2>
         <p>
           The simulation solves both wave equations on a non-uniform grid (the step shrinks to a few percent of the distance to the pole near
-          n_c) with a small, density-proportional collision rate as in B2. The top panel shows the whole ramp; the middle panel zooms on the
-          critical region and shows the fields at one instant, oscillating at ω; the right panel builds the absorbed fraction against angle,
-          one full-wave solve per point.
+          n_c) with a small, density-proportional collision rate as in B2. The first panel shows the whole ramp, with the field oscillating
+          at ω; the second zooms on the critical region on a log scale, where the spike in E_x stands out; the third builds the absorbed
+          fraction against angle, one full-wave solve per point.
         </p>
         <ResonanceSim />
         <p>Things to try:</p>
         <ul>
           <li>
             <strong>Damping does not matter.</strong> At the optimum angle, step ν_c/ω from 10⁻³ down to 10⁻⁶. The peak |E_x| grows a
-            thousandfold, always equal to the driver divided by ν/ω (the readout checks it), while the p-polarized absorption barely changes. What
-            does change is the collisional absorption along the path, which the s curve shows on its own.
+            thousandfold, always equal to the driver divided by ν/ω (the readout checks it). The p-polarized absorption falls only from about 56%
+            to 49.5% (L = 10 λ). The difference is ordinary collisional absorption along the path, which the s curve shows on its own (12% at
+            ν_c/ω = 10⁻³, nearly zero at 10⁻⁶); the two act in series, so the reflectivities roughly multiply: 0.505 × 0.88 ≈ 0.44 = 1 − 0.56.
+            The resonant part itself does not change.
           </li>
           <li>
             <strong>Normal incidence.</strong> At θ = 0 the s and p curves start from the same point: with no field along ∇n there is no
@@ -337,7 +339,7 @@ export const B3: Lesson = {
           electron plasma wave (A5) that propagates down the density gradient, toward lower density. There its wavenumber grows, its phase
           velocity falls toward the thermal speed, and Landau damping (A9) absorbs it. The plasma wave then plays the role of ν, and the field
           at n_c is limited to about <M>{'E_d\\,L/\\Delta'}</M> with the Airy width of the plasma wave <M>{'\\Delta = (3\\lambda_D^2L)^{1/3}'}</M>,
-          from the Bohm–Gross term 3k²v_te² in ε.
+          from the Bohm–Gross term 3k²v_te² in ε (with v_te² = kT_e/m_e as in A5, so 3v_te²/ω² = 3λ_D² at n_c).
         </p>
         <p>
           If the driven wave is strong enough, it breaks before it damps: electrons are thrown out of the wave in bursts, carrying the absorbed

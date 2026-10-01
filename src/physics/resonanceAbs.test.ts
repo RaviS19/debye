@@ -35,14 +35,14 @@ describe('resonance absorption is independent of the damping when the damping is
     }
   })
 
-  it('energy is conserved: power dissipated in the plasma equals 1 − |r|² within 0.5%', () => {
+  it('energy is conserved: power dissipated in the plasma equals 1 − |r|² within 0.2%', () => {
     for (const [nuc, pol, th] of [
       [1e-3, 'p', 8],
       [1e-4, 'p', 6],
       [2e-3, 's', 20],
     ] as const) {
       const sol = solveWave({ k0L: 200, theta: th * deg, nuc, pol })
-      expect(Math.abs(sol.fDiss / sol.fA - 1)).toBeLessThan(0.005)
+      expect(Math.abs(sol.fDiss / sol.fA - 1)).toBeLessThan(0.002)
     }
   })
 })
@@ -67,6 +67,15 @@ describe('s and p polarization', () => {
         expect(Math.abs(f / wkb - 1)).toBeLessThan(0.02)
       }
     }
+  })
+
+  it('collisions and the resonance act in series: 1 − f_p ≈ (1 − f_res)(1 − f_s) within 2% (L = 10 λ, ν_c/ω = 1e-3)', () => {
+    const k0L = 20 * Math.PI
+    const th = thetaOfTau(k0L, TAU_OPT)
+    const fp = absorption(k0L, th, 1e-3, 'p')
+    const fs = absorption(k0L, th, 1e-3, 's')
+    const fr = absorption(k0L, th, 0, 'p')
+    expect(Math.abs((1 - fp) / ((1 - fr) * (1 - fs)) - 1)).toBeLessThan(0.02)
   })
 
   it('s-polarized absorption vanishes as ν → 0 while p-polarized does not', () => {

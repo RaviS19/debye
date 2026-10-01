@@ -1,6 +1,7 @@
 // B1: ray tracing in a laser-produced density ramp. A focused fan of rays (Hamilton's ray equations,
 // RK4) enters a linear or exponential profile; each ray turns where n_e = n_c cos²θ for its own angle.
-// Dots ride along the rays at the group velocity; joined across the fan they trace the wavefront.
+// Dots ride along the rays at the group velocity; joined across the fan they trace the pulse front (equal group delay),
+// which in a plasma is not a surface of constant phase.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { COLORS, glowStroke, useAnimation, useCanvas } from '../components/useCanvas'
 import { airyWidth, density, traceRay, type Ramp, type RampKind, type Ray } from '../physics/lightRamp'
@@ -28,7 +29,7 @@ function buildFan(kind: RampKind, LoverLam: number, thetaDeg: number, fnum: numb
   const xc = kind === 'linear' ? L : 0
   const Lx = kind === 'linear' ? L : 1.5 * L
   const cosMin = Math.cos(Math.min(1.45, Math.abs(th0) + alpha))
-  // start on a circle about the vacuum focus (aimed at the critical surface): equal times = wavefront
+  // start on a circle about the vacuum focus (aimed at the critical surface): in vacuum, equal times = wavefront
   const R = (kind === 'linear' ? 1.6 * L : 7.5 * L) / cosMin
   const dt = L / 250
   const tMax = 2 * R + 8 * L
@@ -294,7 +295,7 @@ export function RayRampSim() {
         clock.current = fan.t0
         setRunning(true)
       }}
-      hint="A focused beam (cyan rays) enters the plasma from the left; the shading is the electron density. Each ray is integrated with RK4 from Hamilton's equations dx/dt = ∂ω/∂k, dk/dt = −∂ω/∂x. The white dots are where the light is at one instant, so the line through them is the wavefront: watch it slow down and crowd together where the rays turn. Lengths are in vacuum wavelengths λ. Tilt the beam: the turning point (lime) moves out from n_c to n_c cos²θ. Rays at larger angles turn earlier, so a fast (low f-number) beam turns over a spread of densities. The green band marks the Airy layer, a few δ wide, where ray optics breaks down."
+      hint="A focused beam (cyan rays) enters the plasma from the left; the shading is the electron density. Each ray is integrated with RK4 from Hamilton's equations dx/dt = ∂ω/∂k, dk/dt = −∂ω/∂x. The white dots ride along the rays at the group velocity: they show where a short pulse is at one instant (in vacuum the line through them is the wavefront; in the plasma it is the pulse front, which is not a surface of constant phase). Watch them slow down and crowd together where the rays turn. Lengths are in vacuum wavelengths λ. Tilt the beam: the turning point (lime) moves out from n_c to n_c cos²θ. Rays at larger angles turn earlier, so a fast (low f-number) beam turns over a spread of densities. The green band marks the Airy layer, a few δ wide, where ray optics breaks down."
     >
       <div className="row" style={{ marginBottom: 10, gap: 6 }}>
         <button className={`btn small ${kind === 'linear' ? 'primary' : ''}`} onClick={() => setKind('linear')}>Linear ramp</button>

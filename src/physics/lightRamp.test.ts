@@ -93,6 +93,14 @@ describe('ray tracing (RK4 on dx/dt = ∂ω/∂k, dk/dt = −∂ω/∂x)', () =>
     expect(Math.abs(exitY - yMax) / L).toBeLessThan(0.01)
   })
 
+  it('takes the group delay 2L cos θ/c to reach the turning point of a linear ramp (round trip 4L/c at normal incidence)', () => {
+    const L = 2 * Math.PI * 30
+    for (const th of [0, 25, 50]) {
+      const ray = traceRay({ kind: 'linear', L }, 0, 0, th * deg, L / 400, 6 * L, -1)
+      expect(Math.abs(ray.turn!.t / (2 * L * Math.cos(th * deg)) - 1)).toBeLessThan(1e-6)
+    }
+  })
+
   it('follows the analytic path in an exponential ramp', () => {
     const L = 2 * Math.PI * 25
     const th = 30 * deg

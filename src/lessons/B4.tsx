@@ -259,7 +259,7 @@ export const B4: Lesson = {
             for circular polarization it is half of one.
           </li>
           <li>
-            <strong>Break the approximation.</strong> Set a₀ = 0.25 and ωw/c = 10. The electron now crosses the spot in a dozen periods and its
+            <strong>Break the approximation.</strong> Set a₀ = 0.25 and ωw/c = 10. The electron now leaves the spot within a few dozen periods and its
             excursion is a few percent of w; the agreement degrades to the percent level (circular polarization shows it most), as expected for an
             expansion in x_os/w and in 1/(ω × transit time).
           </li>

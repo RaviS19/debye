@@ -77,7 +77,7 @@ export const B2: Lesson = {
   subtitle: 'Inverse bremsstrahlung: the damping of light by electron–ion collisions, and how much of a laser a density ramp absorbs',
   minutes: 55,
   refs: [
-    'Kruer, The Physics of Laser Plasma Interactions, Ch. 5 (collisional absorption of electromagnetic waves: damping rates, the linear and exponential ramps, oblique incidence) and Sec. 13.7',
+    'Kruer, The Physics of Laser Plasma Interactions, Ch. 5 (collisional absorption of electromagnetic waves: the damping rate, absorption in a density ramp, oblique incidence) and Sec. 13.7 (wavelength scaling)',
     'A. B. Langdon, Nonlinear inverse bremsstrahlung and heated-electron distributions, Phys. Rev. Lett. 44, 575 (1980)',
     'J. P. Matte et al., Non-Maxwellian electron distributions and continuum X-ray emission in inverse bremsstrahlung heated plasmas, Plasma Phys. Control. Fusion 30, 1665 (1988)',
     'NRL Plasma Formulary (Coulomb logarithm, collision rates), as in A7',
@@ -116,7 +116,7 @@ export const B2: Lesson = {
         <p>
           Two things from B1 decide where the energy goes. The collision rate is proportional to the density, so it is largest near n_c. And
           the light slows down near its turning point (v_g = cη), so it spends a long time there. Both effects pile the absorption into the last
-          stretch before the turning point. In a linear ramp, nearly three quarters of it happens above 0.8 n_c.
+          stretch before the turning point. In a linear ramp, nearly three quarters of the optical depth lies above 0.8 n_c.
         </p>
       </section>
 
@@ -240,7 +240,7 @@ export const B2: Lesson = {
         <AbsorptionRampSim />
         <p>
           Some things to try. At 1053 nm with the default plasma, ν_cL/c = 0.40 and the ramp absorbs 58%; switch to 351 nm and it absorbs 99.9%.
-          Double T_e and the absorption length grows by 2^(3/2) = 2.8. Tilt the beam: at 40° the absorption exponent of a linear ramp falls by
+          Double T_e and the absorption length grows by 2^(3/2) = 2.8. Tilt the beam: at 40° the absorption exponent of a linear ramp is multiplied by
           cos⁵40° = 0.26. Over the whole slider range the full wave and the formula agree within 3%, and usually within a fraction of a percent. The
           largest differences come with 1053 nm light on a 10 µm ramp at large angles: the ramp is then only ten wavelengths long, the Airy
           layer is a sizeable part of it, and WKB is no longer a good description.
@@ -299,7 +299,9 @@ export const B2: Lesson = {
           Switch the simulation to <strong>A vs intensity</strong>. The dashed lines are the classical result for each wavelength, which at
           fixed T_e does not depend on intensity at all. The solid lines include the Langdon factor; the open dots are full-wave solutions
           at the chosen wavelength (with the reduced ν when the Langdon button is on), filled in a few per second. The ticks along the bottom mark α = 1 for each wavelength:
-          1053 nm light reaches it at a nine times lower intensity than 351 nm light, since α ∝ Iλ². Raise Z to 40 to see a gold corona.
+          1053 nm light reaches it at a nine times lower intensity than 351 nm light, since α ∝ Iλ². Raise Z to 40 to see a gold corona. The
+          simulation evaluates α with the incident vacuum intensity, a simplification: near the turning point the swelled field of B1 makes the
+          local α larger.
         </p>
         <p>
           In a real experiment the corona also gets hotter as the intensity rises, which cuts ν_ei as T_e^(−3/2). Both effects make

@@ -89,6 +89,20 @@ describe('test electrons in a focal spot (non-relativistic, a0 ≪ 1)', () => {
     const last = r.avg[r.avg.length - 1]
     expect(Math.hypot(last.X, last.Y)).toBeGreaterThan(2 * base.w) // the ponderomotive prediction has long gone
   })
+
+  it('without v × B, circular polarization keeps only the electric half of the push: drift energy = U_p(start)/2 within 1%', () => {
+    const r = runElectron({ ...base, pol: 'circular', vxb: false }, 8.66, 5)
+    expect(Math.abs(r.keFinal / r.upStart - 0.5)).toBeLessThan(0.005)
+  })
+
+  it('at the edge of the sliders (a0 = 0.25, ωw/c = 10) the expansion degrades only to the percent level', () => {
+    for (const pol of ['linear', 'circular'] as const) {
+      const p: FocusParams = { a0: 0.25, w: 10, pol, tOn: 10 * Math.PI, vxb: true }
+      const r = runElectron(p, 4.33, 2.5)
+      expect(Number.isFinite(r.keFinal)).toBe(true)
+      expect(Math.abs(r.keFinal / r.upStart - 1)).toBeLessThan(0.02)
+    }
+  })
 })
 
 describe('ponderomotive steepening: n = n0 exp(−U_p/kT) with the light solved in the same profile', () => {

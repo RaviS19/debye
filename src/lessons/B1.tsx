@@ -145,8 +145,9 @@ export const B1: Lesson = {
           The energy of a light pulse moves at the group velocity, <M>{'v_g = d\\omega/dk = c^2k/\\omega = c\\,\\eta'}</M>. For light in a plasma
           that is the same function as the refractive index: at quarter-critical v_g = 0.87c, at 0.99 n_c it is 0.1c, and at n_c it is zero.
           A steady beam carries a fixed energy flux, roughly <M>{'v_g \\times'}</M> (energy density). If v_g drops, the energy density must rise
-          to carry the same flux: the light <strong>piles up</strong>, like cars bunching where a motorway narrows. The time-averaged intensity
-          therefore swells as 1/η, and the electric field as <M>{'\\eta^{-1/2}'}</M>. A round trip through a linear ramp of length L takes
+          to carry the same flux: the light <strong>piles up</strong>, like cars slowing down and bunching on a motorway. The energy flux (the
+          intensity in the strict sense) stays the same, but the energy density and the time-averaged |E|² swell as 1/η, and the field amplitude
+          as <M>{'\\eta^{-1/2}'}</M>. That swelled |E|² is what the electrons feel; the laser literature calls the ratio the intensity swelling. A round trip through a linear ramp of length L takes
           <M>{'\\ 2\\int_0^L dx/(c\\eta) = 4L/c'}</M>, twice the vacuum time: for L = 100 µm, 1.3 ps instead of 0.67 ps.
         </p>
         <Plotter spec={plotById('b1-index-group')!} />
@@ -269,13 +270,13 @@ export const B1: Lesson = {
           plot="b1-swelling-factor"
           symbols={{
             Em: { name: 'E_max, peak field', units: 'V/m', note: 'At the last antinode, about 1.02 δ before the turning point.' },
-            Ev: { name: 'E_vac, incident field in vacuum', units: 'V/m', note: 'The intensity ratio is the same as |E_max|²/|E_vac|².' },
+            Ev: { name: 'E_vac, incident field in vacuum', units: 'V/m', note: 'The amplitude of the incident wave alone. In vacuum in front of the plasma the incident and reflected waves add, so |E|² there peaks at 4|E_vac|².' },
             Ai: { name: 'Ai_max = 0.5357', note: 'The largest value of the Airy function, at ζ = −1.0188. 4π Ai_max² = 3.606.' },
             w: { name: 'ω, laser frequency', units: 'rad/s', note: 'ωL/c = 2πL/λ: the scale length in units of the reduced wavelength.' },
             L: { name: 'L, scale length of the linear ramp', units: 'µm', note: 'Swelling grows only as L^(1/3): ten times longer gives 2.15 times more.' },
             th: { name: 'θ, angle of incidence (s-polarized)', note: 'Oblique s-polarized light swells a factor cos θ less, and peaks before n_c cos²θ instead of n_c.' },
           }}
-          says="For 351 nm light on a 100 µm ramp the intensity just below n_c is about 44 times the vacuum intensity. Instabilities and the ponderomotive force feel this swelled field, not the incident one."
+          says="For 351 nm light on a 100 µm ramp, |E|² just below n_c is about 44 times its value in the incident beam. Instabilities and the ponderomotive force feel this swelled field, not the incident one."
         />
         <AirySwellingSim />
         <p>
@@ -369,7 +370,7 @@ export const B1: Lesson = {
       id: 'B1-p2',
       kind: 'numeric',
       concept: 'airy-swelling',
-      prompt: '351 nm light falls at normal incidence on a linear density ramp with $L = 100$ µm. By what factor does the intensity at the last standing-wave peak exceed the incident vacuum intensity?',
+      prompt: '351 nm light falls at normal incidence on a linear density ramp with $L = 100$ µm. By what factor does the time-averaged $|E|^2$ at the last standing-wave peak exceed $|E_{\\rm vac}|^2$ of the incident wave (the intensity swelling)?',
       answer: 43.8,
       tol: 0.03,
       unit: '',

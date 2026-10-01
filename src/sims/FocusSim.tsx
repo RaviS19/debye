@@ -608,7 +608,7 @@ export function FocusSim() {
           electrons inside r &lt; w: <b>{stats ? stats.inside : '…'}</b> of {N_CLOUD}
         </span>
         <span>
-          at λ = 1 µm: I = <b>{fmtSci(I18 * 1e18)} W/cm²</b>, U_p at the centre <b>{fmtE(upPeakKeV)}</b>, at the start <b>{fmtE(up0 * ME_KEV)}</b>, w = <b>{(w / (2 * Math.PI)).toFixed(1)} µm</b>
+          at λ = 1 µm, a travelling wave with this a₀ has I = <b>{fmtSci(I18 * 1e18)} W/cm²</b>, U_p at the centre <b>{fmtE(upPeakKeV)}</b>, at the start <b>{fmtE(up0 * ME_KEV)}</b>, w = <b>{(w / (2 * Math.PI)).toFixed(1)} µm</b>
         </span>
       </div>
       <div className="controls">
