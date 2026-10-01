@@ -125,7 +125,7 @@ describe('growth rates', () => {
 })
 
 describe('three-wave envelope solver', () => {
-  it('uniform plasma, no damping: temporal growth rate γ0 within 3%; with damping −ν/2 + √(ν²/4 + γ0²)', () => {
+  it('uniform plasma, no damping: temporal growth rate γ0 within 0.2%; with damping −ν/2 + √(ν²/4 + γ0²)', () => {
     for (const [K, nu] of [
       [0.05, 0],
       [0.1, 0],
@@ -141,10 +141,10 @@ describe('three-wave envelope solver', () => {
       stepThreeWave(s, Math.round((T2 - T1) / s.dt))
       const l2 = Math.log(s.a1r[50] ** 2 + s.a1i[50] ** 2)
       const g = (l2 - l1) / (2 * (s.t - t1))
-      expect(Math.abs(g / th - 1)).toBeLessThan(0.03)
+      expect(Math.abs(g / th - 1)).toBeLessThan(0.002)
     }
   })
-  it('slab with a strongly damped plasma wave: steady-state spatial gain 2γ0²L/ν within 5%', () => {
+  it('slab with a strongly damped plasma wave: steady-state spatial gain 2γ0²L/ν within 0.1%', () => {
     for (const [K, nu] of [
       [0.1, 0.5],
       [0.05, 0.25],
@@ -152,10 +152,10 @@ describe('three-wave envelope solver', () => {
       const s = createThreeWave({ n: 400, L: 200, K, nu, mode: 'slab', seed: 1e-10 })
       stepThreeWave(s, 8 * s.n)
       const G = Math.log(backscatterAt0(s) / 1e-10)
-      expect(Math.abs(G / ((2 * K * K * 200) / nu) - 1)).toBeLessThan(0.05)
+      expect(Math.abs(G / ((2 * K * K * 200) / nu) - 1)).toBeLessThan(0.001)
     }
   })
-  it('pump depletion: Tang’s steady state within 2%, and Manley–Rowe (one scattered quantum per pump quantum) to 1e-3', () => {
+  it('pump depletion: Tang’s steady state within 0.5%, and Manley–Rowe (one scattered quantum per pump quantum) to 1e-3', () => {
     const K = 0.14
     const nu = 0.5
     const eps = 1e-6
@@ -168,7 +168,30 @@ describe('three-wave envelope solver', () => {
     const r = backscatterAt0(s)
     const rT = tangReflectivity((2 * K * K * 200) / nu, eps)
     expect(rT).toBeCloseTo(0.2294, 3)
-    expect(Math.abs(r / rT - 1)).toBeLessThan(0.02)
+    expect(Math.abs(r / rT - 1)).toBeLessThan(0.005)
     expect(r).toBeGreaterThan(0.2) // a fifth of the pump is reflected: strong depletion
+  })
+  it('extreme slider values stay finite and cheap: undamped or barely damped slab, fully depleted periodic box', () => {
+    // an undamped plasma wave in a slab keeps accumulating pump quanta (|a2| grows without bound): the local
+    // coupling is sub-stepped, so nothing blows up and Manley–Rowe still holds to about 2%
+    for (const [K, nu, seed] of [
+      [0.2, 0, 1e-3],
+      [0.2, 0.02, 1e-14],
+      [0.2, 0.01, 1e-3],
+    ]) {
+      const s = createThreeWave({ n: 400, L: 200, K, nu, mode: 'slab', seed })
+      for (let f = 0; f < 300; f++) stepThreeWave(s, 40)
+      for (const a of [s.a0r, s.a1r, s.a2r, s.a2i]) expect(a.every(Number.isFinite)).toBe(true)
+      const mr = manleyRoweBalance(s)
+      expect(Math.abs(mr.scatMade / mr.pumpLost - 1)).toBeLessThan(0.03)
+    }
+    // a periodic box that empties its pump: the amplitudes must not sink into slow subnormal numbers
+    const p = createThreeWave({ n: 400, L: 200, K: 0.14, nu: 0.2, mode: 'periodic', seed: 1e-6 })
+    stepThreeWave(p, 20000)
+    const t0 = performance.now()
+    for (let f = 0; f < 50; f++) stepThreeWave(p, 40)
+    const ms = (performance.now() - t0) / 50
+    expect(ms).toBeLessThan(6) // per frame at the top speed setting (about 0.6 ms on a laptop)
+    for (const a of [p.a0r, p.a2r]) for (const v of a) expect(v === 0 || Math.abs(v) > 1e-150).toBe(true)
   })
 })

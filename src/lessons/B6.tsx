@@ -59,8 +59,8 @@ function MirrorDiagram() {
         {row(278, 'SBS', 'ion sound wave', '351 → 351.9 nm', '0.001c', 28.1, '#f472b6')}
       </svg>
       <figcaption className="small dim" style={{ marginTop: 6 }}>
-        Backscatter as Bragg reflection. The beat of the laser (amber) and the reflected light (cyan) writes a density grating with half the
-        laser’s wavelength, which reflects the laser straight back. The grating is a plasma wave, so it moves away from the laser (at the speed
+        Backscatter as Bragg reflection. The beat of the laser (amber) and the reflected light (cyan) writes a density grating whose wavenumber is the sum
+        of theirs (half the laser’s wavelength for SBS, a little longer for SRS), which reflects the laser straight back. The grating is a plasma wave, so it moves away from the laser (at the speed
         shown), and the reflected light is Doppler-shifted down by the wave’s frequency: a lot for the fast electron plasma wave of SRS (here at
         0.1 n_c and 2 keV), very little for the slow ion wave of SBS.
       </figcaption>
@@ -187,7 +187,7 @@ export const B6: Lesson = {
             {
               text: 'At low density, for backscatter: k ≈ 2k₀, ω_ek ≈ ω_pe and ω_s ≈ ω₀. Since k₀v_os ≈ eE₀/m_ec,',
               math: '\\begin{gathered}\\gamma_0 \\approx \\dfrac{k_0v_{os}}{2}\\sqrt{\\dfrac{\\omega_{pe}}{\\omega_0}} \\\\ = \\dfrac{eE_0}{2m_ec}\\Big(\\dfrac{n}{n_c}\\Big)^{1/4}\\end{gathered}',
-              why: 'In absolute units the growth depends only on the laser field and n/n_c. Relative to the laser frequency, γ₀/ω₀ ∝ λ√I, so infrared light drives Raman harder per optical cycle. With exact matching at 0.1 n_c and 2 keV the rate is 7% below this estimate.',
+              why: 'In absolute units the growth depends only on the laser field and n/n_c. Relative to the laser frequency, γ₀/ω₀ ∝ λ√I, so infrared light drives Raman harder per optical cycle. With exact matching at 0.1 n_c and 2 keV the rate is 11% below this estimate (7% below if k₀ = √(1 − n/n_c) ω₀/c is kept).',
             },
           ]}
         />
@@ -316,7 +316,7 @@ export const B6: Lesson = {
         </p>
         <p>
           <strong>Electron Landau damping limits SRS.</strong> A plasma wave is damped by electrons moving near its phase speed ω/k (A9). How
-          many there are is set by kλ_De: for Maxwellian electrons the exact kinetic root gives ν/ω_pe = 0.012 at kλ_De = 0.3, 0.066 at 0.4 and
+          many there are is set by kλ_De: for Maxwellian electrons the exact kinetic root gives ν/ω_pe = 0.013 at kλ_De = 0.3, 0.066 at 0.4 and
           0.15 at 0.5. Raman growth rates are of order 10⁻² ω_pe, so SRS is effectively switched off once kλ_De passes about 0.3. The backscatter k
           changes only slowly with density (between 2k₀ and k₀), while λ_De grows with T_e and falls with density, so SRS is confined to densities above a floor that rises
           with temperature: at 3 keV, kλ_De reaches 0.3 at about 0.13 n_c. In the worked example (kλ_De = 0.30), damping already cuts the growth
@@ -353,8 +353,8 @@ export const B6: Lesson = {
         <h2>Near n_c/4: absolute Raman</h2>
         <p>
           At n_c/4 the backscattered Raman light is born at its own cut-off: ω_s = ω_pe, so k_s → 0 and its group velocity v_s = c²k_s/ω_s → 0.
-          Rosenbluth’s gain, G = 2πγ₀²/|κ′v₁v₂| from B5, diverges: the scattered light no longer leaves the region where it is driven. The
-          instability becomes <strong>absolute</strong>, growing in time at a fixed place until something nonlinear stops it. Kruer (Ch. 7) works out
+          The cold gain formula below, which keeps only the plasma wave’s κ′, diverges there; more fundamentally, the scattered light no longer leaves
+          the region where it is driven, so the convective picture behind Rosenbluth’s gain fails. The instability becomes <strong>absolute</strong>, growing in time at a fixed place until something nonlinear stops it. Kruer (Ch. 7) works out
           the threshold in a linear density profile. Its scaling is (v_os/c)² of order (k₀L)^(−4/3), which for a 300 µm scale length at 351 nm
           means intensities of order 10¹⁴ W/cm², easily exceeded. The same density hosts two-plasmon decay, where the laser decays into two
           plasma waves; it is B7’s subject.
@@ -412,7 +412,7 @@ export const B6: Lesson = {
             RE: { name: 'R_E, energy reflectivity', note: 'What a calorimeter measures.' },
             ws: { name: 'ω_s, scattered-light frequency', units: 'rad/s', note: 'Each reflected photon carries ħω_s; the rest of ħω₀ went into a plasmon or phonon (Manley–Rowe, B5). About 0.64 ω₀ for SRS at 0.1 n_c, and practically ω₀ for SBS.' },
           }}
-          says="While r is small this is r = ε exp(G), exponential amplification of the seed. When ε exp(G) approaches 1 the pump is used up near the entrance and r saturates below 1, the more slowly the larger G. For SRS a third or more of the energy the laser loses goes into plasma waves, not reflected light."
+          says="While r is small this is r = ε exp(G), exponential amplification of the seed. When ε exp(G) approaches 1 the pump is used up near the entrance and r saturates below 1, creeping towards 1 only slowly as G grows. For SRS at 0.1 n_c about a third of the energy the laser loses goes into plasma waves, not reflected light."
         />
         <ThreeWaveSim />
         <p>Things to try:</p>
@@ -512,14 +512,14 @@ export const B6: Lesson = {
       kind: 'numeric',
       concept: 'convective-gain-scaling',
       prompt: 'In the worked example (351 nm, $10^{15}$ W/cm², $0.1\\,n_c$, 2 keV, $L = 300$ µm) the SRS Rosenbluth gain is $G = 1.62$. What is the gain for a 1053 nm laser at $5\\times10^{14}$ W/cm² in a plasma with the same $n/n_c$ and $T_e$ but $L = 500$ µm?',
-      answer: 4.06,
+      answer: 4.05,
       tol: 0.03,
       unit: '',
       hints: [
         'In units of $\\omega_0$ and $c/\\omega_0$, at fixed $n/n_c$ and $T_e$ the matching is unchanged; $\\gamma_0/\\omega_0 \\propto v_{os}/c$ and $\\kappa\' \\propto 1/L$, with $L$ measured in $c/\\omega_0 \\propto \\lambda$.',
         '$v_{os}^2 \\propto I\\lambda^2$, so $G \\propto I\\lambda^2 \\times L/\\lambda = I\\lambda L$.',
       ],
-      solution: '$G \\propto I\\lambda L$, so $G = 1.62\\times0.5\\times3\\times(500/300) = 4.06$. The amplification $e^G$ goes from 5 to 58. This scaling, together with better absorption, is why fusion lasers use 351 nm light.',
+      solution: '$G \\propto I\\lambda L$, so $G = 1.62\\times0.5\\times3\\times(500/300) = 4.05$. The amplification $e^G$ goes from 5 to 57. This scaling, together with better absorption, is why fusion lasers use 351 nm light.',
     },
     {
       id: 'B6-p4',
@@ -570,7 +570,7 @@ export const B6: Lesson = {
     { id: 'B6-c1', front: 'SRS and SBS: which wave is driven, and where can each occur?', back: 'SRS: an electron plasma wave, only for $n \\le n_c/4$, large red shift ($\\omega_s = \\omega_0 - \\omega_{ek}$). SBS: an ion acoustic wave, anywhere $n < n_c$, tiny shift $kc_s$' },
     { id: 'B6-c2', front: 'SRS backscatter growth rate (and a number)', back: '$\\gamma_0 = \\dfrac{kv_{os}}{4}\\dfrac{\\omega_{pe}}{\\sqrt{\\omega_{ek}\\omega_s}}$; about 12.7 ps⁻¹ at 351 nm, $10^{15}$ W/cm², $0.1\\,n_c$, 2 keV' },
     { id: 'B6-c3', front: 'SBS growth in weak and strong coupling', back: 'Weak ($\\gamma \\ll kc_s$): $\\gamma = \\dfrac{kv_{os}}{4}\\dfrac{\\omega_{pi}}{\\sqrt{kc_s\\omega_0}} \\propto \\sqrt I$. Strong: $\\gamma = \\dfrac{\\sqrt3}{4}\\Big(\\dfrac{k^2v_{os}^2\\omega_{pi}^2}{\\omega_0}\\Big)^{1/3} \\propto I^{1/3}$' },
-    { id: 'B6-c4', front: 'When does Landau damping switch off SRS, and where does the energy go?', back: 'Once the plasma wave has $k\\lambda_{De} \\gtrsim 0.3$ ($\\nu/\\omega_{pe}$ = 0.012 at 0.3, 0.15 at 0.5): low density, high $T_e$. The damped wave’s energy goes to hot electrons of tens of keV' },
+    { id: 'B6-c4', front: 'When does Landau damping switch off SRS, and where does the energy go?', back: 'Once the plasma wave has $k\\lambda_{De} \\gtrsim 0.3$ ($\\nu/\\omega_{pe}$ = 0.013 at 0.3, 0.15 at 0.5): low density, high $T_e$. The damped wave’s energy goes to hot electrons of tens of keV' },
     { id: 'B6-c5', front: 'Convective gains of SRS and SBS and their scaling', back: 'Rosenbluth: $G = 2\\pi\\gamma_0^2/|\\kappa\'v_1v_2|$. SRS in a density gradient, $G \\approx \\frac{\\pi}{4}\\frac{k^2v_{os}^2}{k_sc^2}L$; SBS in a flow gradient. Both $\\propto I\\lambda L$ and independent of damping' },
     { id: 'B6-c6', front: 'Reflectivity: noise, pump depletion and Manley–Rowe', back: 'Small signal $r = \\varepsilon e^G$. Depleted (Tang): $r(1 - r + \\varepsilon) = \\varepsilon e^{G(1-r)}$. Energy reflectivity $= (\\omega_s/\\omega_0)\\,r$: at most 64% of the depleted energy for SRS at $0.1\\,n_c$, nearly all for SBS' },
   ],

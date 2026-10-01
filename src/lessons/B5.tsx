@@ -212,7 +212,7 @@ export const B5: Lesson = {
             c1: { name: 'c₁, coupling coefficient', note: 'How strongly the pump times x₂ drives x₁. Comes from the plasma physics (current, ponderomotive force).' },
             c2: { name: 'c₂, coupling coefficient', note: 'How strongly the pump times x₁ drives x₂. A decay instability needs c₁c₂ > 0 in this sign convention.' },
             E: { name: 'E(t), pump field', units: 'V/m', note: 'The strong wave, treated as given (no pump depletion).' },
-            E0: { name: 'E₀, pump amplitude', units: 'V/m', note: 'Written with the factor 2 so that E = E₀e^(−iω₀t) + c.c., as Kruer does.' },
+            E0: { name: 'E₀, pump amplitude', units: 'V/m', note: 'Written with the factor 2 so that E = E₀e^(−iω₀t) + c.c.: each sideband of the product E·x is driven by E₀.' },
             w0: { name: 'ω₀, pump frequency', units: 'rad/s', note: 'The laser frequency for SRS and SBS.' },
           }}
           says="Each daughter is a damped oscillator driven by the product of the pump and the other daughter. A product of two oscillations contains the sum and difference frequencies, so x₂ at ω₂ times the pump at ω₀ drives x₁ at ω₀ − ω₂. If that equals ω₁, the drive is resonant."
@@ -263,8 +263,8 @@ export const B5: Lesson = {
         <p>Things to try:</p>
         <ul>
           <li>
-            <strong>The benchmark.</strong> In the decay preset at Δ = 0, the measured growth matches γ₀ to within about 0.1%. The tiny
-            difference is the non-resonant sideband left out in step 2; it grows as (γ₀/ω)².
+            <strong>The benchmark.</strong> In the decay preset at Δ = 0, the measured growth matches γ₀ to within about 1%. The small
+            difference comes from the non-resonant sideband left out in step 2 and from fitting a finite stretch of the curve.
           </li>
           <li>
             <strong>Detuning.</strong> Set Δ = γ₀ (about 0.02): the theory gives √(γ₀² − γ₀²/4) = 0.87γ₀. Push |Δ| beyond 2γ₀ and the
@@ -315,20 +315,20 @@ export const B5: Lesson = {
             c: { name: 'c, speed of light', units: 'm/s', note: 'Light in a plasma has group velocity c²k/ω < c.' },
             k: { name: 'k, wavenumber', units: 'm⁻¹', note: 'Magnitude of the wavevector. The matching conditions fix it for each daughter.' },
             vte: { name: 'v_te, electron thermal speed', units: 'm/s', note: '√(kT_e/m_e), the convention of A5 (Bohm–Gross). Kruer uses the same v_e.' },
-            cs: { name: 'c_s, ion sound speed', units: 'm/s', note: '√((ZkT_e + 3kT_i)/M). About 3×10⁵ m/s in a 2 keV CH plasma, a thousandth of c. The simulation ignores the Debye correction 1/(1 + k²λ_De²), which lowers it by a few % at kλ_De ≈ 0.3.' },
+            cs: { name: 'c_s, ion sound speed', units: 'm/s', note: '√((ZkT_e + 3kT_i)/M). About 3.9×10⁵ m/s in CH at T_e = 2 keV, T_i = 1 keV, about a thousandth of c. The simulation ignores the Debye correction 1/(1 + k²λ_De²), which lowers it by a few % at kλ_De ≈ 0.3.' },
           }}
           says="Each daughter must sit on one of these curves. For SRS, the scattered light needs ω ≥ ω_pe and so does the plasma wave, so ω₀ ≥ 2ω_pe: SRS exists only below n_c/4. For SBS, the ion wave takes almost no energy, so the scattered light has almost the laser frequency."
         />
         <p>
-          The graphical way to solve them, used by Kruer and in the simulation’s right panel, is to hang daughter 2’s dispersion curve
+          The standard graphical way to solve them, used in the simulation’s right panel, is to hang daughter 2’s dispersion curve
           upside down from the pump point (k₀, ω₀): the curve ω₀ − ω₂(k₀ − k). Wherever it crosses daughter 1’s curve, both daughters are
           real waves and their sum is the pump. The left panel shows the same solution as a triangle of wavevectors.
         </p>
         <MatchingTriangleSim />
         <p>
           The benchmark: SRS backscatter of 351 nm light at 0.1 n_c and T_e = 2 keV gives a plasma wave with k = 1.59 k₀ and ω = 0.356 ω₀,
-          and scattered light at 545 nm, in the green, where a spectrometer would see it. The cold estimate λ₀/(1 − √(n/n_c)) gives 536 nm;
-          the 9 nm difference is the Bohm–Gross term, which is a direct thermometer of the plasma. This plasma wave also has kλ_De = 0.30,
+          and scattered light at 545 nm, in the green, where a spectrometer would see it. The cold estimate λ₀/(1 − √(n/n_c)) gives 513 nm;
+          the 32 nm difference is the Bohm–Gross term, which is a direct thermometer of the plasma. This plasma wave also has kλ_De = 0.30,
           right where Landau damping (A9) begins to matter. The plot shows the whole SRS spectrum: backscatter from low density is only
           slightly red-shifted, from near n_c/4 it approaches 2λ₀.
         </p>
@@ -397,7 +397,7 @@ export const B5: Lesson = {
           <div className="card">
             <span className="pill ghost">SRS</span>
             <p style={{ marginTop: 10 }}>
-              Stimulated Raman scattering: light → light + electron plasma wave. Below n_c/4. Reflects light at 1.3–2λ₀ and makes hot
+              Stimulated Raman scattering: light → light + electron plasma wave. Below n_c/4. Reflects light at typically 1.3–2λ₀ and makes hot
               electrons. B6.
             </p>
           </div>
@@ -457,16 +457,16 @@ export const B5: Lesson = {
           steps={[
             {
               text: 'Describe the daughters by slowly varying amplitudes a₁ (moving at group velocity v₁) and a₂ (velocity v₂, damping Γ₂), in a steady state, with the mismatch as a phase ψ(x) = ∫κ dx in the coupling.',
-              math: '\\begin{gathered}v_1\\dfrac{da_1}{dx} = \\gamma_0\\,a_2^*\\,e^{i\\psi} \\\\ v_2\\dfrac{da_2}{dx} + \\Gamma_2a_2 = \\gamma_0\\,a_1^*\\,e^{-i\\psi}\\end{gathered}',
-              why: 'These are the coupled-mode equations of the previous section, rewritten for waves that move. With the pump amplitude scaled into γ₀, a uniform plasma (ψ = 0) and no transport, they give growth at γ₀ in time.',
+              math: '\\begin{gathered}v_1\\dfrac{da_1}{dx} = \\gamma_0\\,a_2^*\\,e^{i\\psi} \\\\ v_2\\dfrac{da_2}{dx} + \\Gamma_2a_2 = \\gamma_0\\,a_1^*\\,e^{i\\psi}\\end{gathered}',
+              why: 'These are the coupled-mode equations of the previous section, rewritten for waves that move. Both carry the same phase, because each daughter is driven by the pump times the other’s conjugate, with wavenumber k₀ − k₂ or k₀ − k₁; the mismatch with its own k is κ either way. With the pump amplitude scaled into γ₀, a uniform plasma (ψ = 0) and no transport, they give growth at γ₀ in time.',
             },
             {
-              text: 'Let daughter 2 be strongly damped, so that it follows its drive locally. Writing a₂ = A₂e^(−iψ), the v₂ d/dx acting on the phase turns the spatial mismatch into a frequency mismatch κv₂.',
-              math: 'A_2 = \\dfrac{\\gamma_0\\,a_1^*}{\\Gamma_2 - i\\kappa(x)\\,v_2}',
+              text: 'Let daughter 2 be strongly damped, so that it follows its drive locally. Writing a₂ = A₂e^(iψ), the v₂ d/dx acting on the phase turns the spatial mismatch into a frequency mismatch κv₂.',
+              math: 'A_2 = \\dfrac{\\gamma_0\\,a_1^*}{\\Gamma_2 + i\\kappa(x)\\,v_2}',
               why: 'A strongly damped wave forgets its past within a distance |v₂|/Γ₂. It is like a damped oscillator driven slightly off resonance: the off-resonance is κv₂.',
             },
             {
-              text: 'Substitute into the equation for a₁. Daughter 1 grows in space at a local rate that depends on the mismatch.',
+              text: 'Substitute into the equation for a₁: a₂*e^(iψ) = A₂*, so the phase drops out and daughter 1 grows in space at a local rate that depends on the mismatch.',
               math: '\\dfrac{d\\ln|a_1|^2}{dx} = \\dfrac{2\\gamma_0^2}{|v_1|}\\,\\dfrac{\\Gamma_2}{\\Gamma_2^2 + \\kappa^2v_2^2}',
               why: 'At κ = 0 this is the spatial gain rate of a uniform plasma with a damped daughter, 2γ₀²/(Γ₂|v₁|); B6’s envelope simulation measures exactly that. Away from matching it falls off as a Lorentzian.',
             },
@@ -493,7 +493,7 @@ export const B5: Lesson = {
             v2: { name: 'v₂, group velocity of daughter 2', units: 'm/s', note: 'Slow daughters (plasma waves, ion waves) linger in the gain region and gain more.' },
             k0: { name: 'k₀ − k₁ − k₂, local mismatch', units: 'm⁻¹', note: 'Components along the density gradient, each at its own fixed frequency. Zero at the matching point.' },
           }}
-          says="The gain is set by how fast the plasma detunes the waves (κ′), not by how strongly the daughters are damped. Gentle gradients, long plasmas and slow daughters make large gains. Where κ′ → 0 or a group velocity → 0, the formula blows up: the instability is no longer convective but absolute, as SRS becomes near n_c/4 (B6)."
+          says="The gain is set by how fast the plasma detunes the waves (κ′), not by how strongly the daughters are damped. Gentle gradients, long plasmas and slow daughters make large gains. Where κ′ → 0 or a group velocity → 0, the formula promises unlimited gain: the convective picture fails there, and the instability can become absolute, as SRS does near n_c/4 (B6)."
         />
         <p>
           Kruer’s §6.6 gives the same picture as a threshold: in a gradient, the pump must make γ₀²/|κ′v₁v₂| of order one before
@@ -542,7 +542,7 @@ export const B5: Lesson = {
       concept: 'srs-matching',
       prompt: 'A 351 nm laser drives SRS backscatter at $n = 0.15\\,n_c$ in a plasma with $T_e = 1$ keV. Including the thermal (Bohm–Gross) correction to the plasma-wave frequency, at what wavelength does the scattered light come out, in nm?',
       answer: 586.4,
-      tol: 0.01,
+      tol: 0.02,
       unit: 'nm',
       hints: [
         'Start cold: $\\omega_{ek} \\approx \\omega_{pe} = 0.387\\,\\omega_0$, so $\\omega_s = 0.613\\,\\omega_0$ and $ck_s = \\sqrt{\\omega_s^2 - \\omega_{pe}^2} = 0.475\\,\\omega_0$.',

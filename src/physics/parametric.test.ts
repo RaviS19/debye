@@ -24,7 +24,7 @@ const decay = (w1: number, w2: number, g0: number, D: number, G1 = 0, G2 = 0): O
 }
 
 describe('pumped coupled oscillators (RK4) vs the coupled-mode growth rate', () => {
-  it('exactly matched, undamped: measured growth = γ0 = √(c1c2E0²/4ω1ω2) within 3%', () => {
+  it('exactly matched, undamped: measured growth = γ0 = √(c1c2E0²/4ω1ω2) within 0.5%', () => {
     for (const [w1, w2, g0] of [
       [1, 0.5, 0.02],
       [1, 0.3, 0.015],
@@ -33,16 +33,16 @@ describe('pumped coupled oscillators (RK4) vs the coupled-mode growth rate', () 
       const p = decay(w1, w2, g0, 0)
       expect(gamma0Of(p)).toBeCloseTo(g0, 12)
       const m = measureOscGrowth(p, 25 / g0)
-      expect(Math.abs(m.gamma / g0 - 1)).toBeLessThan(0.03)
+      expect(Math.abs(m.gamma / g0 - 1)).toBeLessThan(0.005)
     }
   })
-  it('detuned by Δ = ω0 − ω1 − ω2: growth = √(γ0² − Δ²/4) within 3%; none for |Δ| > 2γ0', () => {
+  it('detuned by Δ = ω0 − ω1 − ω2: growth = √(γ0² − Δ²/4) within 2%; none for |Δ| > 2γ0', () => {
     const g0 = 0.02
     for (const D of [0.02, -0.03]) {
       const p = decay(1, 0.5, g0, D)
       const th = Math.sqrt(g0 * g0 - (D * D) / 4)
       expect(decayGrowth(g0, D, 0, 0)).toBeCloseTo(th, 12)
-      expect(Math.abs(measureOscGrowth(p, 25 / th).gamma / th - 1)).toBeLessThan(0.03)
+      expect(Math.abs(measureOscGrowth(p, 25 / th).gamma / th - 1)).toBeLessThan(0.02)
     }
     const off = measureOscGrowth(decay(1, 0.5, g0, 0.06), 1500)
     expect(Math.abs(off.gamma)).toBeLessThan(0.002) // bounded beating, no exponential growth
@@ -50,14 +50,14 @@ describe('pumped coupled oscillators (RK4) vs the coupled-mode growth rate', () 
   it('damping: growth = −Γ + γ0 above threshold, and decay below the threshold γ0² = Γ1Γ2', () => {
     const g0 = 0.02
     const above = decay(1, 0.5, g0, 0, 0.008, 0.008)
-    expect(Math.abs(measureOscGrowth(above, 1500).gamma / 0.012 - 1)).toBeLessThan(0.03)
+    expect(Math.abs(measureOscGrowth(above, 1500).gamma / 0.012 - 1)).toBeLessThan(0.005)
     // unequal damping: −(Γ1+Γ2)/2 + √((Γ1−Γ2)²/4 + γ0²)
     const th = -(0.004 + 0.02) / 2 + Math.sqrt(((0.004 - 0.02) / 2) ** 2 + g0 * g0)
     expect(decayGrowth(g0, 0, 0.004, 0.02)).toBeCloseTo(th, 12)
-    expect(Math.abs(measureOscGrowth(decay(1, 0.5, g0, 0, 0.004, 0.02), 1500).gamma / th - 1)).toBeLessThan(0.03)
+    expect(Math.abs(measureOscGrowth(decay(1, 0.5, g0, 0, 0.004, 0.02), 1500).gamma / th - 1)).toBeLessThan(0.005)
     // below threshold (Γ1Γ2 = 0.025² > γ0²): the seed dies away
     const below = measureOscGrowth(decay(1, 0.5, g0, 0, 0.025, 0.025), 1500)
-    expect(below.gamma).toBeLessThan(-0.003)
+    expect(Math.abs(below.gamma / -0.005 - 1)).toBeLessThan(0.01)
     expect(decayGrowth(g0, 0, 0.025, 0.025)).toBeCloseTo(-0.005, 12)
   })
   it('pumped swing (Mathieu, ω0 = 2ω): x″ + ω²(1 + h cos 2ωt)x = 0 grows at hω/4', () => {
@@ -65,7 +65,12 @@ describe('pumped coupled oscillators (RK4) vs the coupled-mode growth rate', () 
     const h = 0.1
     const p: OscParams = { w1: 1, w2: 1, w0: 2, c1: h / 2, c2: h / 2, E0: 1, G1: 0, G2: 0 }
     expect(gamma0Of(p)).toBeCloseTo(h / 4, 12)
-    expect(Math.abs(measureOscGrowth(p, 600).gamma / (h / 4) - 1)).toBeLessThan(0.03)
+    expect(Math.abs(measureOscGrowth(p, 600).gamma / (h / 4) - 1)).toBeLessThan(0.005)
+    // detuned swing (Landau & Lifshitz §27): ω0 = 2ω + δ grows at √((hω/4)² − δ²/4)
+    const det: OscParams = { ...p, w0: 2.02 }
+    const thd = Math.sqrt((h / 4) ** 2 - 0.02 ** 2 / 4)
+    expect(decayGrowth(h / 4, 0.02, 0, 0)).toBeCloseTo(thd, 12)
+    expect(Math.abs(measureOscGrowth(det, 30 / thd).gamma / thd - 1)).toBeLessThan(0.02)
   })
   it('purely growing mode (ω2 ≈ 0, ω0 just below ω1) matches the two-sideband dispersion relation', () => {
     for (const [w2, w0, cc, G] of [
@@ -76,7 +81,7 @@ describe('pumped coupled oscillators (RK4) vs the coupled-mode growth rate', () 
       const p: OscParams = { w1: 1, w2, w0, c1: cc, c2: cc, E0: 1, G1: G, G2: G }
       const th = purelyGrowing(p)
       expect(th).toBeGreaterThan(0.02)
-      expect(Math.abs(measureOscGrowth(p, 20 / th).gamma / th - 1)).toBeLessThan(0.03)
+      expect(Math.abs(measureOscGrowth(p, 20 / th).gamma / th - 1)).toBeLessThan(0.005)
     }
     // pump above ω1: no purely growing mode
     expect(purelyGrowing({ w1: 1, w2: 0.03, w0: 1.03, c1: 0.02, c2: 0.02, E0: 1, G1: 0, G2: 0 })).toBe(0)

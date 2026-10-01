@@ -344,7 +344,7 @@ export function ThreeWaveSim() {
       </div>
       <div className="controls">
         <Slider label="Growth rate γ₀ (coupling)" value={K} min={0.02} max={0.2} step={0.005} onChange={setK} fmt={(v) => v.toFixed(3)} />
-        <Slider label="Plasma-wave damping ν" value={nu} min={0} max={1} step={0.01} onChange={setNu} fmt={(v) => v.toFixed(2)} />
+        <Slider label="Plasma-wave damping ν" value={nu} min={P.slab ? 0.02 : 0} max={1} step={0.01} onChange={setNu} fmt={(v) => v.toFixed(2)} />
         <Slider label="Seed level ε" value={lseed} min={-14} max={-3} step={0.5} onChange={setLseed} fmt={(v) => `1e${v}`} />
         <Slider label="Speed (steps per frame)" value={speed} min={1} max={40} step={1} onChange={setSpeed} fmt={(v) => String(v)} />
       </div>

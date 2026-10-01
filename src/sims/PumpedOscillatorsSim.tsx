@@ -278,7 +278,10 @@ export function PumpedOscillatorsSim() {
     true,
   )
 
-  const ok = meas !== null && isFinite(theory) && (Math.abs(theory) > 1e-3 ? Math.abs(meas / theory - 1) < 0.05 : Math.abs(meas) < 1.5e-3)
+  // The two-wave theory leaves out the non-resonant sidebands, an error of order γ₀²/ω₂ in the rate; near threshold,
+  // where the theory itself is small, judge the agreement against γ₀ rather than against the (tiny) theory value.
+  const tolAbs = Math.max(0.05 * Math.abs(theory), 0.03 * (otsi ? theory : g0), Math.abs(theory) < 1e-3 ? 1.5e-3 : 5e-4)
+  const ok = meas !== null && isFinite(theory) && Math.abs(meas - theory) < tolAbs
   return (
     <SimFrame
       id="pumped-oscillators"

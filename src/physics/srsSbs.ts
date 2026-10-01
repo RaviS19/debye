@@ -317,61 +317,81 @@ function gauss(rand: () => number): number {
   return Math.sqrt(-2 * Math.log(rand() + 1e-300)) * Math.cos(2 * Math.PI * rand())
 }
 
-/** Advance the local three-wave coupling in every cell by one dt (RK4). */
+/** Below this an amplitude is set to zero: a fully depleted pump decays exponentially and would otherwise sink
+ *  into subnormal floating-point numbers, which are many times slower to compute with. */
+const TINY = 1e-150
+
+/**
+ * Advance the local three-wave coupling in every cell by one dt (RK4). The local coupling oscillates at about
+ * K·|a| and the damping acts at ν; where (K|a| + ν)·dt exceeds 0.5 (an undamped plasma wave in a slab keeps
+ * accumulating pump quanta, so |a2| grows without bound) the cell is sub-stepped to keep RK4 stable and accurate.
+ */
 function react(s: ThreeWave, dt: number): void {
   const K = s.K
   const nu = s.nu
   const { a0r, a0i, a1r, a1i, a2r, a2i } = s
   for (let i = 0; i < s.n; i++) {
-    const p0r = a0r[i]
-    const p0i = a0i[i]
-    const p1r = a1r[i]
-    const p1i = a1i[i]
-    const p2r = a2r[i]
-    const p2i = a2i[i]
-    // f(a0, a1, a2) = (−K a1 a2, K a0 conj(a2), K a0 conj(a1) − ν a2)
-    let x0r = p0r
-    let x0i = p0i
-    let x1r = p1r
-    let x1i = p1i
-    let x2r = p2r
-    let x2i = p2i
-    let s0r = 0
-    let s0i = 0
-    let s1r = 0
-    let s1i = 0
-    let s2r = 0
-    let s2i = 0
-    for (let st = 0; st < 4; st++) {
-      const d0r = -K * (x1r * x2r - x1i * x2i)
-      const d0i = -K * (x1r * x2i + x1i * x2r)
-      const d1r = K * (x0r * x2r + x0i * x2i)
-      const d1i = K * (x0i * x2r - x0r * x2i)
-      const d2r = K * (x0r * x1r + x0i * x1i) - nu * x2r
-      const d2i = K * (x0i * x1r - x0r * x1i) - nu * x2i
-      const w = st === 0 || st === 3 ? 1 : 2
-      s0r += w * d0r
-      s0i += w * d0i
-      s1r += w * d1r
-      s1i += w * d1i
-      s2r += w * d2r
-      s2i += w * d2i
-      if (st < 3) {
-        const h = st < 2 ? 0.5 * dt : dt
-        x0r = p0r + h * d0r
-        x0i = p0i + h * d0i
-        x1r = p1r + h * d1r
-        x1i = p1i + h * d1i
-        x2r = p2r + h * d2r
-        x2i = p2i + h * d2i
+    const amp = Math.sqrt(a0r[i] ** 2 + a0i[i] ** 2 + a1r[i] ** 2 + a1i[i] ** 2 + a2r[i] ** 2 + a2i[i] ** 2)
+    const rate = (K * amp + nu) * dt
+    const nsub = rate > 0.5 ? Math.ceil(rate / 0.5) : 1
+    const h0 = dt / nsub
+    for (let sub = 0; sub < nsub; sub++) {
+      const p0r = a0r[i]
+      const p0i = a0i[i]
+      const p1r = a1r[i]
+      const p1i = a1i[i]
+      const p2r = a2r[i]
+      const p2i = a2i[i]
+      // f(a0, a1, a2) = (−K a1 a2, K a0 conj(a2), K a0 conj(a1) − ν a2)
+      let x0r = p0r
+      let x0i = p0i
+      let x1r = p1r
+      let x1i = p1i
+      let x2r = p2r
+      let x2i = p2i
+      let s0r = 0
+      let s0i = 0
+      let s1r = 0
+      let s1i = 0
+      let s2r = 0
+      let s2i = 0
+      for (let st = 0; st < 4; st++) {
+        const d0r = -K * (x1r * x2r - x1i * x2i)
+        const d0i = -K * (x1r * x2i + x1i * x2r)
+        const d1r = K * (x0r * x2r + x0i * x2i)
+        const d1i = K * (x0i * x2r - x0r * x2i)
+        const d2r = K * (x0r * x1r + x0i * x1i) - nu * x2r
+        const d2i = K * (x0i * x1r - x0r * x1i) - nu * x2i
+        const w = st === 0 || st === 3 ? 1 : 2
+        s0r += w * d0r
+        s0i += w * d0i
+        s1r += w * d1r
+        s1i += w * d1i
+        s2r += w * d2r
+        s2i += w * d2i
+        if (st < 3) {
+          const h = st < 2 ? 0.5 * h0 : h0
+          x0r = p0r + h * d0r
+          x0i = p0i + h * d0i
+          x1r = p1r + h * d1r
+          x1i = p1i + h * d1i
+          x2r = p2r + h * d2r
+          x2i = p2i + h * d2i
+        }
       }
+      a0r[i] = p0r + (h0 / 6) * s0r
+      a0i[i] = p0i + (h0 / 6) * s0i
+      a1r[i] = p1r + (h0 / 6) * s1r
+      a1i[i] = p1i + (h0 / 6) * s1i
+      a2r[i] = p2r + (h0 / 6) * s2r
+      a2i[i] = p2i + (h0 / 6) * s2i
     }
-    a0r[i] = p0r + (dt / 6) * s0r
-    a0i[i] = p0i + (dt / 6) * s0i
-    a1r[i] = p1r + (dt / 6) * s1r
-    a1i[i] = p1i + (dt / 6) * s1i
-    a2r[i] = p2r + (dt / 6) * s2r
-    a2i[i] = p2i + (dt / 6) * s2i
+    if (Math.abs(a0r[i]) < TINY) a0r[i] = 0
+    if (Math.abs(a0i[i]) < TINY) a0i[i] = 0
+    if (Math.abs(a1r[i]) < TINY) a1r[i] = 0
+    if (Math.abs(a1i[i]) < TINY) a1i[i] = 0
+    if (Math.abs(a2r[i]) < TINY) a2r[i] = 0
+    if (Math.abs(a2i[i]) < TINY) a2i[i] = 0
   }
 }
 
