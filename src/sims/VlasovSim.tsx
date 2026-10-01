@@ -299,6 +299,9 @@ export function VlasovSim() {
   const okG = meas && isFinite(theory.gamma) && Math.abs(meas.gamma / theory.gamma - 1) < 0.05
   const trapped = profile !== 'bump' && omegaB > Math.abs(theory.gamma)
   const okW = meas?.omega && Math.abs(meas.omega / theory.wr - 1) < 0.05
+  // the peak fit needs three peaks before the first bounce; a very large amplitude may not leave room for them
+  const fitEnd = Math.min(0.35 * recurrenceTime(sim.current), (0.8 * 2 * Math.PI) / omegaB)
+  const pending = time > fitEnd ? 'too few peaks' : '…'
   return (
     <SimFrame
       id="vlasov"
@@ -331,7 +334,7 @@ export function VlasovSim() {
           )
         ) : (
           <>
-            <span>{trapped ? 'early decay rate' : 'measured γ'} = <b className={okG && !trapped ? 'ok' : ''}>{meas ? meas.gamma.toFixed(4) : '…'}</b>, ω = <b className={okW && !trapped ? 'ok' : ''}>{meas?.omega ? meas.omega.toFixed(3) : '…'}</b></span>
+            <span>{trapped ? 'early decay rate' : 'measured γ'} = <b className={okG && !trapped ? 'ok' : ''}>{meas ? meas.gamma.toFixed(4) : pending}</b>, ω = <b className={okW && !trapped ? 'ok' : ''}>{meas?.omega ? meas.omega.toFixed(3) : pending}</b></span>
             <span>{trapped ? 'linear theory (does not apply)' : 'kinetic theory'} γ = <b>{theory.gamma.toFixed(4)}</b>, ω = <b>{theory.wr.toFixed(3)}</b></span>
             <span>small-kλ_D formula γ = <b>{theory.approx.toFixed(4)}</b></span>
           </>

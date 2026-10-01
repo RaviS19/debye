@@ -96,7 +96,10 @@ export function TwoStreamSim() {
     const gy0 = phaseH + 26 * u
     const gy1 = H - 22 * u
     const lnW = (a: number) => 2 * Math.log(Math.max(a, 1e-30) / r.amps[0]) // ln(W₁/W₁(0))
-    const yMax = 16
+    // the saturation level depends on the seed and on K: keep the whole curve on scale (at least 0–16)
+    let lnMax = 0
+    for (let i = 0; i < r.amps.length; i += 4) lnMax = Math.max(lnMax, lnW(r.amps[i]))
+    const yMax = Math.max(16, 4 * Math.ceil((lnMax + 1) / 4))
     const yMin = -2
     const tMax = Math.max(40, Math.min(tEnd, Math.ceil(p.t / 10) * 10))
     const X = (t: number) => gx0 + (t / tMax) * (gx1 - gx0)

@@ -255,7 +255,7 @@ export function LawsonSim() {
       <div className="readouts">
         <span>Q = <b className={Qnow >= 1 ? 'ok' : ''}>{fmtQ(Qnow)}</b></span>
         <span>n T τ_E = <b>{sci(nTau * T)}</b> keV·s/m³</span>
-        <span>ignition needs <b>{isFinite(ign) ? sci(ign * T) : 'impossible'}</b> here; minimum <b>{sci(tripleIgnition(13.54))}</b> at 13.5 keV</span>
+        <span>ignition needs <b>{isFinite(ign) ? sci(ign * T) : 'impossible'}</b> here; minimum <b>{sci(tripleIgnition(13.54))}</b> at 13.5 keV (no radiation)</span>
       </div>
       <div className="readouts">
         <span>per m³, in MW:</span>

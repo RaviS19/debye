@@ -322,10 +322,14 @@ export function stix(X: number, Y: number): Stix {
 
 export type ModeName = 'R' | 'L' | 'O' | 'X'
 
-/** n² = c²k²/ω² of each principal mode: R, L along B; O, X across B. */
+/**
+ * n² = c²k²/ω² of each principal mode: R, L along B; O, X across B.
+ * n²_X = RL/S, written in the equivalent form 1 − X(1 − X)/(1 − X − Y²) (Chen), which stays finite at the
+ * cyclotron line Y = 1 where R and S both diverge and RL/S would evaluate to ∞/∞ = NaN.
+ */
 export function modeN2(X: number, Y: number): Record<ModeName, number> {
-  const { R, L, P, S } = stix(X, Y)
-  return { R, L, O: P, X: (R * L) / S }
+  const { R, L, P } = stix(X, Y)
+  return { R, L, O: P, X: 1 - (X * (1 - X)) / (1 - X - Y * Y) }
 }
 
 /** Which principal modes propagate (n² > 0) at the CMA point (X, Y). */

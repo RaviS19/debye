@@ -7,8 +7,8 @@ export const PLOTS: PlotSpec[] = [
   {
     id: 'a7-dperp-vs-b',
     title: 'Diffusion across B: classical vs Bohm',
-    equation: '\\dfrac{D_\\perp}{D} = \\dfrac{1}{1+\\omega_c^2\\tau^2},\\qquad \\dfrac{D_B}{D} = \\dfrac{1}{16\\,\\omega_c\\tau}',
-    blurb: 'Both are divided by the field-free value D = kT/mν, and ω_cτ grows in proportion to B. Classical diffusion falls as 1/B² once ω_cτ > 1: particles can only hop one Larmor radius per collision. Bohm’s empirical law falls only as 1/B and wins beyond ω_cτ ≈ 16. Hot fusion plasmas have ω_cτ of a million or more, so the gap between the two is enormous. Bohm’s formula only makes sense for strongly magnetized plasma, so it is drawn from ω_cτ = 1.',
+    equation: '\\begin{gathered}\\dfrac{D_\\perp}{D} = \\dfrac{1}{1+\\omega_c^2\\tau^2} \\\\ \\dfrac{D_B}{D} = \\dfrac{1}{16\\,\\omega_c\\tau}\\end{gathered}',
+    blurb: 'Both are divided by the field-free value D = kT/mν, and ω_cτ grows in proportion to B. Classical diffusion falls as 1/B² once ω_cτ > 1: particles can only hop one Larmor radius per collision. Bohm’s empirical law falls only as 1/B and wins beyond ω_cτ ≈ 16 (green line). Hot fusion plasmas have ω_cτ of a million or more, so the gap between the two is enormous. Bohm’s formula only makes sense for strongly magnetized plasma, so it is drawn from ω_cτ = 1.',
     x: { label: 'ω_c τ  (∝ B)', min: 0.01, max: 1e4, log: true },
     y: { label: 'D / (kT/mν)', min: 1e-8, max: 3, log: true },
     params: [],
@@ -18,13 +18,13 @@ export const PLOTS: PlotSpec[] = [
     ],
     markers: [
       { label: 'ω_cτ = 1', color: COLORS.amber, x: () => 1 },
-      { label: 'crossover ≈ 16', color: COLORS.lime, x: () => 8 + Math.sqrt(63) },
+      { label: '≈ 16', color: COLORS.lime, x: () => 8 + Math.sqrt(63) }, // crossover: 1/(1 + x²) = 1/(16x)
     ],
   },
   {
     id: 'a7-fusion-diffusion',
     title: 'Classical vs Bohm in a hydrogen plasma',
-    equation: 'D_\\perp = \\dfrac{\\eta_\\perp\\, n\\, k(T_e + T_i)}{B^2},\\qquad D_B = \\dfrac{kT_e}{16\\,eB}',
+    equation: '\\begin{gathered}D_\\perp = \\dfrac{\\eta_\\perp\\, n\\, k(T_e + T_i)}{B^2} \\\\ D_B = \\dfrac{kT_e}{16\\,eB}\\end{gathered}',
     blurb: 'A fully ionized hydrogen plasma with T_e = T_i. Classical diffusion (from electron–ion collisions, through the resistivity η⊥ ≈ 2η∥) is tiny in a hot, strongly magnetized plasma. If transport really were Bohm-like, a hot plasma would leak out many orders of magnitude faster and fusion would be hopeless. Measured transport in tokamaks sits between the two. The classical line assumes ω_cτ ≫ 1, true everywhere on this plot for the default values.',
     x: { label: 'B (T)', min: 0.01, max: 10, log: true },
     y: { label: 'D (m²/s)', min: 1e-7, max: 1e5, log: true },
@@ -57,7 +57,7 @@ export const PLOTS: PlotSpec[] = [
   {
     id: 'a7-diffusion-decay',
     title: 'A plasma slab decaying by diffusion',
-    equation: 'n(x,t) = \\sum_{m\\ \\text{odd}} \\dfrac{4}{m\\pi}(-1)^{\\frac{m-1}{2}} \\cos\\dfrac{m\\pi x}{L}\\, e^{-m^2 t/\\tau_1},\\qquad \\tau_1 = \\dfrac{(L/\\pi)^2}{D}',
+    equation: '\\begin{gathered}n(x,t) = \\sum_{m\\ \\text{odd}} a_m(t) \\cos\\dfrac{m\\pi x}{L} \\\\ a_m(t) = \\dfrac{4}{m\\pi}(-1)^{\\frac{m-1}{2}}\\, e^{-m^2 t/\\tau_1} \\\\ \\tau_1 = \\dfrac{(L/\\pi)^2}{D}\\end{gathered}',
     blurb: 'The plasma starts uniform between two walls that absorb it (n = 0 at x = ±L/2). The sharp corners are made of high-order modes, which decay m² times faster than the lowest one. Slide the time: by about 0.3 τ₁ only the smooth cosine is left (to within 3%), and after that the whole profile just shrinks exponentially with time constant τ₁.',
     x: { label: 'x / L', min: -0.5, max: 0.5 },
     y: { label: 'n / n₀', min: 0, max: 1.3 },

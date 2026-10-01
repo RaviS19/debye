@@ -122,7 +122,7 @@ export const A9: Lesson = {
         <h2>The distribution function</h2>
         <p>
           Instead of a density n(x, t), describe the electrons by a density in <strong>phase space</strong>, position and velocity together:
-          f(x, v, t) dx dv is the number of electrons in the small box dx dv around (x, v). Everything the fluid picture uses is a
+          f(x, v, t) dv is the density of electrons at x whose velocities lie within the small range dv around v. Everything the fluid picture uses is a
           velocity average, or <strong>moment</strong>, of f. The zeroth moment counts particles; the first gives their flow; the second gives
           the pressure, the spread of velocities about the mean, which is where temperature lives.
         </p>
@@ -131,7 +131,7 @@ export const A9: Lesson = {
           src="\begin{gathered}\s{n}{n}(x,t) = \int \s{f}{f}(x,\s{v}{v},t)\,dv \\ n\,\s{u}{u} = \int v\,f\,dv\end{gathered}"
           symbols={{
             n: { name: 'n, number density', units: 'm⁻³', note: 'The zeroth moment: integrate over all velocities to count every particle at x.' },
-            f: { name: 'f, distribution function', units: 's/m⁴ (per m³ per m/s) with one velocity component; s³/m⁶ (per m³ per (m/s)³) in full 3D', note: 'The density of particles in phase space. For a Maxwellian at rest, f = n (2πv_th²)^(−1/2) exp(−v²/2v_th²), with v_th = √(kT/m).' },
+            f: { name: 'f, distribution function', units: 's/m⁴ (per m³ per m/s) with one velocity component, as here; s³/m⁶ (per m³ per (m/s)³) with all three', note: 'The density of particles in phase space. For a Maxwellian at rest, f = n (2πv_th²)^(−1/2) exp(−v²/2v_th²), with v_th = √(kT/m).' },
             v: { name: 'v, velocity', units: 'm/s', note: 'An independent coordinate, on the same footing as x. The fluid equations lose it by integrating over it.' },
             u: { name: 'u, mean (fluid) velocity', units: 'm/s', note: 'The first moment divided by n: the fluid velocity of A4. The next moment, p = m∫(v − u)²f dv, is the pressure.' },
           }}
@@ -192,7 +192,7 @@ export const A9: Lesson = {
           steps={[
             { text: 'Linearize the 1D Vlasov equation for electrons (charge −e) about f₀(v), keeping terms of first order in f₁ and E₁.', math: '-i\\omega f_1 + ikv\\,f_1 - \\dfrac{e}{m}E_1\\,f_0^{\\prime}(v) = 0', why: 'E is zero in equilibrium, so the only first-order force term is E₁ acting on the unperturbed f₀. The term E₁·∂f₁/∂v is second order and dropped.' },
             { text: 'Solve for the perturbed distribution.', math: 'f_1 = \\dfrac{ie}{m}\\,\\dfrac{E_1\\,f_0^{\\prime}(v)}{\\omega - kv}', why: 'The denominator vanishes for electrons moving at the wave’s phase velocity v = ω/k. These resonant electrons are the whole story of this lesson.' },
-            { text: 'Put the perturbed density ∫f₁dv into Poisson’s equation. E₁ cancels, leaving the dispersion relation.', math: '\\begin{gathered}ikE_1 = -\\dfrac{e}{\\varepsilon_0}\\int f_1\\,dv \\\\ \\Rightarrow\\; 1 = \\dfrac{\\omega_p^2}{k^2}\\int \\dfrac{\\hat g^{\\prime}(v)\\,dv}{v - \\omega/k}\\end{gathered}', why: 'Check: for a cold plasma, integrate by parts and expand for v ≪ ω/k; the integral becomes k²/ω² and the relation gives ω = ω_p, the plasma oscillation of A5.' },
+            { text: 'Put the perturbed density ∫f₁dv into Poisson’s equation. E₁ cancels, leaving the dispersion relation.', math: '\\begin{gathered}ikE_1 = -\\dfrac{e}{\\varepsilon_0}\\int f_1\\,dv \\\\ \\Rightarrow\\; 1 = \\dfrac{\\omega_p^2}{k^2}\\int \\dfrac{\\hat g^{\\prime}(v)\\,dv}{v - \\omega/k}\\end{gathered}', why: 'Check: for a cold plasma, integrate by parts and expand for v ≪ ω/k; the integral becomes k²/ω² and the relation gives ω = ω_p, the plasma oscillation of A1.' },
             { text: 'The integral has a pole at v = ω/k. Landau solved the initial-value problem (a Laplace transform in time) and showed the v-integration must pass below the pole. For weak damping this gives a principal part plus half a residue.', math: '\\begin{gathered}\\int \\dfrac{\\hat g^{\\prime}\\,dv}{v - v_\\phi} = \\mathcal{P}\\!\\!\\int \\dfrac{\\hat g^{\\prime}\\,dv}{v - v_\\phi} \\\\ +\\; i\\pi\\,\\hat g^{\\prime}(v_\\phi)\\end{gathered}', why: 'Here v_φ = ω/k and k > 0. The initial-value problem is well defined for Im ω > 0, where the pole lies above the real v axis; continuing to damped waves (Im ω < 0) drags the contour below the pole. Vlasov’s earlier principal-value treatment missed the iπ term entirely.' },
             { text: 'Write the relation as ε(ω) = 1 − (ω_p²/k²)∫… = 0 and split ε = ε_r + iε_i. With ω = ω_r + iγ and |γ| ≪ ω_r, expand to first order in γ.', math: '\\varepsilon_r(\\omega_r) = 0,\\qquad \\gamma = -\\dfrac{\\varepsilon_i}{\\partial\\varepsilon_r/\\partial\\omega}', why: 'The principal part gives ε_r ≈ 1 − ω_p²/ω² − 3k²v_th²ω_p²/ω⁴: the Bohm–Gross wave of A5. So ∂ε_r/∂ω ≈ 2/ω_p. The half-residue gives ε_i = −π(ω_p²/k²)ĝ′(v_φ).' },
             { text: 'The damping rate is set by the slope of the distribution at the phase velocity.', math: '\\gamma = \\dfrac{\\pi}{2}\\,\\omega_p\\,\\dfrac{\\omega_p^2}{k^2}\\,\\hat g^{\\prime}\\!\\left(\\dfrac{\\omega}{k}\\right)', why: 'Negative slope (any Maxwellian above v = 0): γ < 0, damping. Positive slope (a bump): γ > 0, growth.' },
@@ -282,7 +282,9 @@ export const A9: Lesson = {
         <ul>
           <li>
             <strong>The benchmark.</strong> At kλ_D = 0.5 and α = 0.01, the peaks of |E₁| fall on a straight line. The measured rate and
-            frequency should match the exact root, γ = −0.1534 ω_p and ω = 1.416 ω_p, to within about 1%.
+            frequency should match the exact root, γ = −0.1534 ω_p and ω = 1.416 ω_p, to within about 1%. Past t ≈ 55 the decay
+            slows: even this small wave has begun to trap electrons (ω_B t ≈ 5 by then). At α = 0.001 the straight line continues to
+            t ≈ 70.
           </li>
           <li>
             <strong>The δf view.</strong> Watch the departure from the Maxwellian. At first it is a smooth ripple in x. Soon it tilts into
@@ -352,8 +354,8 @@ export const A9: Lesson = {
           t ≈ 15–20, which is about two bounce periods of the initial field (2π/ω_B ≈ 9). Then, instead of falling further, it grows
           again: the trapped electrons have turned around in their wells and are handing energy back. By t ≈ 40 it has recovered to about
           a sixth of its starting value, and from then on it rings slowly about a finite level. In the f view the resonant electrons roll
-          up into vortices, one per wavelength, at v = ±ω/k. Undamped nonlinear waves held up by trapped particles in this way are the BGK
-          modes Chen mentions.
+          up into vortices, one per wavelength, at v = ±ω/k. Exact undamped nonlinear waves held up by trapped particles are called BGK modes, after Bernstein, Greene
+          and Kruskal (1957).
         </p>
       </section>
 
@@ -370,7 +372,7 @@ export const A9: Lesson = {
           spread 0.5 v_th. The slope is positive between about 3.1 and 4.5 v_th. At kλ_D = 0.3 the exact root of the kinetic dispersion
           relation has ω = 1.00 ω_p, so v_φ = 3.34 v_th, inside the positive-slope window, and γ = +0.198 ω_p. After a brief transient (the Landau-damped part of
           the initial ripple dies away by t ≈ 10), the simulation’s |E₁| climbs on that slope for about 20 time units, by a factor of about
-          50, and the measured rate matches the kinetic root to about 1%.
+          50, and the measured rate matches the kinetic root to within about 2%.
         </p>
         <p>
           Then, at about 75 times its starting amplitude (t ≈ 35), it stops. The wave has grown until its bounce frequency is comparable with its growth rate, and it traps the beam electrons.
@@ -387,8 +389,8 @@ export const A9: Lesson = {
           particles are trapped, distributions flatten, and waves saturate. A10 takes up nonlinear plasma physics properly, with sheaths,
           solitons, the ponderomotive force, the parametric instabilities in which one wave decays into two, and the plasma echoes that
           prove Landau damping is reversible. Landau damping returns
-          throughout Track B: in laser plasmas the electron plasma waves driven by stimulated Raman scattering (B6) are Landau damped, and
-          when they are driven hard enough to trap electrons they make the hot electrons of B8. In Track C the same trapping, at relativistic
+          throughout Track B: in laser plasmas the electron plasma waves driven by stimulated Raman scattering are Landau damped, and
+          when they are driven hard enough to trap electrons they make the energetic “hot” electrons that can preheat a fusion capsule. In Track C the same trapping, at relativistic
           amplitude, is how a laser wakefield catches electrons and accelerates them.
         </p>
       </section>

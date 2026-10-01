@@ -23,7 +23,7 @@ export function RTSim() {
   const make = (a = A, m = mode, n = nu, z = noise, f = flipped) => createRT({ A: a, nu: n, delta: DELTA, mode: m, eta0: 0.002 / m, noise: z / 100, flipped: f, seed: 5 })
   const sim = useRef<RT>(make())
   const img = useRef<{ canvas: HTMLCanvasElement; data: ImageData } | null>(null)
-  const [meas, setMeas] = useState<{ sigma: number; done: boolean } | null>(null)
+  const [meas, setMeas] = useState<{ sigma: number; done: boolean; noisy?: boolean } | null>(null)
   const [time, setTime] = useState(0)
 
   const restart = (a = A, m = mode, n = nu, z = noise, f = flipped) => {
@@ -218,7 +218,7 @@ export function RTSim() {
     running,
   )
 
-  const good = meas && Math.abs(meas.sigma / linear - 1) < 0.1
+  const good = meas && isFinite(meas.sigma) && Math.abs(meas.sigma / linear - 1) < 0.1
   return (
     <SimFrame
       id="rayleigh-taylor"
@@ -238,7 +238,11 @@ export function RTSim() {
           <span>stable: the ripple oscillates as a gravity wave, ω ≈ <b>{rtDiffuse(A, 1, k, DELTA).toFixed(2)}</b></span>
         ) : (
           <>
-            <span>measured σ = <b className={good ? 'ok' : ''}>{meas ? meas.sigma.toFixed(3) : '…'}</b>{meas && !meas.done ? ' (fitting)' : ''}</span>
+            {meas && !isFinite(meas.sigma) ? (
+              <span>measured σ: <b>none</b> (the seed noise went nonlinear first; lower the noise)</span>
+            ) : (
+              <span>measured σ = <b className={good ? 'ok' : ''}>{meas ? meas.sigma.toFixed(3) : '…'}</b>{meas && !meas.done ? ' (fitting)' : ''}</span>
+            )}
             <span>linear theory (δ, ν) = <b>{linear.toFixed(3)}</b></span>
             <span>ideal √(Agk) = <b>{ideal.toFixed(3)}</b></span>
           </>

@@ -96,7 +96,7 @@ export const A6: Lesson = {
         </p>
         <Eq
           title="Critical density"
-          src="\s{nc}{n_c} = \dfrac{\s{eps}{\varepsilon_0}\, \s{m}{m_e}\, \s{w}{\omega}^2}{\s{e}{e}^2} \approx \dfrac{1.1\times 10^{27}}{\s{lam}{\lambda_{\mu m}}^2}\ \text{m}^{-3}"
+          src="\s{nc}{n_c} = \dfrac{\s{eps}{\varepsilon_0}\, \s{m}{m_e}\, \s{w}{\omega}^2}{\s{e}{e}^2} \approx \dfrac{1.1\times 10^{27}}{\s{lam}{\lambda_{\mu m}}^2}\,\text{m}^{-3}"
           plot="a6-critical-density"
           symbols={{
             nc: { name: 'n_c, critical density', units: 'm⁻³', note: 'The electron density at which ω_p = ω. Light of this frequency cannot go any deeper.' },
@@ -147,7 +147,7 @@ export const A6: Lesson = {
             <span className="pill">R wave · k ∥ B</span>
             <p style={{ marginTop: 10 }}>
               Circularly polarized, rotating the same way the electrons gyrate. At ω = ω_c it stays in step with them and pumps
-              energy in continuously: electron cyclotron resonance, the basis of electron cyclotron resonance heating (ECRH) in tokamaks.
+              energy in continuously: electron cyclotron resonance. Electron cyclotron heating (ECRH) in tokamaks exploits this resonance, though in practice the beams are usually launched across B as O- or X-modes.
             </p>
           </div>
           <div className="card">
@@ -255,7 +255,7 @@ export const A6: Lesson = {
         <p>
           Everything here is lossless: the cold electrons respond perfectly in phase. Real plasmas have collisions, which let electrons
           turn the wave’s oscillating energy into heat. That is the subject of A7 (collisions, diffusion and resistivity), and it is
-          exactly how a laser deposits its energy near the critical density: collisional absorption, lesson B2. Track B starts from
+          one of the main ways a laser deposits its energy just below the critical density: collisional absorption, lesson B2. Track B starts from
           this lesson’s ramp and Airy pattern (B1), where light arriving at an angle θ turns around earlier, at n_c cos²θ, and then
           asks what happens when the swollen field near n_c drives the plasma hard.
         </p>
@@ -264,10 +264,10 @@ export const A6: Lesson = {
   ),
   problems: [
     { id: 'A6-p1', kind: 'numeric', concept: 'critical-density', prompt: 'What is the critical density for frequency-tripled Nd:glass light at 351 nm? Give it in units of $10^{27}\\ \\text{m}^{-3}$.', answer: 9.05, tol: 0.03, unit: '×10²⁷ m⁻³', hints: ['$n_c \\approx 1.11\\times10^{27}/\\lambda_{\\mu m}^2\\ \\text{m}^{-3}$.', '$\\lambda^2 = 0.351^2 = 0.123\\ \\mu\\text{m}^2$.'], solution: '$n_c = 1.115\\times10^{27}/0.1232 = 9.05\\times10^{27}\\ \\text{m}^{-3}$, nine times the $1.0\\times10^{27}$ of the 1053 nm fundamental. The shorter wavelength deposits energy in denser plasma, closer to the target.' },
-    { id: 'A6-p2', kind: 'numeric', concept: 'skin-depth', prompt: 'A 10 GHz microwave beam hits a plasma with $n = 10^{20}\\ \\text{m}^{-3}$. Over what distance does its field fall by a factor $e$ inside the plasma? Answer in millimetres.', answer: 0.535, tol: 0.03, unit: 'mm', hints: ['First check whether it propagates: $\\omega_p = 56.4\\sqrt{n}$ rad/s.', '$\\delta = c/\\sqrt{\\omega_p^2 - \\omega^2}$, with $\\omega = 2\\pi\\times10^{10}$ rad/s.'], solution: '$\\omega_p = 5.64\\times10^{11}$ rad/s, far above $\\omega = 6.28\\times10^{10}$ rad/s, so the wave is cut off. $\\delta = 3.00\\times10^8/\\sqrt{3.18\\times10^{23} - 3.9\\times10^{21}} = 5.35\\times10^{-4}$ m ≈ 0.53 mm, essentially the skin depth $c/\\omega_p = 0.53$ mm.' },
+    { id: 'A6-p2', kind: 'numeric', concept: 'skin-depth', prompt: 'A 10 GHz microwave beam hits a plasma with $n = 10^{20}\\ \\text{m}^{-3}$. Over what distance does its field fall by a factor $e$ inside the plasma? Answer in millimetres.', answer: 0.535, tol: 0.03, unit: 'mm', hints: ['First check whether it propagates: $\\omega_p = 56.4\\sqrt{n}$ rad/s.', '$\\delta = c/\\sqrt{\\omega_p^2 - \\omega^2}$, with $\\omega = 2\\pi\\times10^{10}$ rad/s.'], solution: '$\\omega_p = 5.64\\times10^{11}$ rad/s, far above $\\omega = 6.28\\times10^{10}$ rad/s, so the wave is cut off. $\\delta = 3.00\\times10^8/\\sqrt{3.18\\times10^{23} - 3.9\\times10^{21}} = 5.35\\times10^{-4}$ m ≈ 0.535 mm, essentially the skin depth $c/\\omega_p = 0.531$ mm.' },
     { id: 'A6-p3', kind: 'mcq', concept: 'o-mode', prompt: 'An O-mode wave travels across $\\mathbf{B}_0$ with its electric field parallel to $\\mathbf{B}_0$. Why is its cutoff the same $\\omega = \\omega_p$ as in an unmagnetized plasma?', options: ['The magnetic field is too weak to matter at these frequencies', 'The electrons it drives move along B₀, so the magnetic force on them is zero', 'The O-mode is a longitudinal wave', 'The ions cancel the effect of B₀'], correct: 1, hints: ['What is $\\mathbf{v}\\times\\mathbf{B}_0$ when $\\mathbf{v} \\parallel \\mathbf{B}_0$?'], solution: 'The wave field pushes electrons along $\\mathbf{B}_0$, and $\\mathbf{v}\\times\\mathbf{B}_0 = 0$ for that motion. The electrons respond exactly as if there were no field, so the dispersion relation is $\\omega^2 = \\omega_p^2 + c^2k^2$ whatever the field strength.' },
     { id: 'A6-p4', kind: 'numeric', concept: 'alfven-speed', prompt: 'Find the Alfvén speed in a deuterium plasma with $n = 10^{20}\\ \\text{m}^{-3}$ and $B = 2$ T. Give it in units of $10^6$ m/s.', answer: 3.09, tol: 0.03, unit: '×10⁶ m/s', hints: ['$\\rho = n m_D$ with $m_D = 3.34\\times10^{-27}$ kg.', '$v_A = B/\\sqrt{\\mu_0\\rho}$, $\\mu_0 = 4\\pi\\times10^{-7}$.'], solution: '$\\rho = 3.34\\times10^{-7}\\ \\text{kg/m}^3$, $\\mu_0\\rho = 4.20\\times10^{-13}$, $\\sqrt{\\cdot} = 6.48\\times10^{-7}$, so $v_A = 2/6.48\\times10^{-7} = 3.09\\times10^6$ m/s, about 1% of the speed of light.' },
-    { id: 'A6-p5', kind: 'numeric', concept: 'upper-hybrid', prompt: 'A plasma has $n = 10^{19}\\ \\text{m}^{-3}$ in a 1 T field. What is the upper-hybrid frequency $f_h = \\omega_h/2\\pi$, in GHz?', answer: 39.9, tol: 0.03, unit: 'GHz', hints: ['$f_{pe} \\approx 8.98\\sqrt{n}$ Hz and $f_{ce} \\approx 28.0$ GHz per tesla.', '$f_h^2 = f_{pe}^2 + f_{ce}^2$.'], solution: '$f_{pe} = 8.98\\times\\sqrt{10^{19}} = 28.4$ GHz and $f_{ce} = 28.0$ GHz, so $f_h = \\sqrt{28.4^2 + 28.0^2} = 39.9$ GHz.' },
+    { id: 'A6-p5', kind: 'numeric', concept: 'r-cutoff', prompt: 'A plasma has $n = 10^{19}\\ \\text{m}^{-3}$ in a 1 T field. At what frequency $f_R = \\omega_R/2\\pi$ is the R wave (and the upper X-mode branch) cut off? Answer in GHz.', answer: 45.7, tol: 0.03, unit: 'GHz', hints: ['$f_{pe} \\approx 8.98\\sqrt{n}$ Hz and $f_{ce} \\approx 28.0$ GHz per tesla.', '$f_R = \\tfrac12\\left[f_{ce} + \\sqrt{f_{ce}^2 + 4f_{pe}^2}\\right]$, the upper sign of the cutoff formula.'], solution: '$f_{pe} = 28.4$ GHz and $f_{ce} = 28.0$ GHz, so $f_R = \\tfrac12[28.0 + \\sqrt{28.0^2 + 4\\times28.4^2}] = \\tfrac12[28.0 + 63.3] = 45.7$ GHz. The L cutoff is $\\tfrac12[-28.0 + 63.3] = 17.7$ GHz. The upper-hybrid resonance, $\\sqrt{28.4^2 + 28.0^2} = 39.9$ GHz (problem 3 of A5), always lies between the two cutoffs.' },
     { id: 'A6-p6', kind: 'mcq', concept: 'cma-diagram', prompt: 'A wave meets a plasma where $X = \\omega_p^2/\\omega^2 = 1.5$ and $Y = \\omega_c/\\omega = 0.8$. Which of the principal waves propagate? (Check your answer on the CMA diagram.)', options: ['R and O', 'L and X', 'Only the O-mode', 'None of them'], correct: 1, hints: ['$R = 1 - X/(1-Y)$, $L = 1 - X/(1+Y)$, $P = 1 - X$, $S = (R+L)/2$.', 'O propagates if $P > 0$, X if $RL/S > 0$.'], solution: '$R = 1 - 1.5/0.2 = -6.5$ (R cut off), $L = 1 - 1.5/1.8 = 0.17$ (L propagates), $P = -0.5$ (O cut off), $S = -3.17$, so $RL/S = 0.34 > 0$ (X propagates). The point sits between the upper-hybrid line and the L cutoff.' },
   ],
   cards: [

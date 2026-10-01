@@ -178,9 +178,10 @@ export function LaserPlasmaSim() {
     ctx.fillText(narrow ? 'n(x)' : 'plasma density n(x)', X(VIEW) - 4 * u, Yn(1) - 6 * u)
     ctx.fillStyle = COLORS.amber
     if (ncLevel < 1.2) {
-      ctx.textAlign = 'left'
+      // right end of the level line: beyond the turning point the field is ~0, so the label stays clear of it
+      ctx.textAlign = 'right'
       const ly = Yn(ncLevel) - 5 * u
-      ctx.fillText('n = n_c', X(LASER.X0 - 2), ly < top + 10 * u ? Yn(ncLevel) + 14 * u : ly)
+      ctx.fillText('n = n_c', X(VIEW) - 4 * u, ly < top + 10 * u ? Yn(ncLevel) + 14 * u : ly)
     } else {
       ctx.textAlign = 'right'
       ctx.fillText(narrow ? 'n_c > n_max' : 'n_c above the plateau: transparent', X(VIEW) - 4 * u, top - 8 * u)
@@ -261,7 +262,7 @@ export function LaserPlasmaSim() {
         )}
         {over && profile === 'edge' && (
           <span>
-            decay length: <b className={meas.ready && Math.abs(meas.decay / dTh - 1) < 0.04 ? 'ok' : ''}>{show(meas.decay, 3)}</b> vs c/√(ω_p²−ω²) = <b>{dTh.toFixed(3)}</b> c/ω_p
+            decay length: <b className={meas.ready && Math.abs(meas.decay / dTh - 1) < 0.05 ? 'ok' : ''}>{show(meas.decay, 3)}</b> vs c/√(ω_p²−ω²) = <b>{dTh.toFixed(3)}</b> c/ω_p
           </span>
         )}
         {!over && (

@@ -405,7 +405,7 @@ export function SheathSim() {
         <span>floating wall ½ln(2πm_e/M) − ½:</span>
         {(Object.keys(SPECIES) as Sp[]).map((k) => (
           <span key={k}>
-            {SPECIES[k].label} <b className={k === sp ? 'ok' : ''}>{floatingPotential(SPECIES[k].m).toFixed(2)}</b>
+            {SPECIES[k].label} <b style={k === sp ? { textDecoration: 'underline' } : undefined}>{floatingPotential(SPECIES[k].m).toFixed(2)}</b>
           </span>
         ))}
       </div>

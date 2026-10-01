@@ -295,7 +295,7 @@ export function CmaSim() {
       running={running}
       setRunning={setRunning}
       onReset={() => setPt({ X: 0.6, Y: 0.5 })}
-      hint="Tap or drag anywhere on the diagram. Moving right means a denser plasma (or a lower wave frequency); moving up means a stronger magnetic field. The strips show each principal wave over three vacuum wavelengths (faint line): a propagating wave has wavelength λ₀/n, a cut-off one decays within a fraction of a wavelength. Brighter regions let more of the four waves through. Electrons only; ions are held fixed."
+      hint="Tap or drag anywhere on the diagram. Moving right means a denser plasma (or a lower wave frequency); moving up means a stronger magnetic field. The strips show each principal wave over three vacuum wavelengths (faint line): a propagating wave has wavelength λ₀/n; a cut-off one decays as exp(−2π|n|x/λ₀), within a fraction of a wavelength unless it is close to a cutoff. Brighter regions let more of the four waves through. Electrons only; ions are held fixed."
     >
       <div className="row" style={{ marginBottom: 10, gap: 6 }}>
         {PRESETS.map((p) => (

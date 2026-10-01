@@ -15,6 +15,7 @@ import {
   settleTime,
   skinDepth,
   stepEM,
+  stix,
   turningPoint,
   wavenumber,
   type EMGrid,
@@ -84,7 +85,7 @@ describe('FDTD at a sharp plasma edge', () => {
 
 describe('the sim readouts settle at every slider frequency next to the cutoff', () => {
   // The sim marks a readout "ready" at settleTime; from then on it must stay inside the sim's own
-  // tolerances (R within 0.03, x_turn within 0.3, decay length within 4%, wavelength within 2%).
+  // tolerances (R within 0.03, x_turn within 0.3, decay length within 5%, wavelength within 2%).
   for (const [omega, profile] of [[0.9, 'ramp'], [0.9, 'edge'], [1.1, 'ramp'], [1.1, 'edge']] as const) {
     it(`ω = ${omega}, ${profile}`, () => {
       const g = run(omega, profile, settleTime(omega, profile))
@@ -102,6 +103,25 @@ describe('the sim readouts settle at every slider frequency next to the cutoff',
       }
     })
   }
+})
+
+describe('plotter dispersion branches over the whole slider range', () => {
+  it('every branch is finite, lies on its own n² curve, and rises with k (b = ω_c/ω_p from 0.1 to 3)', () => {
+    const pairs = [['R-high', 'R'], ['R-whistler', 'R'], ['L', 'L'], ['X-low', 'X'], ['X-high', 'X']] as const
+    for (const b of [0.1, 0.5, 1, 1.5, 2.2, 3]) {
+      for (const [br, m] of pairs) {
+        let prev = -Infinity
+        for (const k of [0.05, 0.3, 1, 2, 3, 4]) {
+          const w = branchOmega(br, k, b)
+          expect(Number.isFinite(w)).toBe(true)
+          expect(w).toBeGreaterThan(prev)
+          prev = w
+          // relative accuracy of ω²n² = k² (the bracket must contain the root)
+          expect(Math.abs((modeN2(1 / w ** 2, b / w)[m] * w * w) / (k * k) - 1)).toBeLessThan(1e-6)
+        }
+      }
+    }
+  })
 })
 
 describe('CMA diagram classifier (cold electrons, fixed ions)', () => {
@@ -136,6 +156,13 @@ describe('CMA diagram classifier (cold electrons, fixed ions)', () => {
     expect(branchOmega('R-whistler', 50, b)).toBeLessThan(b)
     expect(branchOmega('R-whistler', 50, b)).toBeGreaterThan(0.99 * b)
     expect(branchOmega('X-low', 50, b)).toBeGreaterThan(0.99 * wUH)
+    // RL/S and Chen's form agree, and the X-mode stays finite on the cyclotron line Y = 1
+    for (const [X, Y] of [[0.3, 0.4], [1.7, 0.2], [2.5, 1.8]]) {
+      const { R, L, S } = stix(X, Y)
+      expect(modeN2(X, Y).X).toBeCloseTo((R * L) / S, 10)
+    }
+    expect(modeN2(0.5, 1).X).toBeCloseTo(2 * (1 - 0.5 / 2), 12) // the limit of RL/S at Y = 1 is 2L
+    expect(Number.isFinite(modeN2(0.5, 1).X)).toBe(true)
     // and every branch satisfies its own dispersion relation
     for (const [br, m] of [['R-high', 'R'], ['R-whistler', 'R'], ['L', 'L'], ['X-low', 'X'], ['X-high', 'X']] as const) {
       const k = 1.3

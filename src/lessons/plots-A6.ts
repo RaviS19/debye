@@ -48,7 +48,7 @@ export const PLOTS: PlotSpec[] = [
   {
     id: 'a6-magnetized-dispersion',
     title: 'R, L, O and X waves in a magnetized plasma',
-    equation: 'n_{R,L}^2 = 1 - \\dfrac{\\omega_p^2/\\omega^2}{1 \\mp \\omega_c/\\omega},\\quad n_O^2 = 1 - \\dfrac{\\omega_p^2}{\\omega^2},\\quad n_X^2 = 1 - \\dfrac{\\omega_p^2}{\\omega^2}\\dfrac{\\omega^2-\\omega_p^2}{\\omega^2-\\omega_h^2}',
+    equation: '\\begin{gathered}n_{R,L}^2 = 1 - \\dfrac{\\omega_p^2/\\omega^2}{1 \\mp \\omega_c/\\omega} \\\\ n_O^2 = 1 - \\dfrac{\\omega_p^2}{\\omega^2} \\\\ n_X^2 = 1 - \\dfrac{\\omega_p^2}{\\omega^2}\\,\\dfrac{\\omega^2-\\omega_p^2}{\\omega^2-\\omega_h^2}\\end{gathered}',
     blurb: 'Each branch except the whistler starts at a cutoff (k = 0), and each either climbs to the light line or flattens against a resonance (k → ∞). The R wave splits in two: a high branch above ω_R and the whistler, which starts at ω = 0 and flattens below ω_c. The X-mode also splits, with a lower branch that ends at the upper-hybrid resonance ω_h. The O-mode ignores B entirely. Slide the field strength and watch the gaps open and close.',
     x: { label: 'ck / ω_p', min: 0, max: 4 },
     y: { label: 'ω / ω_p', min: 0, max: 4 },
@@ -70,7 +70,7 @@ export const PLOTS: PlotSpec[] = [
   {
     id: 'a6-alfven-speed',
     title: 'Alfvén speed',
-    equation: 'v_A = \\dfrac{B}{\\sqrt{\\mu_0 \\rho}},\\qquad \\dfrac{\\omega}{k} = \\dfrac{v_A}{\\sqrt{1 + v_A^2/c^2}}',
+    equation: '\\begin{gathered}v_A = \\dfrac{B}{\\sqrt{\\mu_0 \\rho}} \\\\ \\dfrac{\\omega}{k} = \\dfrac{v_A}{\\sqrt{1 + v_A^2/c^2}}\\end{gathered}',
     blurb: 'Field lines behave like strings with tension B²/μ₀, loaded with the plasma mass density ρ = n m_i. Stronger field, faster waves; heavier plasma, slower. In very thin plasma the simple formula would exceed c; the full result (solid) bends over and never does, because the displacement current adds inertia.',
     x: { label: 'B (T)', min: 1e-4, max: 10, log: true },
     y: { label: 'speed (m/s)', min: 1e3, max: 1e9, log: true },

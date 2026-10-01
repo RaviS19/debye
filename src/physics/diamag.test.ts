@@ -62,4 +62,14 @@ describe('diamagnetic flux from fixed guiding centres', () => {
     expect(d.up).toBeGreaterThan(d.down)
     expect(Math.abs(lineFlux(d) / theoryFlux(d) - 1)).toBeLessThan(0.1)
   })
+
+  it('the simulation setup (3200 particles, 32 × 16 box, 4× speed sub-stepping) at every slider corner: finite and within 5%', () => {
+    for (const [gn, gT, charge] of [[0.055, 0.05, 1], [0.055, 0.05, -1], [0, 0.05, -1], [0.055, 0, 1], [0.02, 0, -1]] as const) {
+      const d = createDiamag({ n: 3200, Lx: 32, Ly: 16, gn, gT, charge })
+      for (let s = 0; s < 120; s++) advanceDiamag(d, 0.2, 8) // 120 frames at 4× ≈ 3.8 gyro-periods
+      expect(d.x.every(Number.isFinite) && d.y.every(Number.isFinite)).toBe(true)
+      expect(Math.sign(measuredFlux(d))).toBe(charge) // ions +y, electrons −y for gradients along +x
+      expect(Math.abs(measuredFlux(d) / theoryFlux(d) - 1)).toBeLessThan(0.05)
+    }
+  })
 })

@@ -137,6 +137,7 @@ export const A5: Lesson = {
             {
               text: 'At these low frequencies the electrons have time to reach force balance: they follow the Boltzmann relation of A4, linearized.',
               math: 'n_{e1} = n_0\\,\\dfrac{e\\phi_1}{kT_e}',
+              why: 'Here the electrons are isothermal (γ_e = 1), not γ_e = 3 as in the electron plasma wave: the wave moves so slowly compared with them that they cross many wavelengths per period and even out their temperature.',
             },
             {
               text: 'Ion momentum and continuity, linearized, with ion pressure γ_i kT_i ∇n.',
@@ -172,7 +173,7 @@ export const A5: Lesson = {
             g: { name: 'γ_i, ion adiabatic index', note: 'Usually 3 (one-dimensional compression).' },
             Ti: { name: 'kT_i, ion temperature', units: 'J', note: 'Adds a little speed, but also lets ions resonate with the wave and damp it.' },
           }}
-          says="Sound driven by electron pressure and carried by ion mass. For long waves ω = k c_s with c_s = √((kT_e + γ_i kT_i)/M); for short waves the frequency levels off at the ion plasma frequency ω_pi."
+          says="Sound driven by electron pressure and carried by ion mass. For long waves ω = k c_s with c_s = √((kT_e + γ_i kT_i)/M); for short waves with cold ions the frequency levels off at the ion plasma frequency ω_pi."
         />
         <Plotter spec={plotById('a5-ion-acoustic')!} />
         <p>
@@ -368,7 +369,7 @@ export const A5: Lesson = {
     { id: 'A5-c1', front: 'Phase and group velocity', back: '$v_\\varphi = \\omega/k$ (crests); $v_g = d\\omega/dk$ (envelope and energy)' },
     { id: 'A5-c2', front: 'Bohm–Gross relation (state the thermal speed)', back: '$\\omega^2 = \\omega_{pe}^2 + 3k^2v_{th}^2$ with $v_{th}^2 = kT_e/m$; the 3 is $\\gamma_e$ for 1D compression' },
     { id: 'A5-c3', front: 'Ion sound speed', back: '$c_s = \\sqrt{(kT_e + \\gamma_i kT_i)/M}$, usually $\\gamma_i = 3$' },
-    { id: 'A5-c4', front: 'Ion acoustic wave at short wavelength', back: '$\\omega^2 = k^2 c_s^2/(1 + k^2\\lambda_D^2) \\to \\omega_{pi}^2$ for cold ions and $k\\lambda_D \\gg 1$' },
+    { id: 'A5-c4', front: 'Ion acoustic wave at short wavelength', back: 'With cold ions, $\\omega^2 = k^2 c_s^2/(1 + k^2\\lambda_D^2) \\to \\omega_{pi}^2$ for $k\\lambda_D \\gg 1$' },
     { id: 'A5-c5', front: 'Upper hybrid frequency', back: '$\\omega_h^2 = \\omega_{pe}^2 + \\omega_{ce}^2$ (electron oscillation across B)' },
     { id: 'A5-c6', front: 'Lower hybrid frequency in a dense plasma', back: '$\\omega_{LH} \\approx \\sqrt{\\omega_{ce}\\Omega_{ci}}$' },
   ],

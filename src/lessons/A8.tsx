@@ -260,9 +260,10 @@ export const A8: Lesson = {
           says="Only the gradient of B² across the field acts as a pressure; along the field the pressure part cancels against part of (B·∇)B, leaving pure tension toward the centre of curvature. A straight, uniform field exerts no force at all. A bent field line straightens; a squeezed bundle of field lines springs apart."
         />
         <p>
-          These two ideas explain most of the stability results below. A plasma sitting on field lines that curve <em>away</em> from it (like
-          the outside of a torus) is being held up by rubber bands that it can slip between: bad curvature, unstable. A plasma surrounded by
-          field lines that curve <em>toward</em> it (the inside of a torus, or the cusp of a magnetic well) is cradled: good curvature.
+          These two ideas explain most of the stability results below. A plasma held by field lines that bulge <em>away</em> from it, with their centre of curvature on the plasma’s side
+          (the outside of a torus), is being held up by rubber bands that it can slip between: bad curvature, unstable. A plasma surrounded by
+          field lines that bulge <em>toward</em> it, with their centre of curvature outside the plasma (the inside of a torus, or a cusp), is
+          cradled: good curvature.
         </p>
       </section>
 
@@ -369,7 +370,7 @@ export const A8: Lesson = {
             { text: 'Poisson’s equation adds the charge of both beams.', math: '\\begin{gathered}ik\\varepsilon_0E_1 = -e\\left(n_{1+} + n_{1-}\\right) \\;\\Rightarrow \\\\ 1 = \\dfrac{\\omega_b^2}{(\\omega - kv_0)^2} + \\dfrac{\\omega_b^2}{(\\omega + kv_0)^2}\\end{gathered}', why: 'Substituting n₁ from the previous step, the factor ikE₁ cancels on both sides, leaving ε₀ = Σ n_b e²/(m(ω − ku)²).' },
             { text: 'Scale by ω_b: x = ω/ω_b, K = kv₀/ω_b. Clearing fractions gives a quadratic in x².', math: '\\begin{gathered}(x^2 - K^2)^2 = 2(x^2 + K^2) \\\\ \\Rightarrow\\; x^2 = K^2 + 1 \\pm \\sqrt{1 + 4K^2}\\end{gathered}', why: 'Multiply through by (x − K)²(x + K)² = (x² − K²)². The right side becomes (x + K)² + (x − K)² = 2(x² + K²).' },
             { text: 'The minus root is negative when (K² + 1)² < 1 + 4K², i.e. K < √2. Then x is imaginary: one mode grows, one decays.', math: '\\gamma = \\omega_b\\sqrt{\\sqrt{1 + 4K^2} - K^2 - 1}', why: 'x² < 0 means ω = ±iγ. There is no real frequency: the bunches stand still in the frame midway between the beams, as they must by symmetry.' },
-            { text: 'Maximize γ² over K². Setting the derivative 2/√(1 + 4K²) − 1 to zero gives √(1 + 4K²) = 2.', math: '\\begin{gathered}K^2 = \\tfrac{3}{4}:\\quad kv_0 = \\tfrac{\\sqrt{3}}{2}\\,\\omega_b \\\\ \\gamma_{\\max} = \\tfrac{1}{2}\\,\\omega_b\\end{gathered}', why: 'γ²_max = 2 − 3/4 − 1 = 1/4. The fastest-growing wavelength is λ = 2πv₀/k = 4πv₀/(√3 ω_b), set by how far a beam travels in about one plasma period.' },
+            { text: 'Maximize γ² over K². Setting the derivative 2/√(1 + 4K²) − 1 to zero gives √(1 + 4K²) = 2.', math: '\\begin{gathered}K^2 = \\tfrac{3}{4}:\\quad kv_0 = \\tfrac{\\sqrt{3}}{2}\\,\\omega_b \\\\ \\gamma_{\\max} = \\tfrac{1}{2}\\,\\omega_b\\end{gathered}', why: 'γ²_max = 2 − 3/4 − 1 = 1/4. The fastest-growing wavelength is λ = 2π/k = 4πv₀/(√3 ω_b), about the distance a beam travels in one beam plasma period 2π/ω_b.' },
           ]}
         />
         <Plotter spec={plotById('a8-two-stream')!} />
@@ -399,7 +400,7 @@ export const A8: Lesson = {
             g: { name: 'g, gravitational acceleration', units: 'm/s²', note: 'Any acceleration will do. In an accelerated frame, a light fluid pushing a heavy one is the same as the heavy one resting on it: this is why the RT instability threatens laser-driven fusion capsules (Track B).' },
             k: { name: 'k, ripple wavenumber', units: 'rad/m', note: '2π/λ. Short ripples grow fastest.' },
             rh: { name: 'ρ_h, heavy (upper) density', units: 'kg/m³', note: 'The fluid on top.' },
-            rl: { name: 'ρ_l, light (lower) density', units: 'kg/m³', note: 'The fluid underneath. With ρ_l > ρ_h (flip the simulation) σ² < 0 and the ripple just oscillates as a gravity wave.' },
+            rl: { name: 'ρ_l, light (lower) density', units: 'kg/m³', note: 'The fluid underneath. Put the light fluid on top instead (Flip in the simulation) and σ² changes sign: the ripple just oscillates as a gravity wave.' },
           }}
           says="The ripple grows faster the shorter it is, with no limit, in this idealized case. Real interfaces have a width δ and viscosity ν: a ripple much shorter than δ barely sees a density jump, and viscosity kills short ripples outright. Both appear in the plot preset and in the simulation’s linear-theory readout."
         />
@@ -434,14 +435,14 @@ export const A8: Lesson = {
             { text: 'Electron continuity: the E×B drift carries the background gradient across y. This links the density ripple to the field.', math: '\\begin{gathered}-i\\omega n_1 + v_{E,y}\\,\\dfrac{dn_0}{dy} = 0 \\\\ \\Rightarrow\\; n_1 = -\\dfrac{E_x}{i\\omega B}\\,\\dfrac{dn_0}{dy}\\end{gathered}', why: 'E×B is incompressible in a uniform B, so it only moves density around, bringing dense plasma up or down.' },
             { text: 'Ion continuity has two extra terms: the ion drift v_g sliding the ripple along x, and the divergence of the polarization drift. Quasineutrality (n_i1 = n_e1) makes everything else cancel against the electron equation.', math: '\\begin{gathered}ik\\,v_g\\,n_1 + n_0\\,ik\\,v_{p,x} = 0 \\\\ \\dfrac{dE_x}{dt} = -i(\\omega - kv_g)E_x\\end{gathered}', why: 'The ion drift is the charge-separating current: if it did not match the polarization current, charge would build up without limit. The ions see E change at their own Doppler-shifted frequency ω − kv_g.' },
             { text: 'Substitute n₁ from the electron equation and v_{p,x}, and cancel E_x.', math: '\\omega^2 - \\omega k v_g + g\\,\\dfrac{1}{n_0}\\dfrac{dn_0}{dy} = 0', why: 'Ω_c v_g = −g brings in the gravity. The E_x, B and k all cancel: the result depends only on g, the gradient, and the drift.' },
-            { text: 'With heavy on top, dn₀/dy > 0 and, neglecting the small kv_g, ω² is negative.', math: '\\gamma = \\sqrt{\\dfrac{g}{L_n}}', why: 'The exact root is γ = √(g/L_n − k²v_g²/4), so the ion drift weakly stabilizes short waves. If the density decreased upward (light on top), ω² = g/L_n > 0 and the ripple would only oscillate, just as in the flipped fluid simulation.' },
+            { text: 'With heavy on top, dn₀/dy > 0 and, neglecting the small kv_g, ω² is negative.', math: '\\gamma = \\sqrt{\\dfrac{g}{L_n}}', why: 'The exact root is γ = √(g/L_n − k²v_g²/4), so the ion drift weakly stabilizes short waves. If the density decreased upward (light on top), dn₀/dy < 0 makes ω² = g/|L_n| > 0, and the ripple would only oscillate, just as in the flipped fluid simulation.' },
           ]}
         />
         <Eq
           title="Plasma Rayleigh–Taylor growth rate"
           src="\s{gam}{\gamma} = \sqrt{\dfrac{\s{g}{g}}{\s{L}{L_n}}},\qquad \s{g}{g_{\rm eff}} \sim \dfrac{\s{vt}{v_{th}^2}}{\s{Rc}{R_c}}"
           symbols={{
-            gam: { name: 'γ, growth rate', units: 's⁻¹', note: 'Compare σ = √(Agk) for a fluid: a density scale length L_n plays the role of the ripple wavelength, because the plasma boundary is not sharp.' },
+            gam: { name: 'γ, growth rate', units: 's⁻¹', note: 'Compare σ = √(Agk) for a fluid with A ≈ 1: the density scale length L_n plays the role of 1/k. A ripple much shorter than the gradient sees only the gradient, just as σ² → Ag/δ for a fluid interface of width δ.' },
             g: { name: 'g, gravity or effective gravity', units: 'm/s²', note: 'Real gravity matters in the ionosphere and for the Sun; in the lab the effective gravity of curved field lines dominates.' },
             L: { name: 'L_n, density scale length', units: 'm', note: 'n/(dn/dy). A steeper edge grows faster.' },
             vt: { name: 'v_th², thermal speed squared', units: 'm²/s²', note: 'A particle following a curved field line at speed v∥ feels a centrifugal force mv∥²/R_c; together with the ∇B drift of A2 this averages to an effective gravitational acceleration of order kT/(mR_c).' },
@@ -523,7 +524,7 @@ export const A8: Lesson = {
       answer: 0.575,
       tol: 0.03,
       unit: 'mm',
-      hints: ['Each beam has $\\omega_b = \\sqrt{n_b e^2/\\varepsilon_0 m_e}$.', 'Fastest growth at $kv_0 = (\\sqrt{3}/2)\\,\\omega_b$, so $\\lambda = 2\\pi v_0/k$.'],
+      hints: ['Each beam has $\\omega_b = \\sqrt{n_b e^2/\\varepsilon_0 m_e}$.', 'Fastest growth at $kv_0 = (\\sqrt{3}/2)\\,\\omega_b$, so $k = (\\sqrt{3}/2)\\,\\omega_b/v_0$ and $\\lambda = 2\\pi/k$.'],
       solution: '$\\omega_b = \\sqrt{5\\times10^{16}\\times(1.602\\times10^{-19})^2/(8.854\\times10^{-12}\\times9.109\\times10^{-31})} = 1.26\\times10^{10}$ rad/s. $k = 0.866\\times1.26\\times10^{10}/10^6 = 1.09\\times10^4$ m⁻¹, so $\\lambda = 2\\pi/k = 5.75\\times10^{-4}$ m = 0.575 mm. It grows at $\\gamma = \\omega_b/2 = 6.3\\times10^9$ s⁻¹: one e-fold every 0.16 ns.',
     },
     {

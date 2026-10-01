@@ -33,7 +33,7 @@ type Branch = 'epw' | 'iaw' | 'uh' | 'eic' | 'lh'
 const BRANCHES: { key: Branch; label: string; color: string; magnetized: boolean }[] = [
   { key: 'epw', label: 'electron plasma (Bohm–Gross)', color: COLORS.cyan, magnetized: false },
   { key: 'iaw', label: 'ion acoustic', color: COLORS.magenta, magnetized: false },
-  { key: 'uh', label: 'upper hybrid (k ⊥ B)', color: COLORS.amber, magnetized: true },
+  { key: 'uh', label: 'upper hybrid (k ⊥ B, warm fluid)', color: COLORS.amber, magnetized: true },
   { key: 'eic', label: 'ion cyclotron (k nearly ⊥ B)', color: COLORS.violet, magnetized: true },
   { key: 'lh', label: 'lower hybrid', color: COLORS.lime, magnetized: true },
 ]
@@ -228,7 +228,7 @@ export function DispersionSim() {
     // phase space
     const psH = pH * 0.55
     ctx.fillStyle = COLORS.text
-    ctx.fillText(`PIC phase space, kλ_D = ${run.K.toFixed(2)}`, px0 + 8 * u, py0 + 15 * u)
+    ctx.fillText(`PIC phase space (x across, v up), kλ_D = ${run.K.toFixed(2)}`, px0 + 8 * u, py0 + 15 * u)
     ctx.fillStyle = COLORS.cyan
     ctx.globalAlpha = 0.55
     const vmax = 4
@@ -251,6 +251,10 @@ export function DispersionSim() {
     ctx.stroke()
     ctx.fillStyle = COLORS.magenta
     ctx.fillText('mode amplitude E_k(t)', tx0, py0 + psH + 12 * u)
+    ctx.fillStyle = COLORS.text
+    ctx.textAlign = 'right'
+    ctx.fillText(`t = ${p.t.toFixed(0)} / ω_pe`, tx0 + tw, py0 + psH + 12 * u)
+    ctx.textAlign = 'left'
     const peak = Math.max(1e-9, run.peak)
     glowStroke(ctx, COLORS.magenta, 1.5 * u, () => {
       for (let i = 0; i < run.trace.length; i += 2) {
@@ -268,8 +272,6 @@ export function DispersionSim() {
       ctx.lineTo(x, ty + 4 * u)
       ctx.stroke()
     }
-    ctx.fillStyle = COLORS.text
-    ctx.fillText(`t = ${p.t.toFixed(0)} / ω_pe`, tx0, py0 + pH - 6 * u)
   }
 
   // redraw after resizes and slider changes while paused (the animation loop is not running then)
@@ -331,7 +333,7 @@ export function DispersionSim() {
       </div>
       <canvas ref={canvas} className="sim" aria-label="Dispersion relation explorer with particle-in-cell measurement" />
       <div className="row" style={{ marginTop: 10, gap: 6 }}>
-        <button className="btn small primary" disabled={busy} onClick={startPic}>
+        <button className="btn small primary" style={{ textTransform: 'none' }} disabled={busy} onClick={startPic}>
           {busy ? `PIC running… ${Math.round((picState?.progress ?? 0) * 100)}%` : `Measure ω with PIC at kλ_D = ${Kp.toFixed(2)}`}
         </button>
         {points.length > 0 && <button className="btn small" onClick={() => setPoints([])}>Clear points</button>}
@@ -352,7 +354,7 @@ export function DispersionSim() {
       {picState && (
         <div className="readouts">
           <span>PIC at kλ_D = <b>{picState.K.toFixed(2)}</b></span>
-          <span>measured ω/ω_pe = <b className={picOk ? 'ok' : ''}>{picState.w ? picState.w.toFixed(3) : '…'}</b></span>
+          <span>measured ω/ω_pe = <b className={picOk ? 'ok' : ''}>{picState.w ? picState.w.toFixed(3) : picState.progress >= 1 ? 'too few oscillations' : '…'}</b></span>
           <span>Bohm–Gross = <b>{bg.toFixed(3)}</b>{picState.w ? ` (${picState.w >= bg ? '+' : ''}${((picState.w / bg - 1) * 100).toFixed(1)}%)` : ''}</span>
           {picState.faded && <span style={{ color: 'var(--amber)' }}>wave damped into the noise (Landau damping, A9)</span>}
         </div>

@@ -38,6 +38,37 @@ describe('Rayleigh–Taylor simulation', () => {
     expect(Math.abs(meas / exact - 1)).toBeLessThan(0.02)
     expect(Math.abs(meas / ideal - 1)).toBeLessThan(0.2)
   })
+  it('inviscid 2D run matches the analytic tanh-profile rate σ² = Agk/(1 + kδ) within 2%', () => {
+    // independent of rtLinearGrowth: the closed-form Pöschl–Teller eigenvalue of the tanh profile
+    for (const mode of [1, 3]) {
+      const meas = runLinear({ A: 0.25, nu: 0, delta: 0.02, mode, eta0: 0.002 / mode, noise: 0.01 })
+      expect(Math.abs(meas / rtDiffuse(0.25, 1, 2 * Math.PI * mode, 0.02) - 1)).toBeLessThan(0.02)
+    }
+  })
+  it('viscous run matches an independent continuum eigenvalue within 1.5%', () => {
+    // dense eigen-solve of the linearized viscous Boussinesq equations, tanh profile, free-slip walls at
+    // z = ±1, 1400 points in z (scipy): σ = 1.5167 for A = 0.25, ν = 3e-4, δ = 0.02, k = 4π
+    const meas = runLinear({ A: 0.25, nu: 3e-4, delta: 0.02, mode: 2, noise: 0.01 })
+    expect(Math.abs(meas / 1.5167 - 1)).toBeLessThan(0.015)
+    // the viscous estimate √(σ₀² + ν²k⁴) − νk² is only approximate: 1.5378, 1.4% high here
+    const k = 4 * Math.PI
+    expect(rtViscous(rtDiffuse(0.25, 1, k, 0.02), 3e-4, k) / 1.5167 - 1).toBeGreaterThan(0.005)
+  })
+  it('large seed noise never yields a contaminated rate: the fit is either accurate or abandoned', () => {
+    for (const noise of [0.03, 0.1]) {
+      for (const A of [0.05, 0.5]) {
+        const o = { A, nu: 1e-4, delta: 0.02, mode: 1, eta0: 0.002, noise }
+        const rt = createRT(o)
+        let m = measuredGrowth(rt)
+        while (rt.t < 12 && !m?.done) {
+          stepRT(rt, rtTimeStep(rt))
+          m = measuredGrowth(rt)
+        }
+        if (m && Number.isFinite(m.sigma)) expect(Math.abs(m.sigma / rtLinearGrowth(o) - 1)).toBeLessThan(0.03)
+        else expect(m?.noisy).toBe(true)
+      }
+    }
+  })
   it('short, fast modes still leave a fit window (m = 5, A = 0.5, seed kη₀ fixed as in the sim)', () => {
     const o = { A: 0.5, nu: 1e-4, delta: 0.02, mode: 5, eta0: 0.002 / 5, noise: 0.1 }
     const meas = runLinear(o)

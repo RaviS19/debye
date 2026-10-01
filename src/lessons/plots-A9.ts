@@ -37,7 +37,7 @@ export const PLOTS: PlotSpec[] = [
     id: 'a9-ion-landau',
     title: 'Ion acoustic damping vs T_e / T_i',
     equation: '\\begin{gathered}-\\dfrac{\\gamma}{\\omega_r} \\approx \\sqrt{\\dfrac{\\pi}{8}}\\,\\Bigg[\\sqrt{\\dfrac{m_e}{M}} \\\\ +\\; \\left(\\dfrac{T_e}{T_i}\\right)^{3/2} e^{-T_e/2T_i - 3/2}\\Bigg]\\end{gathered}',
-    blurb: 'Hydrogen, kλ_De = 0.1. The glowing curve is the exact root of the dispersion relation with kinetic electrons and ions; the dashed curve is the formula. With T_e ≈ T_i the wave speed sits inside the ion distribution and the wave is gone within a period. Only when T_e/T_i exceeds about 10 does ion damping die away, leaving a floor of weak electron Landau damping set by √(m_e/M). The formula is only a rough guide: it overestimates the damping by about 50% for T_e/T_i between about 5 and 12, and below T_e/T_i ≈ 3 it even turns over, while the true damping keeps rising.',
+    blurb: 'Hydrogen, kλ_De = 0.1. The glowing curve is the exact root of the dispersion relation with kinetic electrons and ions; the dashed curve is the formula. With T_e ≈ T_i the wave speed sits inside the ion distribution and the wave is gone within a period. Only when T_e/T_i exceeds about 10 does ion damping die away, leaving a floor of weak electron Landau damping set by √(m_e/M). The formula is only a rough guide: it overestimates the damping by 40–80% for T_e/T_i between about 4 and 12, and below T_e/T_i ≈ 3 it even turns over, while the true damping keeps rising.',
     x: { label: 'T_e / T_i', min: 0.3, max: 100, log: true },
     y: { label: '−γ / ω_r', min: 0, max: 0.8 },
     params: [],

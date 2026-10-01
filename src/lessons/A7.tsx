@@ -98,7 +98,7 @@ export const A7: Lesson = {
         </p>
         <Eq
           title="Ambipolar diffusion"
-          src="\s{Da}{D_a} = \dfrac{\s{mui}{\mu_i}\s{De}{D_e} + \s{mue}{\mu_e}\s{Di}{D_i}}{\s{mui}{\mu_i} + \s{mue}{\mu_e}} \approx \s{Di}{D_i}\left(1 + \dfrac{\s{Te}{T_e}}{\s{Ti}{T_i}}\right)"
+          src="\begin{gathered}\s{Da}{D_a} = \dfrac{\s{mui}{\mu_i}\s{De}{D_e} + \s{mue}{\mu_e}\s{Di}{D_i}}{\s{mui}{\mu_i} + \s{mue}{\mu_e}} \\ \s{Da}{D_a} \approx \s{Di}{D_i}\left(1 + \dfrac{\s{Te}{T_e}}{\s{Ti}{T_i}}\right)\end{gathered}"
           symbols={{
             Da: { name: 'D_a, ambipolar diffusion coefficient', units: 'm²/s', note: 'The rate at which the quasineutral plasma as a whole spreads out.' },
             mui: { name: 'μ_i, ion mobility', units: 'm²/(V·s)', note: 'Small, because ions are heavy.' },
@@ -183,7 +183,7 @@ export const A7: Lesson = {
             { text: 'Divide by mnν. The magnetic force couples v_x and v_y through ω_cτ = eB/(mν).', math: 'v_x = \\pm\\mu E_x - \\dfrac{D}{n}\\dfrac{\\partial n}{\\partial x} \\pm \\omega_c\\tau\\,v_y,\\qquad v_y = \\pm\\mu E_y - \\dfrac{D}{n}\\dfrac{\\partial n}{\\partial y} \\mp \\omega_c\\tau\\,v_x', why: '(v×B)_x = v_y B and (v×B)_y = −v_x B for B = Bẑ, and eB/(mν) = ω_cτ.' },
             { text: 'Substitute the second equation into the first and collect the v_x terms.', math: 'v_x(1 + \\omega_c^2\\tau^2) = \\pm\\mu E_x - \\dfrac{D}{n}\\dfrac{\\partial n}{\\partial x} + \\omega_c^2\\tau^2\\left(\\dfrac{E_y}{B} \\mp \\dfrac{kT}{eBn}\\dfrac{\\partial n}{\\partial y}\\right)', why: 'The bracket is the x-component of the E×B drift plus the diamagnetic drift from A2 and A4. The same algebra works for v_y.' },
             { text: 'Write it compactly. The mobility and diffusion across B are both reduced by the same factor.', math: '\\mathbf{v}_\\perp = \\pm\\mu_\\perp\\mathbf{E} - D_\\perp\\dfrac{\\nabla n}{n} + \\dfrac{\\mathbf{v}_E + \\mathbf{v}_D}{1 + \\nu^2/\\omega_c^2},\\qquad D_\\perp = \\dfrac{D}{1+\\omega_c^2\\tau^2}' },
-            { text: 'The drift terms move plasma along the density contours, around the column, not out of it. The loss across B comes from the D⊥ and μ⊥ terms only.', why: 'v_E and v_D are perpendicular to E and ∇n, so they carry no flux down the gradient.' },
+            { text: 'The drift terms move plasma along the density contours, around the column, not out of it. The loss across B comes from the D⊥ and μ⊥ terms only.', why: 'v_D is always perpendicular to ∇n, and in a cylindrically symmetric column E is radial like ∇n, so v_E is too: both point around the column (azimuthally) and carry no flux down the gradient.' },
             { text: 'In a strong field, ω_cτ ≫ 1, and D⊥ becomes a random walk with step r_L.', math: 'D_\\perp \\approx \\dfrac{kT\\nu}{m\\omega_c^2} = \\left(\\dfrac{v_{th}}{\\omega_c}\\right)^2\\nu = r_L^2\\,\\nu \\propto \\dfrac{1}{B^2}', why: 'Compare D = λ_mfp²ν: the step length has changed from the mean free path to the Larmor radius. Notice the collision frequency moved from the denominator to the numerator.' },
           ]}
         />
@@ -191,8 +191,8 @@ export const A7: Lesson = {
         <p>
           In a fully ionized plasma there are no neutrals, and collisions between like particles do not help: two electrons that collide
           shift their guiding centres by equal and opposite amounts, leaving their average position where it was. Only electron–ion collisions move plasma across B. The
-          result is automatically ambipolar, <M>{'D_\\perp = \\eta_\\perp n\\,k(T_e + T_i)/B^2'}</M>, where η⊥ is the resistivity from the last section of
-          this lesson.
+          result is automatically ambipolar, <M>{'D_\\perp = \\eta_\\perp n\\,k(T_e + T_i)/B^2'}</M>, where η⊥ is the resistivity for current across B from the
+          resistivity section below.
         </p>
       </section>
 
@@ -219,7 +219,7 @@ export const A7: Lesson = {
           The usual explanation is turbulence: small fluctuating electric fields, with eφ a fair fraction of kT_e, whose E×B drifts shuffle
           plasma across the field. Estimating that shuffle gives D ~ kT_e/(eB), with the 1/16 as a fitted number. It is worse at high B
           simply because 1/B falls more slowly than 1/B², and worse at high T because it grows with T while classical diffusion shrinks.
-          Beating Bohm-like losses was the central problem of fusion research through the 1950s and 1960s. Transport in modern tokamaks is
+          Beating Bohm-like losses was a central problem of fusion research through the 1950s and 1960s. Transport in modern tokamaks is
           still “anomalous”, driven by turbulence and well above classical, but far below Bohm.
         </p>
       </section>
@@ -248,7 +248,7 @@ export const A7: Lesson = {
         <p>
           Where the 5.2×10⁻⁵ comes from: η∥ = 0.51 m_e/(ne²τ_e) with the standard electron collision time
           <M>{'\\ \\tau_e = 6\\sqrt{2}\\,\\pi^{3/2}\\varepsilon_0^2\\sqrt{m_e}\\,(kT_e)^{3/2}/(\\ln\\Lambda\\, e^4 n)'}</M>. Evaluated in SI
-          units that gives <M>{'5.3\\times10^{-5}\\ln\\Lambda/T_{eV}^{3/2}'}</M> Ω·m. The factor 0.51 (rather than 1) appears because the current is carried mostly by
+          units that gives <M>{'5.3\\times10^{-5}\\ln\\Lambda/T_{eV}^{3/2}'}</M> Ω·m, within about 1% of the 5.2×10⁻⁵ quoted by Chen. The factor 0.51 (rather than 1) appears because the current is carried mostly by
           the faster electrons, which collide less; electron–electron collisions partly undo that advantage. The formula assumes a fully ionized plasma, Maxwellian electrons, no neutrals, and no trapped
           particles; in a tokamak, electrons trapped in the weak-field side’s magnetic mirror cannot carry current, which raises the
           effective resistivity (neoclassical correction).

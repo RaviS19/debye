@@ -221,7 +221,7 @@ export function WavePacketSim() {
       running={running}
       setRunning={setRunning}
       onReset={() => restart()}
-      hint={`A packet is a sum of waves with nearby k, each obeying ω(k). Where their crests line up is the envelope. Units: ${PACKET_MODELS[model].units}, so speeds are in ${unit}. Try the cold plasma oscillation: every crest races along, but the envelope never moves, because ω does not depend on k.`}
+      hint={`A packet is a sum of waves with nearby k, each obeying ω(k). Where their crests line up they add, and the dashed envelope outlines that region. Units: ${PACKET_MODELS[model].units}, so speeds are in ${unit}. Try the cold plasma oscillation: every crest races along, but the envelope never moves, because ω does not depend on k.`}
     >
       <div className="row" style={{ marginBottom: 10, gap: 6 }}>
         {(Object.keys(PACKET_MODELS) as Model[]).map((m) => (
@@ -241,9 +241,9 @@ export function WavePacketSim() {
       </div>
       <canvas ref={canvas} className="sim" aria-label="Wave packet simulation" />
       <div className="readouts">
-        <span style={{ color: COLORS.magenta }}>v_φ measured <b className={good(meas.vp, theory.vp) ? 'ok' : ''}>{meas.t ? meas.vp.toFixed(3) : '…'}</b>, theory ω/k = <b>{theory.vp.toFixed(3)}</b></span>
-        <span style={{ color: COLORS.lime }}>v_g measured <b className={good(meas.vg, theory.vg) ? 'ok' : ''}>{meas.t ? meas.vg.toFixed(3) : '…'}</b>, theory dω/dk = <b>{theory.vg.toFixed(3)}</b></span>
-        <span>v_φ · v_g = <b>{(theory.vp * theory.vg).toFixed(3)}</b></span>
+        <span style={{ color: COLORS.magenta }}>v_φ measured <b className={good(meas.vp, theory.vp) ? 'ok' : ''}>{meas.t ? fix3(meas.vp) : '…'}</b>, theory ω/k = <b>{theory.vp.toFixed(3)}</b></span>
+        <span style={{ color: COLORS.lime }}>v_g measured <b className={good(meas.vg, theory.vg) ? 'ok' : ''}>{meas.t ? fix3(meas.vg) : '…'}</b>, theory dω/dk = <b>{fix3(theory.vg)}</b></span>
+        <span>v_φ · v_g = <b>{fix3(theory.vp * theory.vg)}</b> {unit}²</span>
       </div>
       <div className="controls">
         <Slider label={`Central wavenumber k₀ (1/λ_D)`} value={k0} min={kmin} max={kmax} step={0.05} onChange={(v) => { setK0(v); restart(model, v) }} fmt={(v) => v.toFixed(2)} />
@@ -252,3 +252,6 @@ export function WavePacketSim() {
     </SimFrame>
   )
 }
+
+/** Three decimals without a stray minus sign on values that round to zero. */
+const fix3 = (x: number) => (Math.abs(x) < 5e-4 ? 0 : x).toFixed(3)

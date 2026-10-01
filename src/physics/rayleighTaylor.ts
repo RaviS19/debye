@@ -62,6 +62,10 @@ export interface RT {
   times: number[]
   amps: number[] // mode-m amplitude of the vertical velocity
   etas: number[] // estimated interface displacement amplitude (from w / σ)
+  slopes: number[] // largest interface slope |∂η/∂x| over all modes (seed noise included)
+  bBar: Float64Array // unperturbed buoyancy profile b̄(z), for the interface displacement
+  etaX: Float64Array // work: interface displacement η(x)
+  flip: number // +1 heavy on top, −1 flipped
 }
 
 // ---------- small radix-2 complex FFT ----------
@@ -271,7 +275,8 @@ export function createRT(o: RTOptions): RT {
     specRe: new Float64Array((nz + 1) * mh), specIm: new Float64Array((nz + 1) * mh),
     cp: [], inv: [],
     bufRe: new Float64Array(nx), bufIm: new Float64Array(nx),
-    times: [], amps: [], etas: [],
+    times: [], amps: [], etas: [], slopes: [],
+    bBar: new Float64Array(nz + 1), etaX: new Float64Array(nx), flip: o.flipped ? -1 : 1,
   }
   for (let i = 0; i < nx; i++) {
     rt.cosT[i] = Math.cos((2 * Math.PI * o.mode * i) / nx)
@@ -309,6 +314,7 @@ export function createRT(o: RTOptions): RT {
   const sgn = o.flipped ? -1 : 1
   for (let j = 0; j <= nz; j++) {
     const z = j * dz - lz / 2
+    rt.bBar[j] = -sgn * o.A * rt.g * Math.tanh(z / o.delta)
     for (let i = 0; i < nx; i++) rt.b[j * nx + i] = -sgn * o.A * rt.g * Math.tanh((z - eta[i]) / o.delta)
   }
   record(rt)
@@ -539,28 +545,60 @@ function interfaceW(rt: RT): number {
   return (2 / nx) * Math.hypot(cr, ci)
 }
 
+/**
+ * Largest interface slope over all Fourier modes. The interface displacement of each column follows from
+ * the buoyancy it has gained: η(x) = ∫(b − b̄)dz / (2gA) for heavy on top (exact for a shifted profile).
+ * A single mode η₀cos kx has maximum slope kη₀, so this generalizes the kη criterion to the seed noise.
+ */
+function maxSlope(rt: RT): number {
+  const { nx, nz, b, bBar, etaX, dz, dx } = rt
+  const c = (rt.flip * dz) / (2 * rt.g * rt.A)
+  etaX.fill(0)
+  for (let j = 1; j < nz; j++) {
+    const r = j * nx
+    const bb = bBar[j]
+    for (let i = 0; i < nx; i++) etaX[i] += b[r + i] - bb
+  }
+  let m = 0
+  for (let i = 0; i < nx; i++) {
+    const ip = i === nx - 1 ? 0 : i + 1
+    const im = i === 0 ? nx - 1 : i - 1
+    m = Math.max(m, Math.abs(etaX[ip] - etaX[im]))
+  }
+  return (m * Math.abs(c)) / (2 * dx)
+}
+
 function record(rt: RT): void {
   rt.times.push(rt.t)
   rt.amps.push(modeAmplitude(rt))
   const s = rtDiffuse(rt.A, rt.g, rt.k, rt.delta)
   rt.etas.push(interfaceW(rt) / Math.max(s, 1e-6))
+  rt.slopes.push(maxSlope(rt))
 }
+
+/** Interface slope at which the seed noise is clearly nonlinear (fingers forming) and the fit must stop. */
+const SLOPE_MAX = 2
 
 /**
  * Growth rate measured from the simulation: least-squares slope of ln(amplitude) over the linear
  * phase, from after the start-up transient (t > 2.5/σ, when the decaying partner of the mode has died away)
- * until the interface displacement reaches kη = 0.4.
- * Returns null until there is enough of a window.
+ * until the interface displacement reaches kη = 0.4, or until some part of the interface (a faster-growing
+ * noise mode) is so steep (slope > 2) that its nonlinear coupling contaminates the seeded mode. With 10%
+ * seed noise at m = 1 and low viscosity the noise wins this race and the fit, otherwise 25–50% low, is
+ * abandoned.
+ * Returns null until there is enough of a window; `noisy` flags a window cut short by the noise.
  */
-export function measuredGrowth(rt: RT): { sigma: number; done: boolean } | null {
+export function measuredGrowth(rt: RT): { sigma: number; done: boolean; noisy?: boolean } | null {
   const s0 = rtDiffuse(rt.A, rt.g, rt.k, rt.delta)
   const t0 = 2.5 / s0
   let sx = 0, sy = 0, sxx = 0, sxy = 0, n = 0
   let done = false
+  let noisy = false
   for (let i = 0; i < rt.times.length; i++) {
     const t = rt.times[i]
-    if (rt.k * rt.etas[i] > 0.4) {
+    if (rt.k * rt.etas[i] > 0.4 || rt.slopes[i] > SLOPE_MAX) {
       done = true
+      noisy = rt.k * rt.etas[i] < 0.2
       break
     }
     if (t < t0 || rt.amps[i] <= 0) continue
@@ -571,10 +609,10 @@ export function measuredGrowth(rt: RT): { sigma: number; done: boolean } | null 
     sxy += t * y
     n++
   }
-  if (n < 8) return null
+  if (n < 8) return done && noisy ? { sigma: NaN, done, noisy } : null
   const den = n * sxx - sx * sx
   if (den <= 0) return null
   const tspan = Math.sqrt(den) / n
-  if (tspan * s0 < 0.25) return null
-  return { sigma: (n * sxy - sx * sy) / den, done }
+  if (tspan * s0 < 0.25) return done && noisy ? { sigma: NaN, done, noisy } : null
+  return { sigma: (n * sxy - sx * sy) / den, done, noisy }
 }

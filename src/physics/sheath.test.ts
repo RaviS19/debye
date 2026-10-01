@@ -16,6 +16,7 @@ import {
   measuredWavelength,
   ponderomotiveEV,
   sheathDrop,
+  sagdeevV,
   sheathSagdeev,
   solitonAmplitude,
   bohmSpeed,
@@ -44,11 +45,18 @@ describe('Bohm criterion', () => {
   it('matches linear theory near the edge: growth √(1−1/M²) and wavelength 2π/√(1/M²−1)', () => {
     for (const M of [1.2, 1.5, 2]) {
       const k = measuredGrowth(integrateSheath(M, { chi0: 0.002 }))
-      expect(Math.abs(k / linearRate(M) - 1)).toBeLessThan(0.03)
+      // the residual error is the O(χ₀) nonlinear correction (~0.1% here), not truncation error
+      expect(Math.abs(k / linearRate(M) - 1)).toBeLessThan(0.005)
     }
     for (const M of [0.6, 0.8]) {
       const lam = measuredWavelength(integrateSheath(M, { chi0: 0.002, xMax: 80 }))
-      expect(Math.abs(lam / ((2 * Math.PI) / linearRate(M)) - 1)).toBeLessThan(0.01)
+      expect(Math.abs(lam / ((2 * Math.PI) / linearRate(M)) - 1)).toBeLessThan(0.001)
+    }
+    // the sim's own check (χ₀ = 1e-4, h = 0.04) near the margin, where the growth is slow
+    for (const M of [1.05, 0.95]) {
+      const p = integrateSheath(M, { chi0: 1e-4, xMax: 160, h: 0.04 })
+      const meas = M > 1 ? measuredGrowth(p) : (2 * Math.PI) / measuredWavelength(p)
+      expect(Math.abs(meas / linearRate(M) - 1)).toBeLessThan(0.002)
     }
   })
 
@@ -100,6 +108,22 @@ describe('ion acoustic solitons and the ponderomotive potential', () => {
   it('small solitons approach the KdV amplitude 3(M − 1)', () => {
     expect(solitonAmplitude(1.02) / 0.06).toBeGreaterThan(0.97)
     expect(solitonAmplitude(1.1)).toBeCloseTo(0.2795, 3)
+  })
+
+  it('a weak Sagdeev soliton has the KdV height 3(M − 1) and width √(2/(M − 1)) λ_D', () => {
+    // half width at half maximum from the first integral: x = ∫ dχ/√(−2V), with χ = χ_m − s² to remove the root singularity
+    const M = 1.01
+    const cm = solitonAmplitude(M)
+    const smax = Math.sqrt(cm / 2)
+    const n = 4000
+    let xh = 0
+    for (let i = 0; i < n; i++) {
+      const s = ((i + 0.5) / n) * smax
+      xh += ((2 * s) / Math.sqrt(-2 * sagdeevV(cm - s * s, M))) * (smax / n)
+    }
+    const kdvHalf = Math.acosh(Math.SQRT2) / Math.sqrt((M - 1) / 2) // sech²(κx) = ½
+    expect(Math.abs(cm / (3 * (M - 1)) - 1)).toBeLessThan(0.01)
+    expect(Math.abs(xh / kdvHalf - 1)).toBeLessThan(0.02)
   })
 
   it('U_p = 9.34e-14 I λ² eV', () => {

@@ -45,6 +45,17 @@ describe('electron plasma waves in 1D PIC (warm electrons)', () => {
     }
   }, 20000)
 
+  it('the explorer\'s k range (0.05–0.45) always yields a frequency, even when Landau damping fades the wave', () => {
+    const lo = createEpwRun(0.05, 12000)
+    stepEpwRun(lo, 900)
+    expect(Math.abs(epwFrequency(lo)! / bohmGross(0.05) - 1)).toBeLessThan(0.01)
+    const hi = createEpwRun(0.45, 12000)
+    stepEpwRun(hi, 900)
+    expect(epwFrequency(hi)).not.toBeNull()
+    expect(epwFrequency(hi)!).toBeGreaterThan(bohmGross(0.45)) // kinetic ω_r = 1.350 lies above Bohm–Gross 1.268
+    expect(Math.abs(epwFrequency(hi)! / 1.3503 - 1)).toBeLessThan(0.03)
+  }, 10000)
+
   it('long waves recover the cold plasma frequency', () => {
     const run = createEpwRun(0.08, 8000)
     stepEpwRun(run, 700)
@@ -154,5 +165,30 @@ describe('wave packets', () => {
     const m = measure('cold', 0.5)
     expect(Math.abs(m.vg)).toBeLessThan(0.01)
     expect(Math.abs(m.vp / 2 - 1)).toBeLessThan(0.015)
+  })
+
+  it('the simulation\'s own packet (L = 12σ, 480 points, 3× speed) reads within its 3% + 0.01 tolerance at every slider end', () => {
+    const cases: [keyof typeof PACKET_MODELS, number][] = [['epw', 0.25], ['epw', 1.2], ['iaw', 0.2], ['iaw', 2], ['cold', 0.25], ['cold', 1.2]]
+    for (const [key, k0] of cases) {
+      const w = PACKET_MODELS[key].w
+      const sigma = 10 / k0
+      const L = 12 * sigma
+      const xs = new Float64Array(480).map((_, i) => (i * L) / 480)
+      const re = new Float64Array(480)
+      const env = new Float64Array(480)
+      const p = createPacket(w, k0, sigma, L, 0.3 * L)
+      evalPacket(p, xs, 0, re, env)
+      const tr = createTracker(xs, env)
+      const dt = (0.45 / Math.max(w(k0), 0.2)) * 3
+      let t = 0
+      for (let f = 0; f < 300; f++) {
+        t += dt
+        evalPacket(p, xs, t, re, env)
+        trackPacket(tr, xs, re, env, dt, k0, sigma, L)
+      }
+      const th = phaseGroup(w, k0)
+      expect(Math.abs(trackedPhaseVelocity(tr) - th.vp)).toBeLessThan(0.03 * th.vp + 0.01)
+      expect(Math.abs(trackedGroupVelocity(tr) - th.vg)).toBeLessThan(0.03 * Math.abs(th.vg) + 0.01)
+    }
   })
 })

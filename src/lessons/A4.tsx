@@ -222,7 +222,8 @@ export const A4: Lesson = {
         <DiamagSim />
         <p>
           With uniform density and a temperature gradient, the guiding centres are spread evenly, but the orbits on the hot side are
-          bigger, so they reach the line more often. The flux follows the <em>pressure</em>, exactly as the fluid equation says.
+          bigger, so more guiding centres on that side are close enough for their orbits to reach the line. Every particle still crosses
+          once each way per gyro-period, whatever its orbit size. The flux follows the <em>pressure</em>, exactly as the fluid equation says.
         </p>
         <Derivation
           lessonId="A4"
