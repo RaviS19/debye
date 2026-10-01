@@ -72,7 +72,7 @@ function Shell() {
           ))}
           <div className="tag" style={{ margin: '16px 12px 4px' }}>Track A · Chen</div>
           {LESSONS.map((l) => (
-            <NavLink key={l.id} to={`/learn/${l.id}`} className="item" style={{ fontSize: 12 }}>
+            <NavLink key={l.id} to={`/learn/${l.id}`} className="item lesson-item" title={`${l.id} ${l.title}`}>
               {s.lessons[l.id]?.completed ? '●' : '○'} {l.id} {l.title}
             </NavLink>
           ))}
