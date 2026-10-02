@@ -125,7 +125,7 @@ export const B8: Lesson = {
           steps={[
             {
               text: 'Take a plasma wave φ = φ₀cos(kx − ωt) moving at v_ph = ω/k. In the frame moving with it, the wave is a frozen row of potential wells. Use the phase ξ = kx − ωt and the velocity relative to the wave, u = v − v_ph.',
-              math: 'm_e\\dfrac{du}{dt} = -ek\\phi_0\\sin\\xi,\\qquad \\dfrac{d\\xi}{dt} = ku',
+              math: '\\begin{gathered}m_e\\dfrac{du}{dt} = -ek\\phi_0\\sin\\xi \\\\ \\dfrac{d\\xi}{dt} = ku\\end{gathered}',
               why: 'The field is E = −∂φ/∂x = kφ₀ sin ξ and the force on an electron is −eE. Changing to a frame moving at constant speed leaves the force unchanged for non-relativistic electrons.',
             },
             {

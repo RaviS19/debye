@@ -209,7 +209,7 @@ export const B6: Lesson = {
         />
         <p>
           The worked example used throughout this lesson: 351 nm light at 10¹⁵ W/cm² in a plasma at 0.1 n_c (9×10²⁰ cm⁻³) and T_e = 2 keV.
-          There v_os/c = 0.0095, and exact matching with the Bohm–Gross wave (B5’s triangle builder) gives k = 1.51 ω₀/c, ω_ek = 0.356 ω₀ and
+          There v_os/c = 0.0095, and exact matching with the Bohm–Gross wave (B5’s triangle builder) gives k = 1.51 ω₀/c (1.59 k₀), ω_ek = 0.356 ω₀ and
           ω_s = 0.644 ω₀. So γ₀ = 2.37×10⁻³ ω₀ = 1.27×10¹³ s⁻¹: the scattered light e-folds every 79 fs, thousands of times within a nanosecond
           laser pulse. Something other than the linear growth rate must decide how much light comes back: damping, gradients and saturation,
           the subjects of the rest of this lesson.

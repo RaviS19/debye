@@ -26,9 +26,16 @@ six problems and six flashcards.
 units (W/cm², µm, cm⁻³, keV) next to SI: light in a density gradient and the critical density (B1), collisional
 absorption by inverse bremsstrahlung (B2), resonance absorption (B3), the ponderomotive force (B4), parametric
 instabilities (B5), stimulated Raman and Brillouin scattering (B6), two-plasmon decay and filamentation (B7),
-hot electrons (B8) and the simulation methods of the field (B9). It builds on A5, A6, A9 and A10 (the map draws
-the direct links from A6, A9 and A10). Track C (Gibbon: short-pulse and relativistic plasmas) is on the map as
-the next phase.
+hot electrons (B8) and the simulation methods of the field (B9). Its sixteen simulations, each checked against
+its analytic result in `npm test`: rays in a density ramp and the full-wave Airy standing wave at the turning point
+(B1); full-wave collisional absorption in a ramp, with the Langdon effect (B2); the resonance-absorption angle sweep
+that rebuilds the Denisov curve (B3); electrons leaving a focal spot under the full Lorentz force, and profile
+steepening by the light (B4); pumped coupled oscillators and a wave-matching triangle builder (B5); a growth-rate map
+of SRS and SBS and a three-wave amplifier with pump depletion (B6); two-plasmon decay in k-space, and beam breakup
+by filamentation and self-focusing (B7); electrons surfing a plasma wave, and a hot-tail distribution with its
+bremsstrahlung slope (B8); sanity checks for a PIC code, and a 1D electromagnetic PIC run of stimulated Raman
+scattering (B9). It builds on A5, A6, A9 and A10 (the map draws the direct links from A6, A9 and A10). Track C
+(Gibbon: short-pulse and relativistic plasmas) is on the map as the next phase.
 
 **Learning engine (Phases 1 to 3 of the plan, and the start of Phase 4)**
 

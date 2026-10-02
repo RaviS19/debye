@@ -311,7 +311,7 @@ export const B7: Lesson = {
         </p>
         <Eq
           title="Density in pressure balance with the light"
-          src="\begin{gathered}\dfrac{\s{dn}{\delta n}}{\s{n0}{n_0}} \approx -\dfrac{\s{Up}{U_p}}{\s{Te}{T_e} + \s{Ti}{T_i}/\s{Z}{Z}} \\ U_p\,[\text{eV}] = 9.33\times10^{-14} \\ \times\,\s{I}{I}\,[\text{W/cm}^2]\;\s{lam}{\lambda_{\mu m}}^2\end{gathered}"
+          src="\begin{gathered}\dfrac{\s{dn}{\delta n}}{\s{n0}{n_0}} \approx -\dfrac{\s{Up}{U_p}}{\s{Te}{T_e} + \s{Ti}{T_i}/\s{Z}{Z}} \\ U_p\,[\text{eV}] = 9.34\times10^{-14} \\ \times\,\s{I}{I}\,[\text{W/cm}^2]\;\s{lam}{\lambda_{\mu m}}^2\end{gathered}"
           symbols={{
             dn: { name: 'δn, density change', units: 'm⁻³', note: 'Negative where the light is bright. Exactly, n = n₀e^(−U_p/T*), which saturates at n → 0 for very bright light (cavitation).' },
             n0: { name: 'n₀, density without the light', units: 'm⁻³', note: 'The density far from the beam.' },
@@ -345,7 +345,7 @@ export const B7: Lesson = {
           steps={[
             {
               text: 'Write the laser field as E = Re[a(x, z)e^{i(k₀z − ω₀t)}] with an envelope a that changes slowly over a wavelength. The wave equation with a density change δn, after dropping ∂²a/∂z², is the paraxial wave equation.',
-              math: '2ik_0\\dfrac{\\partial a}{\\partial z} + \\nabla_\\perp^2 a - \\dfrac{\\omega_{pe}^2}{c^2}\\,\\dfrac{\\delta n}{n_0}\\,a = 0',
+              math: '\\begin{gathered}2ik_0\\dfrac{\\partial a}{\\partial z} + \\nabla_\\perp^2 a \\\\ -\\, \\dfrac{\\omega_{pe}^2}{c^2}\\,\\dfrac{\\delta n}{n_0}\\,a = 0\\end{gathered}',
               why: 'It follows from (∂²/∂t² − c²∇² + ω_pe²(1 + δn/n₀))E = 0 and the dispersion relation ω₀² = ω_pe² + c²k₀². With δn = 0 it describes diffraction; the last term is refraction, and with δn < 0 it focuses.',
             },
             {
@@ -550,10 +550,10 @@ export const B7: Lesson = {
       tol: 0.03,
       unit: 'µm',
       hints: [
-        '$U_p = 9.33\\times10^{-14}I\\lambda_{\\mu m}^2$ eV, and $(v_{os}/v_e)^2 = 4U_p/T_e$.',
+        '$U_p = 9.34\\times10^{-14}I\\lambda_{\\mu m}^2$ eV, and $(v_{os}/v_e)^2 = 4U_p/T_e$.',
         'Rewrite $\\kappa_{\\max} = \\frac18(v_{os}/v_e)^2\\,\\omega_{pe}^2/(k_0c^2)$ as $\\dfrac{U_p}{2T_e}\\,\\dfrac{n/n_c}{\\sqrt{1 - n/n_c}}\\,\\dfrac{2\\pi}{\\lambda}$.',
       ],
-      solution: '$U_p = 9.33\\times10^{-14}\\times2\\times10^{15}\\times0.351^2 = 23.0$ eV, so $U_p/T_e = 7.67\\times10^{-3}$. Then $\\kappa_{\\max} = 3.83\\times10^{-3}\\times(0.2/0.894)\\times(2\\pi/0.351\\ \\mu\\text{m}) = 0.0153$ µm⁻¹, an e-fold every 65 µm. The fastest ripple has $K = (\\omega_{pe}/c)\\sqrt{U_p/T_e} = 0.70$ µm⁻¹, a transverse wavelength of 9.0 µm.',
+      solution: '$U_p = 9.34\\times10^{-14}\\times2\\times10^{15}\\times0.351^2 = 23.0$ eV, so $U_p/T_e = 7.67\\times10^{-3}$. Then $\\kappa_{\\max} = 3.83\\times10^{-3}\\times(0.2/0.894)\\times(2\\pi/0.351\\ \\mu\\text{m}) = 0.0153$ µm⁻¹, an e-fold every 65 µm. The fastest ripple has $K = (\\omega_{pe}/c)\\sqrt{U_p/T_e} = 0.70$ µm⁻¹, a transverse wavelength of 9.0 µm.',
     },
     {
       id: 'B7-p5',

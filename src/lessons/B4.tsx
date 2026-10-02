@@ -185,7 +185,7 @@ export const B4: Lesson = {
           steps={[
             {
               text: 'First order: the electron (charge −e) quivers in the field evaluated at its slow position R.',
-              math: '\\tilde{\\mathbf v}_1 = -\\dfrac{ie}{m\\omega}\\tilde{\\mathbf E}(\\mathbf R),\\qquad \\tilde{\\mathbf r}_1 = \\dfrac{e}{m\\omega^2}\\tilde{\\mathbf E}(\\mathbf R)',
+              math: '\\begin{gathered}\\tilde{\\mathbf v}_1 = -\\dfrac{ie}{m\\omega}\\tilde{\\mathbf E}(\\mathbf R) \\\\ \\tilde{\\mathbf r}_1 = \\dfrac{e}{m\\omega^2}\\tilde{\\mathbf E}(\\mathbf R)\\end{gathered}',
               why: 'm dv₁/dt = −eE with every quantity ∝ exp(−iωt), so −iωm ṽ₁ = −eẼ, and r̃₁ = ṽ₁/(−iω). The displacement is in phase with E: at the moment E points along +x the electron is at the +x end of its swing, being pulled back.',
             },
             {

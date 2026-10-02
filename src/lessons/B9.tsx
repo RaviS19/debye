@@ -568,7 +568,8 @@ export const B9: Lesson = {
         <p>
           This closes Track B. You have followed a laser into a plasma (B1), watched it lose energy to collisions (B2) and resonance absorption
           (B3), push the plasma (B4), and drive parametric instabilities (B5–B7) that make hot electrons (B8). Now you can simulate the whole chain
-          in one code. Track C turns up the intensity until a₀ ≥ 1 (C1), where u_y = a_y means relativistic quiver motion and PIC becomes the main
+          in one code. The last problem below is a capstone for Track B: it reads the temperature and density of a corona from its Raman and
+          Brillouin light, the way experiments do, using B1, B5 and B6 together. Track C turns up the intensity until a₀ ≥ 1 (C1), where u_y = a_y means relativistic quiver motion and PIC becomes the main
           tool of the field. C8 comes back to PIC in practice for the intense-laser problems of Track C.
         </p>
       </section>

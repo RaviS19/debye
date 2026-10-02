@@ -8,7 +8,7 @@ export const SUBJECT = {
   generalAsks: ['What should I study next?', 'Quiz me on what I have learned', 'Explain the Debye length in one minute', 'Why does laser light stop at the critical density?'],
   /** proper nouns and acronyms for turning concept tags into labels */
   properNouns: {
-    debye: 'Debye', landau: 'Landau', bohm: 'Bohm', gross: 'Gross', alfven: 'Alfvén', larmor: 'Larmor', lawson: 'Lawson',
+    tau: 'τ', debye: 'Debye', landau: 'Landau', bohm: 'Bohm', gross: 'Gross', alfven: 'Alfvén', larmor: 'Larmor', lawson: 'Lawson',
     spitzer: 'Spitzer', child: 'Child', langmuir: 'Langmuir', rayleigh: 'Rayleigh', taylor: 'Taylor', vlasov: 'Vlasov',
     boltzmann: 'Boltzmann', maxwellian: 'Maxwellian', sagdeev: 'Sagdeev', kdv: 'KdV', kruskal: 'Kruskal', shafranov: 'Shafranov',
     cma: 'CMA', faraday: 'Faraday', mach: 'Mach', coulomb: 'Coulomb', ohm: 'Ohm', exb: 'E×B', dt: 'D–T', icf: 'ICF',

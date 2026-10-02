@@ -46,7 +46,7 @@ export const PLOTS: PlotSpec[] = [
   {
     id: 'b1-swelling-factor',
     title: 'Peak field swelling vs scale length',
-    equation: '\\begin{gathered}\\dfrac{|E_{\\max}|^2}{|E_{\\rm vac}|^2} \\approx 4\\pi\\,\\mathrm{Ai}_{\\max}^2\\left(\\dfrac{\\omega L}{c}\\right)^{1/3}\\cos\\theta \\\\ = 3.6\\left(\\dfrac{2\\pi L}{\\lambda}\\right)^{1/3}\\cos\\theta\\end{gathered}',
+    equation: '\\begin{gathered}\\dfrac{|E_{\\max}|^2}{|E_{\\rm vac}|^2} \\approx 3.6\\left(\\dfrac{2\\pi L}{\\lambda}\\right)^{1/3}\\cos\\theta \\\\ 3.6 = 4\\pi\\,\\mathrm{Ai}_{\\max}^2\\end{gathered}',
     blurb: 'The time-averaged |E|² at the last standing-wave peak before the turning point, relative to |E|² of the incident wave in vacuum (s-polarized light at angle θ). It grows only as the cube root of L/λ: a 100 λ ramp gives about 31 at normal incidence, a 1000 λ ramp about 66. The dashed line is the WKB standing-wave peak at quarter-critical, 4/η = 4.6, for comparison: almost all of the swelling happens in the last few wavelengths before the turning point.',
     x: { label: 'L / λ', min: 1, max: 1000, log: true },
     y: { label: '|E_max|² / |E_vac|²', min: 1, max: 100, log: true },

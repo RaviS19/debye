@@ -227,7 +227,7 @@ export const B1: Lesson = {
         />
         <Eq
           title="WKB field"
-          src="\s{E}{E}(x) \approx \dfrac{\s{E0}{E_0}}{\sqrt{\s{eta}{\eta}(x)}}\,\exp\!\Big(\pm i\s{k0}{k_0}\!\int^x \eta\,dx^\prime\Big)"
+          src="\begin{gathered}\s{E}{E}(x) \approx \dfrac{\s{E0}{E_0}}{\sqrt{\s{eta}{\eta}(x)}} \\ \times\exp\!\Big(\pm i\s{k0}{k_0}\!\int^x \eta\,dx^\prime\Big)\end{gathered}"
           plot="b1-airy-standing-wave"
           symbols={{
             E: { name: 'E(x), electric field amplitude', units: 'V/m', note: 'Multiply by e^(−iωt) and take the real part for the field you would measure.' },

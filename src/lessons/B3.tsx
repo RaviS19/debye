@@ -218,7 +218,7 @@ export const B3: Lesson = {
           steps={[
             {
               text: 'The power a field deposits per unit volume is ½ωε₀ Im ε |E|². Near n_c only E_x matters, and E_x = E_d/ε with the driver E_d = |D_x|/ε₀ at x = L.',
-              math: 'P_{\\rm abs} = \\dfrac{\\omega\\varepsilon_0}{2}\\int \\dfrac{(\\nu/\\omega)\\,E_d^2\\,dx}{(x-L)^2/L^2 + \\nu^2/\\omega^2}',
+              math: '\\begin{gathered}P_{\\rm abs} = \\dfrac{\\omega\\varepsilon_0}{2} \\\\ \\times\\int \\dfrac{(\\nu/\\omega)\\,E_d^2\\,dx}{(x-L)^2/L^2 + \\nu^2/\\omega^2}\\end{gathered}',
               why: 'Im ε = (n/n_c)(ν/ω)/(1 + ν²/ω²) ≈ ν/ω at n_c, and |ε|² ≈ (x − L)²/L² + ν²/ω² there. For ν ≪ ω the integrand is a narrow Lorentzian, so E_d can be taken outside the integral.',
             },
             {

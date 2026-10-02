@@ -75,11 +75,8 @@ export function radialProfile(s: DebyeState, bins: number, rMax: number): number
   })
 }
 
-/**
- * The Boltzmann density exp(−U)/⟨exp(−U)⟩ the sampler should reproduce. The average over the
- * box matters: electrons pulled into the cloud come from the background, so far away n < 1.
- */
-export function theoryDensity(s: DebyeState, r: number): number {
+/** The box average ⟨exp(−U)⟩ that normalizes theoryDensity (6400 energy evaluations: compute it once per frame). */
+export function theoryNorm(s: DebyeState): number {
   const c = s.charges[0]
   const one = { ...s, charges: [c] }
   const g = 80
@@ -92,6 +89,15 @@ export function theoryDensity(s: DebyeState, r: number): number {
       dy -= Math.round(dy)
       z += Math.exp(-electronEnergy(one, c.x + dx, c.y + dy))
     }
-  z /= g * g
+  return z / (g * g)
+}
+
+/**
+ * The Boltzmann density exp(−U)/⟨exp(−U)⟩ the sampler should reproduce. The average over the
+ * box matters: electrons pulled into the cloud come from the background, so far away n < 1.
+ */
+export function theoryDensity(s: DebyeState, r: number, z = theoryNorm(s)): number {
+  const c = s.charges[0]
+  const one = { ...s, charges: [c] }
   return Math.exp(-electronEnergy(one, c.x + r, c.y)) / z
 }

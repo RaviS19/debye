@@ -1,7 +1,7 @@
 // A1: drop a test charge into a plasma and watch the electrons form a shielding cloud.
 import { useMemo, useRef, useState } from 'react'
 import { COLORS, glowStroke, useAnimation, useCanvas } from '../components/useCanvas'
-import { createDebye, radialProfile, sweepDebye, theoryDensity, type DebyeState } from '../physics/debye'
+import { createDebye, radialProfile, sweepDebye, theoryDensity, theoryNorm, type DebyeState } from '../physics/debye'
 import { debyeLength, plasmaParameter, sci } from '../physics/constants'
 import { SimFrame, Slider } from './SimFrame'
 
@@ -103,10 +103,11 @@ export function DebyeSim() {
     ctx.moveTo(ix, PY(1))
     ctx.lineTo(ix + iw, PY(1))
     ctx.stroke()
+    const z = theoryNorm(s) // the normalization once, not once per point of the curve
     glowStroke(ctx, COLORS.magenta, 1.5, () => {
       for (let k = 0; k <= 40; k++) {
         const r = (0.02 + (k / 40) * 0.98) * rMax
-        const v = Math.min(theoryDensity(s, r), maxY)
+        const v = Math.min(theoryDensity(s, r, z), maxY)
         if (k) ctx.lineTo(PX(r), PY(v))
         else ctx.moveTo(PX(r), PY(v))
       }
