@@ -368,6 +368,7 @@ function step(s: EmPic): void {
       s.escapedW.push(w[i])
     } else if (per) {
       x1 = x1 >= L ? x1 - L : x1 < 0 ? x1 + L : x1
+      if (x1 >= L) x1 = 0 // x1 + L rounds to L when x1 is a tiny negative number
     }
     x[i] = x1
   }
@@ -586,9 +587,12 @@ export function laserDrive(a0: number, rise = 30): (t: number) => number {
 }
 
 /** Frequency of light of wavenumber k in a uniform cold plasma for this code (Δt = Δx):
- *  sin²(ωΔ/2) = sin²(kΔ/2) + (n Δ²/4) cos(kΔ/2), which tends to ω² = n + k² as Δ → 0. */
+ *  sin²(ωΔ/2) = sin²(kΔ/2) + (n Δ²/4) cos(kΔ/2) (2 + cos kΔ)/3, which tends to ω² = n + k² as Δ → 0.
+ *  cos(kΔ/2) comes from E_y on a node collecting J_y from the faces on either side; (2 + cos kΔ)/3 is the
+ *  cloud-in-cell gather (nodes → particle) followed by the deposit (particle → faces), summed over a uniform
+ *  plasma with many particles per cell. */
 export function emOmegaNumerical(k: number, n: number, dx: number): number {
-  const s2 = Math.sin((k * dx) / 2) ** 2 + ((n * dx * dx) / 4) * Math.cos((k * dx) / 2)
+  const s2 = Math.sin((k * dx) / 2) ** 2 + ((n * dx * dx) / 4) * Math.cos((k * dx) / 2) * ((2 + Math.cos(k * dx)) / 3)
   return (2 / dx) * Math.asin(Math.min(1, Math.sqrt(s2)))
 }
 

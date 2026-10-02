@@ -36,6 +36,8 @@ const HEAT_DX = 0.1
 const PN = 500
 const PX0 = 70
 const PSIG = 12
+/** Initial displacement in the oscillation test: visible when stable, tiny when leapfrog is unstable (ω_peΔt > 2). */
+const oscAmp = (wpdt: number) => (wpdt > 2 ? 1e-8 : 0.01)
 const pulseShape = (x: number, kc: number) => Math.exp(-(((x - PX0) / PSIG) ** 2)) * Math.cos(kc * (x - PX0))
 
 interface Hist {
@@ -91,9 +93,11 @@ export function PicTestsSim() {
       yee.current = createYeePulse(PN + 1, 1, cv, PX0, PSIG, kc)
     } else if (md === 'osc') {
       const dx = 0.1
-      const s = createEmPic({ nx: 64, dx, periodic: true, density: () => (w / dx) ** 2, ppc: 20, TeKeV: 0, cold: true, displace: { amp: 0.01, mode: 1 } })
+      // above the limit, start from a tiny displacement so the growth stays linear (well under a cell) until the run stops
+      const s = createEmPic({ nx: 64, dx, periodic: true, density: () => (w / dx) ** 2, ppc: 20, TeKeV: 0, cold: true, displace: { amp: oscAmp(w), mode: 1 } })
       aux.current.prev = modeOf(s.ex, 1)[0]
-      aux.current.a0 = Math.abs(aux.current.prev)
+      // stable: E₁(t) is the real (cosine) part of mode 1, normalized to its start; unstable: the mode's amplitude
+      aux.current.a0 = w > 2 ? Math.hypot(...modeOf(s.ex, 1)) : Math.abs(aux.current.prev)
       pic.current = s
     } else if (md === 'light') {
       const nx = 256
@@ -208,8 +212,8 @@ export function PicTestsSim() {
     } else if (mode === 'osc') {
       const X = xs(s.L)
       const wp = wpdt / s.dt
-      const grow = Math.min(1e3, Math.max(1, ...hist.current.y.slice(-40).map(Math.abs)))
-      const vmax = 0.015 * wp * grow
+      const grow = Math.min(1e6, Math.max(1, ...hist.current.y.slice(-40).map(Math.abs)))
+      const vmax = 1.5 * oscAmp(wpdt) * wp * grow
       const Y = (v: number) => (top[0] + top[1]) / 2 - (v / vmax) * (top[1] - top[0]) * 0.42
       box(top, 'electrons: position x across, velocity v_x up', COLORS.white)
       ctx.fillStyle = COLORS.cyan
@@ -239,7 +243,7 @@ export function PicTestsSim() {
       line(s.ay.length, (j) => X(j * s.dx), (j) => Y(s.ay[j]), COLORS.amber, 1.1, true)
       line(s.fp.length, (j) => X(j * s.dx), (j) => Y(s.fp[j] + s.fm[j]), COLORS.cyan, 1.3)
       const tMax = 60
-      timeTrace(tMax, -1.2, 1.2, 'E_y at x = 0 over its amplitude vs ω0 t; dashed: cos(ωt) with ω² = ω_pe² + c²k²', COLORS.cyan, (tt) => Math.cos(wLight * tt))
+      timeTrace(tMax, -1.2, 1.2, narrow ? 'E_y(x = 0) vs ω0 t; dashed: ω² = ω_pe² + c²k²' : 'E_y at x = 0 over its amplitude vs ω0 t; dashed: cos(ωt) with ω² = ω_pe² + c²k²', COLORS.cyan, (tt) => Math.cos(wLight * tt))
     } else {
       const X = xs(s.L)
       const vmax = 5 * HEAT_VTE * Math.sqrt(Math.max(1, ...hist.current.y))
@@ -279,13 +283,14 @@ export function PicTestsSim() {
         if (!a.blown && s.t * wp < 40) {
           for (let k = 0; k < 2; k++) {
             stepEmPic(s, 1)
-            const v = modeOf(s.ex, 1)[0]
+            const md1 = modeOf(s.ex, 1)
+            const v = md1[0]
             if (a.prev < 0 && v >= 0) a.zeros.push(a.tPrev + ((s.t - a.tPrev) * -a.prev) / (v - a.prev))
             a.prev = v
             a.tPrev = s.t
-            const r = v / a.a0
+            const r = lfGrow > 0 ? Math.hypot(md1[0], md1[1]) / a.a0 : v / a.a0
             hist.current.t.push(s.t * wp)
-            hist.current.y.push(lfGrow > 0 ? Math.abs(r) : r)
+            hist.current.y.push(r)
             if (Math.abs(r) > 1e5) {
               a.blown = true
               break
@@ -314,9 +319,9 @@ export function PicTestsSim() {
       } else {
         const wp = wpHeat
         if (s.t * wp < 400) {
-          // about 2 ω_pe⁻¹ per frame, within the physics budget
+          // about 2 ω_pe⁻¹ per frame, capped at about 120,000 particle pushes (≈ 5 ms) to stay within the physics budget
           const want = Math.max(1, Math.round(2 / (wp * s.dt)))
-          const steps = Math.min(want, Math.max(1, Math.floor(260000 / s.np)))
+          const steps = Math.min(want, Math.max(1, Math.floor(120000 / s.np)))
           stepEmPic(s, steps)
           hist.current.t.push(s.t * wp)
           hist.current.y.push(meanUx2(s) / a.u0)
@@ -383,7 +388,7 @@ export function PicTestsSim() {
       <>
         <span>Δx/λ_D = <b>{ratio.toFixed(1)}</b>, ω_peΔt = {(wpHeat * HEAT_DX).toFixed(3)}, {s.np.toLocaleString()} particles</span>
         <span>T_x/T₀ = <b className={Math.abs(Tnow - 1) < 0.05 ? 'ok' : ''}>{Tnow.toFixed(3)}</b> at ω_pe t = {(s.t * wpHeat).toFixed(0)}</span>
-        <span>field noise W_E/W_K: measured <b className={isFinite(meas) && Math.abs(meas / th - 1) < 0.15 ? 'ok' : ''}>{isFinite(meas) ? sci(meas, 3) : '…'}</b>, thermal estimate <b>{sci(th, 3)}</b> ∝ 1/ppc</span>
+        <span>field noise W_E/W_K: measured <b className={isFinite(meas) && Math.abs(meas / th - 1) < 0.15 ? 'ok' : ''}>{isFinite(meas) ? sci(meas, 3) : '…'}</b>, thermal estimate <b>{sci(th, 3)}</b> ∝ 1/ppc{ratio > 2 ? ' (an equilibrium estimate: it fails once the grid heats the plasma)' : ''}</span>
       </>
     )
   }

@@ -378,7 +378,7 @@ export const B9: Lesson = {
           says="An electron in a 1D laser field keeps its transverse canonical momentum, so its transverse momentum simply follows the vector potential; in vacuum it also keeps γ − u_x, which fixes the forward push."
         />
         <p>
-          In the lesson’s code the rms error in u_y − a_y is about 0.5% of a₀ at Δx = 0.15 c/ω₀, and it shrinks when the grid is refined. The two
+          In the lesson’s code the rms error in u_y − a_y is about 0.4% of a₀ at Δx = 0.15 c/ω₀, and it shrinks when the grid is refined. The two
           laws together give the relativistic quiver motion that C1 takes up when a₀ approaches 1.
         </p>
       </section>
@@ -403,8 +403,8 @@ export const B9: Lesson = {
             Above 2 the trace switches to a log scale and climbs in a straight line, at the growth rate of the derivation.
           </li>
           <li>
-            <strong>Light in a plasma.</strong> A standing light wave in a uniform plasma oscillates at ω² = ω_pe² + c²k² (B1). The code matches its
-            own discrete dispersion relation to 0.1%, and the continuum to within a few per cent even at coarse resolution. The electron dots ride
+            <strong>Light in a plasma.</strong> A light wave travelling through a uniform plasma oscillates at ω² = ω_pe² + c²k² (B1). The code
+            matches its own discrete dispersion relation to better than 0.1%, and the continuum to within a few per cent even at coarse resolution. The electron dots ride
             on the dashed line u_y = a_y: canonical momentum at work.
           </li>
           <li>
@@ -424,8 +424,8 @@ export const B9: Lesson = {
           live.
         </p>
         <p>
-          One compromise makes it fit in a browser. The default laser has a₀ = 0.08, which is 7×10¹⁶ W/cm² at 351 nm, about 70 times the intensity
-          of a fusion corona. Convective gain scales as IλL (B6). A real corona builds up its gain over hundreds of micrometres; this slab is a few
+          One compromise makes it fit in a browser. The default laser has a₀ = 0.08, which is 7×10¹⁶ W/cm² at 351 nm, about 70 times the
+          10¹⁵ W/cm² typical of a fusion corona. Convective gain scales as IλL (B6). A real corona builds up its gain over hundreds of micrometres; this slab is a few
           micrometres long and the run lasts about half a picosecond, so the intensity has to make up the difference.
         </p>
         <PicSrsSim />
@@ -439,15 +439,17 @@ export const B9: Lesson = {
         <ul>
           <li>
             <strong>The benchmark.</strong> At the defaults, Bohm–Gross matching predicts ω_s = 0.644 ω₀ (545 nm for a 351 nm laser), kλ_De = 0.30
-            and net growth γ = 0.019 ω₀ after Landau damping. The first burst arrives after about 500–600 ω₀⁻¹ and peaks at 0.641 ω₀, half a
+            and net growth γ = 0.019 ω₀ after Landau damping. The first burst arrives after about 400–600 ω₀⁻¹ and peaks at 0.641 ω₀, half a
             per cent from theory. Watch the phase space during the burst: electrons near the dashed line v_φ = 0.24c are trapped and swirl into
             vortices, and f(u_x) grows a tail. By ω₀t ≈ 1500 about 3% of the electrons are above 4v_te, against 3×10⁻⁵ in a Maxwellian, and the
             electrons leaving the box average about 10 keV.
           </li>
           <li>
-            <strong>Bursts.</strong> The reflectivity comes in spikes of several per cent and averages about 2% over the run. Each burst ends as
-            trapped electrons drain the plasma wave and pull it out of resonance. Later bursts sit higher, near 0.68 ω₀: the plasma wave now runs
-            through electrons already reshaped by trapping, and its frequency has dropped below Bohm–Gross.
+            <strong>Bursts.</strong> The reflectivity comes in spikes of up to about 10% and averages 1–2% over the run. Each burst ends as
+            trapped electrons drain the plasma wave and pull it out of resonance. Later bursts sit higher, at about 0.66–0.72 ω₀, so by matching
+            the plasma wave behind them oscillates below the Bohm–Gross frequency. The likely reason is the distribution that earlier bursts
+            flattened near v_φ, which lowers the wave’s frequency (the nonlinear frequency shift of trapping); Raman from the lower-density
+            ramps may also contribute.
           </li>
           <li>
             <strong>Landau damping.</strong> Lower the density to 0.05 n_c. Now kλ_De = 0.46, the damping rate (ν = 0.026 ω₀) exceeds the
@@ -455,7 +457,7 @@ export const B9: Lesson = {
           </li>
           <li>
             <strong>Colder plasma.</strong> At T_e = 1 keV, kλ_De = 0.21 and damping almost vanishes. Bursts reach about 20%, more electrons are
-            heated, and those escaping average nearer 30 keV: a bigger plasma wave traps more electrons and accelerates them harder.
+            heated, and those escaping average about 25 keV: a bigger plasma wave traps more electrons and accelerates them harder.
           </li>
           <li>
             <strong>Pump depletion.</strong> At 0.2 n_c (ω_s = 0.535 ω₀) the reflectivity climbs above one half, and at times less than a tenth of
@@ -466,10 +468,10 @@ export const B9: Lesson = {
             <strong>Weak drive.</strong> Halve a₀ to 0.04. The gain of this short slab is now too small, and less than 1% comes back by ω₀t = 1500.
           </li>
           <li>
-            <strong>Convergence.</strong> Change the particles per cell. We ran each setting with three random seeds. With 8 per cell the bursts
-            were weaker (peaks of 4–6%, against 5–12% at 32 and 128 per cell), and the run-averaged reflectivity agreed between 32 and 128 per cell
-            (1.5–2%) but not at 8. The onset time scattered by about ±100 ω₀⁻¹ from seed to seed, so compare averages over several runs, never a
-            single burst.
+            <strong>Convergence.</strong> Change the particles per cell. We ran each setting to ω₀t = 3000 with three random seeds. The burst
+            peaks were 4–6% at 8 per cell, 8–12% at 32 and 10–14% at 128; the run-averaged reflectivity was 0.5–0.9%, about 1.3% and 1.5–1.9%.
+            So 8 per cell is clearly too few, and 32 is close to converged but still slightly low. The onset time scattered by up to a few hundred
+            ω₀⁻¹ from seed to seed, so compare averages over several runs, never a single burst.
           </li>
         </ul>
       </section>
@@ -616,7 +618,7 @@ export const B9: Lesson = {
       id: 'B9-p4',
       kind: 'mcq',
       concept: 'grid-heating',
-      prompt: 'A 1D electromagnetic PIC run of a plasma at $n = 0.2\\,n_c$ with $T_e = 0.2$ keV uses $\\Delta x = 0.2\\,c/\\omega_0$, $c\\Delta t = \\Delta x$ and 64 particles per cell. With no laser at all, the electron temperature climbs steadily, by tens of per cent in a few hundred $\\omega_{pe}^{-1}$. What is wrong?',
+      prompt: 'A 1D electromagnetic PIC run of a plasma at $n = 0.2\\,n_c$ with $T_e = 0.2$ keV uses $\\Delta x = 0.2\\,c/\\omega_0$, $c\\Delta t = \\Delta x$ and 64 particles per cell. With no laser at all, the electron temperature climbs steadily, by about a quarter in 400 $\\omega_{pe}^{-1}$. What is wrong?',
       options: [
         'The time step breaks the leapfrog limit $\\omega_{pe}\\Delta t < 2$; halve it',
         'The cell is about 4.5 Debye lengths, so the grid aliases short-wavelength noise and heats the plasma; refine $\\Delta x$ towards $\\lambda_{De}$ (more particles only slow it)',
@@ -678,7 +680,7 @@ export const B9: Lesson = {
     {
       id: 'B9-c4',
       front: 'PIC noise: how it scales, and why a real plasma is quieter',
-      back: '$W_E/W_K \\approx 1/(2N_\\lambda)$ in 1D with $N_\\lambda$ particles per Debye length: energy $\\propto 1/N$, amplitude $\\propto 1/\\sqrt N$. A 2 keV corona has about 5000 electrons per Debye sphere; a 3D run of it has a few tens of macroparticles there, each about 180 electrons',
+      back: '$W_E/W_K \\approx 1/(2N_\\lambda)$ in 1D for $\\Delta x \\ll \\lambda_{De}$, with $N_\\lambda$ particles per Debye length: energy $\\propto 1/N$, amplitude $\\propto 1/\\sqrt N$. A corona at $0.1\\,n_c$ (351 nm) and 2 keV has about 5000 electrons per Debye sphere; a 3D run of it with cells of $\\lambda_0/30$ and 8 per cell has about 28 macroparticles there, each about 180 electrons',
     },
     {
       id: 'B9-c5',

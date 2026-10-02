@@ -126,8 +126,9 @@ describe('electromagnetic fields', () => {
     expect(yeeGroupVelocity(kc, 0.5)).toBeLessThan(0.95)
   })
 
-  it('light in a uniform plasma follows ω² = ω_pe² + c²k² (within 3%) and the code’s own dispersion relation (0.1%)', () => {
-    for (const [n, m] of [[0.1, 4], [0.2, 10], [0.5, 2]]) {
+  it('light in a uniform plasma follows ω² = ω_pe² + c²k² (within 3%) and the code’s own dispersion relation (0.05%)', () => {
+    // the last case has kΔx = 0.2 and n = 0.9 n_c, where the particle-shape factor (2 + cos kΔx)/3 matters
+    for (const [n, m] of [[0.1, 4], [0.2, 10], [0.5, 2], [0.9, 16]]) {
       const nx = 512
       const dx = 0.15
       const L = nx * dx
@@ -148,8 +149,23 @@ describe('electromagnetic fields', () => {
       }
       const w = Math.abs(acc) / s.t
       expect(Math.abs(w / Math.sqrt(n + k * k) - 1)).toBeLessThan(0.03)
-      expect(Math.abs(w / emOmegaNumerical(k, n, dx) - 1)).toBeLessThan(0.001)
+      expect(Math.abs(w / emOmegaNumerical(k, n, dx) - 1)).toBeLessThan(0.0005)
     }
+  })
+})
+
+describe('theory helpers', () => {
+  it('leapfrog, noise and Yee formulas have the right limits', () => {
+    expect((leapfrogRatio(0.2) - 1) / (0.04 / 24)).toBeCloseTo(1, 2) // ω_pe²Δt²/24 at small steps
+    expect(leapfrogRatio(1) - 1).toBeCloseTo(0.0472, 4)
+    expect(leapfrogGrowth(2.2)).toBeCloseTo(Math.log(2.4282) / 2.2, 4) // |λ| = 2.43 per step
+    // point particles: atan(π λ_D/Δx)/(π N_λ), → 1/(2N_λ) for Δx ≪ λ_D
+    expect(noiseRatio(100, 1, false)).toBeCloseTo(Math.atan(Math.PI) / Math.PI / 100, 10)
+    expect(noiseRatio(100, 0.01, false) / (0.01 / 200)).toBeCloseTo(1, 2)
+    // cloud-in-cell is quieter, by about 15% at Δx = λ_D
+    expect(noiseRatio(100, 1) / noiseRatio(100, 1, false)).toBeCloseTo(0.857, 2)
+    expect(yeeGroupVelocity((2 * Math.PI) / 8, 0.5)).toBeCloseTo(0.9413, 4)
+    expect(emOmegaNumerical(0.5, 0.2, 1e-4)).toBeCloseTo(Math.sqrt(0.2 + 0.25), 6)
   })
 })
 
@@ -238,7 +254,7 @@ describe('numerical noise and heating', () => {
     return { s: createEmPic({ nx: 64, dx, periodic: true, density: () => wp * wp, ppc, TeKeV: vte * vte * 510.99895, seed: 2 }), wp }
   }
 
-  it('field noise energy falls as 1/(particles per cell) and matches the fluctuation estimate within 15%', () => {
+  it('field noise energy falls as 1/(particles per cell) and matches the fluctuation estimate within 10%', () => {
     const measure = (ppc: number) => {
       const { s, wp } = thermal(1, ppc)
       while (s.t * wp < 20) stepEmPic(s, 10)
@@ -253,9 +269,11 @@ describe('numerical noise and heating', () => {
     }
     const r16 = measure(16)
     const r128 = measure(128)
-    expect(Math.abs(r16 / noiseRatio(16, 1) - 1)).toBeLessThan(0.15)
-    expect(Math.abs(r128 / noiseRatio(128, 1) - 1)).toBeLessThan(0.15)
+    expect(Math.abs(r16 / noiseRatio(16, 1) - 1)).toBeLessThan(0.1)
+    expect(Math.abs(r128 / noiseRatio(128, 1) - 1)).toBeLessThan(0.1)
     expect(Math.abs(r16 / r128 / 8 - 1)).toBeLessThan(0.15)
+    // and it is the cloud-in-cell estimate, not the point-particle one (which is 17% higher at Δx = λ_D)
+    expect(Math.abs(r128 / noiseRatio(128, 1, false) - 1)).toBeGreaterThan(0.08)
   })
 
   it('grid heating: harmless at Δx ≈ λ_D, strong at Δx = 8λ_D', () => {
@@ -319,6 +337,35 @@ describe('stimulated Raman scattering', () => {
     while (s.t < tEnd) stepEmPic(s, 10)
     return s
   }
+
+  it('the flagship sim’s defaults (0.1 n_c, 2 keV, a0 = 0.08, 32 per cell): the first burst sits on the Raman line (2%)', () => {
+    const n = 0.1
+    const T = 2
+    const s = createEmPic({ nx: 650, dx: 0.2, density: (x) => slabDensity({ x0: 15, x1: 115, ramp: 5, n }, x), ppc: 32, TeKeV: T, laser: laserDrive(0.08), seed: 1 })
+    const pr = srsPrediction(n, T, 0.08)!
+    let first = NaN
+    while (s.t < 900 && isNaN(first)) {
+      stepEmPic(s, 42)
+      if (s.nSamples < 512) continue
+      const Rwin = meanSquare(s, s.outL, 512) / meanSquare(s, s.inL, 512)
+      if (Rwin > 0.01) first = peakFrequency(spectrumOf(s, s.outL, 512)!, 0.3, 0.95)
+    }
+    expect(Math.abs(first / pr.ws - 1)).toBeLessThan(0.02)
+    expect(s.t).toBeGreaterThan(400) // grows out of the noise in a few hundred 1/ω0, as the lesson says
+  }, 60000)
+
+  it('the corners of the flagship sliders stay finite', () => {
+    for (const [n, T, a0] of [[0.22, 0.5, 0.12], [0.22, 5, 0.12], [0.03, 0.5, 0.02], [0.03, 5, 0.12]]) {
+      const s = createEmPic({ nx: 650, dx: 0.2, density: (x) => slabDensity({ x0: 15, x1: 115, ramp: 5, n }, x), ppc: 8, TeKeV: T, laser: laserDrive(a0), seed: 1 })
+      stepEmPic(s, 3000)
+      let ok = true
+      for (let j = 0; j < s.fp.length; j++) ok &&= isFinite(s.fp[j]) && isFinite(s.fm[j])
+      for (let f = 0; f < s.ex.length; f++) ok &&= isFinite(s.ex[f])
+      for (let i = 0; i < s.np; i++) ok &&= isFinite(s.x[i]) && isFinite(s.ux[i]) && isFinite(s.uy[i])
+      expect(ok).toBe(true)
+      expect(gaussError(s).err / Math.max(1e-30, gaussError(s).scale)).toBeLessThan(1e-9)
+    }
+  }, 60000)
 
   it('laser into a slab: the backscattered spectrum peaks at the Raman frequency from matching (within 5%)', () => {
     const n = 0.15
