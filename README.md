@@ -18,7 +18,7 @@ Android shell (`npx cap add android`) when you want a Play Store app.
 
 ## What is in the app
 
-**Track L, a laser physics trial, lessons L1 to L3**, shown first on Home, in the sidebar and on the map. It is a
+**Track L, a laser physics trial, lessons L1 to L3**, shown first on Home, in the contents and on the map. It is a
 short taste of the laser tracks planned in `../plans/laser-plan.html`, in the same lesson format: gain, population
 inversion, the threshold and relaxation oscillations from the laser rate equations (L1); cavity modes and
 mode-locking as a sum of phase-locked modes (L2); and an ultrashort pulse's spectrum, spectral phase, GDD, TOD and
@@ -53,8 +53,13 @@ scattering (B9). It builds on A5, A6, A9 and A10 (the map draws the direct links
   small logistic-regression model trained on your own first attempts that predicts where you may struggle.
 - Prep check (Phase 4, predictive gap filling): when you open a lesson, the app looks back at the lessons it
   builds on. If you mastered them but the learner model still rates some of their ideas weak or shaky, a small
-  *Refresh before you start* note lists up to three, each linked to its problems. It stays quiet without
+  *Refresh before you start* note lists up to three, each naming the lesson to revisit. It stays quiet without
   evidence, and once you start the lesson.
+- A Contents page is the one place to pick any lesson: search by title, idea or section, filter by progress,
+  fold tracks away, and open a lesson's entry to see its objectives, sections, progress and what it builds on
+  before starting it. A lesson has no main navigation, only *← Contents* at the top and *Next* or *Back to
+  Contents* at the end, so you cannot drift into another lesson halfway through. Map nodes and Home's lesson
+  tiles open the lesson's entry in the contents.
 - Next-step suggestions with their reasons, a weekly digest (Home, plus a Sunday notification),
   study-rhythm analysis that suggests a reminder time, struggle detection on problems (two misses or
   ten minutes) and on idle simulations.
@@ -133,7 +138,7 @@ src/learner/     concept mastery (BKT), struggle predictor, personal memory curv
 src/tutor/       AI tutor panel, prompt building, reply rendering, local model clients and settings
 src/store/       state and event logs, XP/streaks/FSRS, badges, reminders, sync and merge
 src/subject.ts   the subject-specific bits the learner model and tutor use
-src/pages/       home, lesson, map, plot, review, you, settings
+src/pages/       home, contents, lesson, map, plot, review, you, settings
 docs/            LESSON_GUIDE.md: how to add a lesson
 ```
 

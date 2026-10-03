@@ -1,6 +1,7 @@
-// Smoke-test the app pages (Home, You, Settings, Review, Map, a lesson) with a seeded learner, the track
-// structure (sidebar, Home, lesson tags, map) for every track that has lessons, the "Refresh before you start"
-// prep check, and the tutor panel with a mocked Claude (dev server only, ?mocktutor).
+// Smoke-test the app pages (Home, Contents, You, Settings, Review, Map, a lesson) with a seeded learner, the
+// Contents page (search, filters, opening and starting every track's first lesson, the way back), lessons that
+// offer no jump to other lessons, the "Refresh before you start" prep check, and the tutor panel with a mocked
+// Claude (dev server only, ?mocktutor).
 // Usage: node scripts/smoke-app.mjs <port> [outDir]
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs'
 import { createEmptyCard, fsrs } from 'ts-fsrs'
@@ -79,6 +80,8 @@ const b = await chromium.launch()
 const problems = []
 const pages = [
   ['home', '/'],
+  ['contents', '/contents'],
+  ['contents-open', '/contents#A3'],
   ['you', '/you'],
   ['settings', '/settings'],
   ['review', '/review'],
@@ -99,8 +102,20 @@ for (const [name, viewport] of [['desk', { width: 1280, height: 860 }], ['phone'
     ke.forEach((x) => problems.push(`${name} ${pn} katex-error: ${x}`))
     const overflow = await p.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)
     if (overflow) problems.push(`${name} ${pn} page scrolls horizontally`)
+    if (pn === 'contents-open') {
+      const open = await p.evaluate(() => { const r = document.querySelector('#lesson-A3.open')?.getBoundingClientRect(); return !!r && r.top < innerHeight && r.bottom > 0 })
+      if (!open) problems.push(`${name} contents: /contents#A3 did not open A3 in view`)
+    }
     await p.screenshot({ path: `${out}/${name}-${pn}.png`, fullPage: true })
     if (pn === 'prep' && !(await p.locator('.prep .chip').count())) problems.push(`${name} prep: no "Refresh before you start" card on A4 for the seeded learner`)
+    if (pn === 'lesson' || pn === 'prep') {
+      // a lesson offers only the next lesson and the way back to the contents
+      const here = path.split('/')[2].split('#')[0]
+      const jumps = await p.evaluate((id) => [...document.querySelectorAll('a[href^="#/learn/"]')].map((a) => a.getAttribute('href').split('/')[2].split('#')[0]).filter((x) => x !== id), here)
+      if (jumps.length > 1) problems.push(`${name} ${pn}: links to other lessons ${jumps.join(', ')}`)
+      if (await p.locator('.topnav, .tabbar, aside.nav').count()) problems.push(`${name} ${pn}: main navigation shown inside a lesson`)
+      if ((await p.locator(`.lessonbar a[href="#/contents#${here}"]`).count()) !== 1) problems.push(`${name} ${pn}: no way back to the contents`)
+    }
     if (pn === 'map') {
       // every node and label inside the drawing, so nothing is clipped
       const out = await p.evaluate(() => {
@@ -111,32 +126,52 @@ for (const [name, viewport] of [['desk', { width: 1280, height: 860 }], ['phone'
       out.forEach((t) => problems.push(`${name} map: "${t}" sticks out of the map`))
     }
   }
-  // tracks: one sidebar heading and one Home heading per track with lessons, and lesson tags naming their own track
+  // contents: one section per track; opening a track's first lesson there starts it, and the lesson leads back
   if (name === 'desk') {
-    await p.goto(`http://localhost:${port}/#/`)
+    await p.goto(`http://localhost:${port}/#/contents`)
+    await p.evaluate(() => sessionStorage.removeItem('debye-contents'))
+    await p.reload()
     await p.waitForTimeout(800)
-    const navTracks = await p.locator('.nav .tag').allInnerTexts()
-    const homeTracks = (await p.locator('main h2').allInnerTexts()).filter((t) => /^track /i.test(t))
-    if (!navTracks.length) problems.push('sidebar: no track headings')
-    if (navTracks.length !== homeTracks.length) problems.push(`tracks: sidebar ${navTracks.join(', ')} vs Home ${homeTracks.join(', ')}`)
-    const firsts = await p.evaluate(() => {
-      const out = {}
-      for (const a of document.querySelectorAll('.nav a.lesson-item')) {
-        const id = a.getAttribute('href').split('/').pop()
-        out[id[0]] ??= id
-      }
-      return Object.values(out)
-    })
+    const heads = await p.locator('.track-head .hud-title').allInnerTexts()
+    if (!heads.length) problems.push('contents: no track headings')
+    const firsts = await p.evaluate(() => [...document.querySelectorAll('.contents-track')].map((t) => t.querySelector('button.lesson-row-head')?.closest('li').id.slice(7)).filter(Boolean))
     for (const id of firsts) {
-      await p.goto(`http://localhost:${port}/#/learn/${id}`)
+      await p.goto(`http://localhost:${port}/#/contents`)
+      await p.waitForTimeout(500)
+      await p.locator(`#lesson-${id} button.lesson-row-head`).click()
+      if ((await p.locator(`#lesson-${id} .lesson-detail .objectives li`).count()) < 1) problems.push(`${id}: contents entry opened without objectives`)
+      await p.locator(`#lesson-${id} .lesson-detail a.btn.primary`).click()
       await p.waitForTimeout(800)
+      if (!p.url().endsWith(`#/learn/${id}`)) problems.push(`${id}: Start went to ${p.url()}`)
       const tag = await p.locator('main .tag').first().innerText()
       if (!tag.toUpperCase().startsWith(`TRACK ${id[0]} ·`)) problems.push(`${id}: lesson tag says "${tag}"`)
-      const active = await p.evaluate(() => { const a = document.querySelector('.nav a.lesson-item.active'); if (!a) return false; const r = a.getBoundingClientRect(); return r.top >= -1 && r.bottom <= innerHeight + 1 })
-      if (!active) problems.push(`${id}: current lesson not visible in the sidebar`)
       if (id !== 'A1') await p.screenshot({ path: `${out}/${name}-lesson-${id}.png` })
+      await p.locator('.lessonbar a').click()
+      await p.waitForTimeout(600)
+      const back = await p.evaluate((x) => { const r = document.querySelector(`#lesson-${x}.open`)?.getBoundingClientRect(); return !!r && r.top < innerHeight && r.bottom > 0 }, id)
+      if (!back) problems.push(`${id}: back to Contents did not land on ${id}`)
     }
-    console.log(`tracks: ${navTracks.join(' | ')}; first lessons ${firsts.join(', ')}`)
+    // search and filters, for the seeded learner (A1 and A2 mastered, A3 started)
+    await p.goto(`http://localhost:${port}/#/contents`)
+    await p.waitForTimeout(500)
+    const rowIds = () => p.evaluate(() => [...document.querySelectorAll('.lesson-row')].map((r) => r.id.slice(7)))
+    await p.locator('.contents-tools button.chip:has-text("Mastered")').click()
+    const mastered = await rowIds()
+    if (mastered.join() !== 'A1,A2') problems.push(`contents: Mastered shows ${mastered.join(', ')}`)
+    await p.locator('.contents-tools button.chip:has-text("In progress")').click()
+    const started = await rowIds() // A3, plus every lesson this run has opened
+    if (!started.includes('A3') || started.some((x) => mastered.includes(x))) problems.push(`contents: In progress shows ${started.join(', ')}`)
+    await p.locator('.contents-tools button.chip:has-text("All")').click()
+    await p.locator('.contents-tools input').fill('debye shielding')
+    const found = await rowIds()
+    if (!found.includes('A1') || found.some((x) => x[0] === 'L')) problems.push(`contents: search "debye shielding" shows ${found.join(', ')}`)
+    await p.screenshot({ path: `${out}/${name}-contents-search.png`, fullPage: true })
+    await p.locator('.contents-tools input').fill('')
+    await p.goto(`http://localhost:${port}/#/`)
+    await p.waitForTimeout(500)
+    const overview = await p.locator('.overview-row').count()
+    if (overview !== firsts.length) problems.push(`Home: ${overview} track rows in the contents overview, ${firsts.length} tracks with lessons`)
+    console.log(`contents: ${heads.join(' | ')}; first lessons ${firsts.join(', ')}`)
   }
   // struggle + tutor from a problem
   await p.goto(`http://localhost:${port}/?mocktutor#/learn/A3#problems`)

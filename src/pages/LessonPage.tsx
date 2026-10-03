@@ -33,7 +33,7 @@ export function LessonPage() {
         <span className="pill ghost">Coming in a later phase</span>
         <h1 style={{ marginTop: 12 }}>{mod ? `${mod.id} · ${mod.title}` : 'Not found'}</h1>
         <p className="dim">This module is on the roadmap. {listJoin(READY_TRACKS.map((t) => `Track ${t} (${trackRange(t)})`))} {READY_TRACKS.length === 1 ? 'is' : 'are'} ready now.</p>
-        <Link className="btn" to="/map">Back to the map</Link>
+        <Link className="btn" to={mod ? `/contents#${mod.id}` : '/contents'}>Back to Contents</Link>
       </div>
     )
   }
@@ -58,9 +58,8 @@ export function LessonPage() {
       {unmet.length > 0 && (
         <div className="banner">
           <span>
-            This builds on <strong>{unmet.join(', ')}</strong>, which you have not mastered yet. You can carry on, or do a quick pass there first.
+            This builds on <strong>{unmet.join(', ')}</strong>, which you have not mastered yet. You can carry on, or pick {unmet.length === 1 ? 'it' : 'them'} from the Contents for a quick pass first.
           </span>
-          <Link className="btn small" to={`/learn/${unmet[0]}`}>Go to {unmet[0]}</Link>
         </div>
       )}
 
@@ -101,11 +100,14 @@ export function LessonPage() {
         ) : (
           <p className="dim" style={{ margin: 0 }}>Keep going: {Math.round(m * 100)}% of {Math.round(MASTERY_THRESHOLD * 100)}% needed.</p>
         )}
-        {next && (
-          <Link className="btn primary" style={{ marginTop: 10 }} to={`/learn/${next.id}`}>
-            Next: {trackOf(next.id) !== track ? `Track ${trackOf(next.id)} · ` : ''}{next.title}
-          </Link>
-        )}
+        <div className="row" style={{ justifyContent: 'center', marginTop: 10 }}>
+          {next && (
+            <Link className="btn primary" to={`/learn/${next.id}`}>
+              Next: {trackOf(next.id) !== track ? `Track ${trackOf(next.id)} · ` : ''}{next.title}
+            </Link>
+          )}
+          <Link className="btn" to={`/contents#${lesson.id}`}>Back to Contents</Link>
+        </div>
       </div>
     </>
   )
@@ -118,13 +120,13 @@ function PrepCheck({ s, lessonId }: { s: State; lessonId: string }) {
   return (
     <div className="prep" role="note">
       <span className="tag">Refresh before you start</span>
-      <span className="small dim">{lessonId} builds on {items.length === 1 ? 'this idea' : 'these ideas'}, and your answers say {items.length === 1 ? 'it has' : 'they have'} not settled yet.</span>
+      <span className="small dim">{lessonId} builds on {items.length === 1 ? 'this idea' : 'these ideas'}, and your answers say {items.length === 1 ? 'it has' : 'they have'} not settled yet. Each one names the lesson to revisit from the Contents.</span>
       <div className="row prep-chips">
         {items.map((x) => (
-          <Link key={x.concept} className="pill ghost chip" to={`/learn/${x.lessonId}#problems`} title={`${x.band === 'weak' ? 'Weak' : 'Shaky'}: about ${Math.round(x.p * 100)}% estimated mastery`}>
+          <span key={x.concept} className="pill ghost chip" title={`${x.band === 'weak' ? 'Weak' : 'Shaky'}: about ${Math.round(x.p * 100)}% estimated mastery`}>
             <span className="dot" style={{ background: x.band === 'weak' ? 'var(--red)' : 'var(--amber)' }} />
             {x.label} · {x.lessonId}
-          </Link>
+          </span>
         ))}
       </div>
     </div>

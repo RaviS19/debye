@@ -75,7 +75,7 @@ export function MapPage() {
       <span className="tag">Concept map</span>
       <h1>The curriculum</h1>
       <p className="lede">
-        Nodes light up as you master them. Tap any node to open it. {tracksPhrase(READY_TRACKS)} {READY_TRACKS.length === 1 ? 'is' : 'are'} ready
+        Nodes light up as you master them. Tap any node to find it in the contents. {tracksPhrase(READY_TRACKS)} {READY_TRACKS.length === 1 ? 'is' : 'are'} ready
         {COMING_TRACKS.length ? `; ${listJoin(COMING_TRACKS.map((t) => `${READY_TRACKS.includes(t) ? 'the rest of ' : ''}Track ${t}`))} ${COMING_TRACKS.length === 1 ? 'is' : 'are'} on the roadmap.` : '.'}
       </p>
       <div className="card glow map-wrap" ref={wrapRef}>
@@ -103,7 +103,7 @@ export function MapPage() {
             const st = status(s, m.id)
             const c = style[st]
             return (
-              <g key={m.id} className="map-node" onClick={() => nav(`/learn/${m.id}`)} style={{ filter: c.glow }}>
+              <g key={m.id} className="map-node" onClick={() => nav(`/contents#${m.id}`)} style={{ filter: c.glow }}>
                 <circle cx={p.x} cy={p.y} r="24" fill={c.fill} stroke={c.stroke} strokeWidth="2" />
                 <text x={p.x} y={p.y + 5} textAnchor="middle" fill={c.text} fontSize="14" fontWeight="700">{m.id}</text>
                 {wrap(m.title).map((line, i) => (

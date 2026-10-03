@@ -85,7 +85,7 @@ function TrialModule({ s }: { s: State }) {
       </p>
       <div className="grid three">
         {lessons.map((l) => (
-          <Link key={l.id} to={`/learn/${l.id}`} className="card" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', gap: 14, alignItems: 'center' }}>
+          <Link key={l.id} to={`/contents#${l.id}`} className="card" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', gap: 14, alignItems: 'center' }}>
             <Ring value={mastery(s, l)} size={64} label={l.id} color="#a06fd6" />
             <div>
               <div className="hud-title" style={{ fontSize: 14 }}>{l.title}</div>
@@ -98,7 +98,33 @@ function TrialModule({ s }: { s: State }) {
         <Link className="btn primary" to={`/learn/${next.id}`}>
           {done === lessons.length ? 'Revisit' : s.lessons[next.id] ? 'Continue' : 'Start'} {next.id} · {next.title}
         </Link>
+        <Link className="btn" to="/contents#track-L">See it in the contents</Link>
       </div>
+    </section>
+  )
+}
+
+/** Where every track stands, and the way into the contents: the one place to pick any lesson. */
+function ContentsOverview({ s }: { s: State }) {
+  const built = READY_TRACKS.reduce((a, t) => a + lessonsOf(t).length, 0)
+  return (
+    <section aria-label="Contents" className="card contents-overview">
+      <div className="card-head">
+        <span className="pill">Contents</span>
+        <span className="dim small">{built} lessons ready across {count(READY_TRACKS.length)} tracks</span>
+      </div>
+      {READY_TRACKS.map((t) => {
+        const ls = lessonsOf(t)
+        const done = ls.filter((l) => s.lessons[l.id]?.completed).length
+        return (
+          <Link key={t} to={`/contents#track-${t}`} className="overview-row">
+            <span className="hud-title">Track {t} · {TRACKS[t].name}</span>
+            <span className="meter"><span style={{ width: `${(done / ls.length) * 100}%` }} /></span>
+            <span className="kbd">{done} / {ls.length}</span>
+          </Link>
+        )
+      })}
+      <Link className="btn primary" to="/contents" style={{ marginTop: 12 }}>Open the contents</Link>
     </section>
   )
 }
@@ -147,22 +173,7 @@ export function Home() {
 
       <WeekDigest s={s} />
 
-      {READY_TRACKS.filter((t) => t !== 'L').map((t) => (
-        <section key={t} aria-label={`Track ${t}`}>
-          <h2>Track {t} · <span style={{ whiteSpace: 'nowrap' }}>{TRACKS[t].name}</span></h2>
-          <div className="grid three">
-            {lessonsOf(t).map((l) => (
-              <Link key={l.id} to={`/learn/${l.id}`} className="card" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', gap: 14, alignItems: 'center' }}>
-                <Ring value={mastery(s, l)} size={64} label={l.id} />
-                <div>
-                  <div className="hud-title" style={{ fontSize: 14 }}>{l.title}</div>
-                  <div className="dim small">{s.lessons[l.id]?.completed ? 'Mastered' : `${Math.round(mastery(s, l) * 100)}% mastered`}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ))}
+      <ContentsOverview s={s} />
 
       {earned.length > 0 && (
         <>
