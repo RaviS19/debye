@@ -448,29 +448,23 @@
         <div class="path-content">
           <div class="path-header">
             <svg class="path-schematic" viewBox="0 0 80 80" aria-hidden="true">
-              <!-- Plasma particle diagram: particle trajectory in electromagnetic field -->
+              <!-- Plasma particle diagram: electrons and ions in magnetic field with opposite gyration -->
               <defs>
-                <style>.plasma-grid { stroke: rgba(34, 211, 238, 0.2); stroke-width: 0.5; } .plasma-particle { fill: #22d3ee; } .plasma-field { stroke: #22d3ee; stroke-width: 1; fill: none; opacity: 0.6; } .plasma-label { font-size: 6px; font-family: monospace; fill: rgba(34, 211, 238, 0.6); }</style>
+                <style>.plasma-field { stroke: #22d3ee; stroke-width: 1; fill: none; opacity: 0.6; } .plasma-electron { stroke: #22d3ee; stroke-width: 1.2; } .plasma-ion { stroke: rgba(34, 211, 238, 0.8); stroke-width: 1.2; } .plasma-label { font-size: 6px; font-family: monospace; fill: rgba(34, 211, 238, 0.7); font-weight: 600; }</style>
               </defs>
-              <!-- Field lines (magnetic field visualization) -->
-              <g class="plasma-field">
-                <path d="M 30 15 Q 35 25, 30 35" />
-                <path d="M 40 15 Q 45 25, 40 35" />
-                <path d="M 50 15 Q 55 25, 50 35" />
-                <path d="M 30 45 Q 35 55, 30 65" />
-                <path d="M 40 45 Q 45 55, 40 65" />
-                <path d="M 50 45 Q 55 55, 50 65" />
-              </g>
-              <!-- Particle trajectory (helical motion in B field) -->
-              <path class="plasma-field" d="M 25 25 Q 28 22 30 25 Q 32 28 30 32 Q 28 35 25 35 Q 22 32 20 28" stroke-width="1.2" />
-              <!-- Particles -->
-              <circle class="plasma-particle" cx="25" cy="40" r="2" />
-              <circle class="plasma-particle" cx="55" cy="50" r="1.8" opacity="0.7" />
-              <circle class="plasma-particle" cx="35" cy="60" r="1.5" opacity="0.5" />
-              <!-- Labels -->
-              <text class="plasma-label" x="62" y="25">B</text>
-              <text class="plasma-label" x="15" y="42">e⁻</text>
-              <text class="plasma-label" x="58" y="53">e⁺</text>
+              <!-- B field direction indicator -->
+              <text class="plasma-label" x="62" y="20">B →</text>
+              <!-- Electron trajectory: tight helix, clockwise gyration -->
+              <path class="plasma-electron" d="M 20 30 Q 23 27 25 30 Q 27 33 25 36 Q 23 39 20 38 Q 18 35 18 32 Q 18 29 20 28" />
+              <circle cx="20" cy="30" r="1.2" fill="none" stroke="#22d3ee" stroke-width="0.8" opacity="0.6" />
+              <!-- Ion trajectory: larger radius helix, counterclockwise gyration -->
+              <path class="plasma-ion" d="M 50 35 Q 44 32 42 40 Q 45 48 53 50 Q 60 46 62 40 Q 58 32 50 35" opacity="0.8" />
+              <circle cx="50" cy="40" r="2.5" fill="none" stroke="rgba(34, 211, 238, 0.8)" stroke-width="0.8" opacity="0.5" />
+              <!-- Particle labels -->
+              <text class="plasma-label" x="12" y="33">e⁻</text>
+              <text class="plasma-label" x="58" y="42">ion</text>
+              <!-- Conceptual note: opposite gyration -->
+              <text style="font-size: 5px; fill: rgba(34, 211, 238, 0.4); font-family: monospace;" x="25" y="68">opposite charge → opposite gyration</text>
             </svg>
             <div>
               <div class="path-title">Plasma<br/>Physics</div>
