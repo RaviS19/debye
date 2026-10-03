@@ -1,0 +1,140 @@
+/* Home: an instrument panel. A short header, one ruled progress console, then the two learning paths side by side,
+   each led by its own schematic. Classes are prefixed hm- so the global theme's .chip, .meter and .readouts stay untouched. */
+
+.hm {
+  --hm-ground: #070a17;
+  --hm-panel: #0c1124;
+  --hm-grid: #111a35;
+  --hm-rule: #1d2746;
+  --hm-rule-strong: #2b3a66;
+  --hm-ink-3: #8089ab;
+  --font-data: 'PT Mono', ui-monospace, Menlo, Consolas, monospace;
+  display: grid;
+  gap: 20px;
+  margin-bottom: 8px;
+}
+
+.hm-label { font: 600 11px/1.2 var(--font-display); letter-spacing: 0.16em; text-transform: uppercase; color: var(--hm-ink-3); text-shadow: none; margin: 0; }
+.hm-label::after { content: none; }
+
+.hm-head .hm-label { display: block; margin-bottom: 8px; }
+.hm-head h1 { margin: 0; font-size: 26px; line-height: 1.1; letter-spacing: 0.08em; color: var(--text); text-shadow: none; text-wrap: balance; }
+.hm-lede { margin: 6px 0 0; color: var(--text-dim); font-size: 15px; max-width: 62ch; }
+
+/* progress console */
+.hm-console { display: grid; gap: 6px; }
+.hm-readouts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0; background: var(--hm-rule); border: 1px solid var(--hm-rule); border-radius: 4px; overflow: hidden; }
+.hm-readout { background: var(--hm-panel); padding: 12px 16px; display: grid; gap: 4px; align-content: start; min-width: 0; }
+.hm-readout dd { margin: 0; display: grid; gap: 6px; }
+.hm-val { font: 600 20px/1.15 var(--font-display); font-variant-numeric: tabular-nums; color: var(--text); }
+.hm-val.empty { color: var(--text-dim); }
+.hm-meta { font-size: 13px; line-height: 1.4; color: var(--text-dim); }
+.hm-meta a { color: var(--cyan); text-underline-offset: 3px; }
+.hm-meter { display: block; height: 3px; background: var(--hm-rule); border-radius: 2px; overflow: hidden; }
+.hm-meter i { display: block; height: 100%; background: var(--accent, var(--cyan)); transform-origin: left; animation: hm-fill 0.7s ease-out 0.2s both; }
+
+/* paths */
+.hm-paths { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
+.hm-path { --accent: var(--cyan); min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 20px; background: var(--hm-panel); border: 1px solid var(--hm-rule-strong); border-radius: 6px; transition: border-color 0.2s; animation: hm-rise 0.45s ease-out both; }
+.hm-path.laser { --accent: var(--violet); }
+.hm-path.plasma { animation-delay: 0.08s; }
+.hm-path:hover, .hm-path:focus-within { border-color: var(--accent); }
+
+.hm-path-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
+.hm-path-head h2 { margin: 0; font-size: 18px; line-height: 1.2; letter-spacing: 0.1em; color: var(--accent); text-shadow: none; }
+.hm-path-head h2::after { content: none; }
+.hm-outcome { margin: 0; color: var(--text); font-size: 15px; line-height: 1.5; max-width: 60ch; }
+
+.hm-chip { font: 600 11px/1 var(--font-display); letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 8px; border-radius: 3px; border: 1px solid var(--hm-rule-strong); color: var(--text-dim); white-space: nowrap; }
+.hm-chip.todo { border-style: dashed; }
+.hm-chip.live { border-color: var(--accent); color: var(--accent); }
+.hm-chip.done { background: var(--accent); border-color: var(--accent); color: var(--hm-ground); }
+.hm-chip.soon { border-style: dashed; color: var(--hm-ink-3); }
+
+/* schematics */
+.hm-schematic { position: relative; margin: 0; height: 96px; border: 1px solid var(--hm-rule); border-radius: 4px; background-color: var(--hm-ground); background-image: linear-gradient(var(--hm-grid) 1px, transparent 1px), linear-gradient(90deg, var(--hm-grid) 1px, transparent 1px); background-size: 20px 20px; background-position: -1px -1px; overflow: hidden; }
+.hm-schematic svg { display: block; width: 100%; height: 100%; }
+.sx-label { font: 11px var(--font-data); letter-spacing: 0.08em; fill: var(--hm-ink-3); }
+.sx-note { font: 12px var(--font-body); fill: var(--hm-ink-3); }
+.sx-tag { font: 12.5px var(--font-data); fill: var(--text-dim); }
+.sx-axis { stroke: var(--hm-rule-strong); stroke-width: 1; fill: none; }
+.sx-bracket { stroke: var(--text-dim); stroke-width: 1; fill: none; }
+.sx-accent { stroke: var(--accent); fill: none; }
+.sx-env { stroke: var(--text-dim); stroke-width: 1; stroke-dasharray: 3 3; fill: none; }
+.sx-dot { fill: var(--accent); }
+.sx-b { stroke: var(--text-dim); stroke-width: 1; fill: none; }
+.sx-b-dot { fill: var(--text-dim); }
+.sx-head { fill: var(--accent); }
+.sx-head.axis { fill: var(--hm-rule-strong); }
+.hm-draw { stroke-dasharray: 1; stroke-dashoffset: 0; animation: hm-draw 0.9s ease-out 0.15s both; }
+
+/* the schematics move only while their card is hovered or focused */
+.hm-pulse { transform-box: view-box; animation: hm-travel 3.2s linear -1.6s infinite; }
+.hm-ion { transform-box: view-box; transform-origin: 165px 50px; animation: hm-spin-cw 4s linear -1s infinite; }
+.hm-ele { transform-box: view-box; transform-origin: 80px 50px; animation: hm-spin-ccw 0.9s linear infinite; }
+.hm-schematic .hm-anim { animation-play-state: paused; }
+.hm-path:hover .hm-schematic .hm-anim, .hm-path:focus-within .hm-schematic .hm-anim { animation-play-state: running; }
+
+/* tracks */
+.hm-tracks summary { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; list-style: none; cursor: default; }
+.hm-tracks summary::-webkit-details-marker { display: none; }
+.hm-sum { font: 12px var(--font-data); color: var(--hm-ink-3); }
+.hm-track-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.hm-track-row { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 8px 10px; border: 1px solid var(--hm-rule); border-radius: 4px; color: inherit; text-decoration: none; transition: border-color 0.15s; }
+a.hm-track-row:hover { border-color: var(--accent); }
+.hm-tid { display: grid; place-items: center; height: 28px; border: 1px solid var(--accent); border-radius: 3px; color: var(--accent); font: 700 13px var(--font-data); }
+.hm-tname { min-width: 0; font-weight: 700; font-size: 14px; line-height: 1.3; }
+.hm-tname small { display: block; font-weight: 400; font-size: 13px; color: var(--text-dim); }
+.hm-sub { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; margin-top: 4px; font-weight: 400; font-size: 13px; color: var(--text-dim); }
+.hm-sub span:nth-child(even) { font: 12px var(--font-data); color: var(--hm-ink-3); text-align: right; }
+.hm-sub b { font: 700 12px var(--font-data); color: var(--hm-ink-3); margin-right: 6px; }
+.hm-tside { display: grid; justify-items: end; gap: 5px; }
+.hm-tcount { display: flex; align-items: center; gap: 8px; font: 12px var(--font-data); color: var(--text-dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hm-tcount .hm-meter { width: 48px; }
+.hm-track.soon .hm-track-row { border-style: dashed; color: var(--text-dim); }
+.hm-track.soon .hm-tid { border-style: dashed; border-color: var(--hm-ink-3); color: var(--hm-ink-3); }
+.hm-more { display: inline-block; margin-top: 8px; font-size: 13px; color: var(--text-dim); text-underline-offset: 3px; }
+.hm-more:hover { color: var(--accent); }
+
+/* primary action */
+.hm-actions { margin-top: auto; }
+.hm-cta { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 46px; padding: 10px 16px; border: 1px solid var(--accent); border-radius: 4px; background: var(--accent); color: var(--hm-ground); font: 600 15px/1.25 var(--font-display); letter-spacing: 0.02em; text-align: left; text-decoration: none; cursor: pointer; transition: background-color 0.15s, color 0.15s; }
+.hm-cta:hover { background: color-mix(in srgb, var(--accent) 82%, white); }
+.hm-cta-arrow { flex: none; font-size: 18px; transition: transform 0.15s; }
+.hm-cta:hover .hm-cta-arrow { transform: translateX(3px); }
+.hm-cta:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+.hm-cta:disabled { cursor: not-allowed; background: transparent; color: var(--text-dim); border-color: var(--hm-rule-strong); }
+.hm-cta[aria-busy='true'] { cursor: progress; background: transparent; color: var(--accent); }
+.hm-cta-bar { position: absolute; left: 0; bottom: 0; height: 2px; width: 0; background: var(--accent); }
+.hm-cta[aria-busy='true'] .hm-cta-bar { animation: hm-load 1.2s ease-out forwards; }
+
+@keyframes hm-rise { from { opacity: 0.35; transform: translateY(6px); } }
+@keyframes hm-fill { from { transform: scaleX(0); } }
+@keyframes hm-draw { from { stroke-dashoffset: 1; } }
+@keyframes hm-travel { from { transform: translateX(-210px); } to { transform: translateX(210px); } }
+@keyframes hm-spin-cw { to { transform: rotate(360deg); } }
+@keyframes hm-spin-ccw { to { transform: rotate(-360deg); } }
+@keyframes hm-load { to { width: 100%; } }
+
+@media (max-width: 860px) {
+  .hm-paths { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* phones: both paths and the console fit above the tab bar; track lists fold behind their summary */
+@media (max-width: 640px) {
+  .hm { gap: 14px; }
+  .hm-head .hm-label, .hm-lede { display: none; }
+  .hm-head h1 { font-size: 22px; }
+  .hm-readouts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hm-readout { padding: 9px 12px; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: 8px; }
+  .hm-readout dd { justify-items: end; text-align: right; }
+  .hm-readout .hm-meta, .hm-readout .hm-meter { display: none; }
+  .hm-val { font-size: 16px; }
+  .hm-paths { gap: 12px; }
+  .hm-path { padding: 14px; gap: 10px; }
+  .hm-schematic { height: 78px; }
+  .hm-outcome { font-size: 14px; line-height: 1.4; }
+  .hm-tracks summary { cursor: pointer; }
+  .hm-tracks summary .hm-sum::after { content: ' ▾'; }
+  .hm-tracks[open] summary .hm-sum::after { content: ' ▴'; }
+}
