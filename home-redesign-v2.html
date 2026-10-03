@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEBYE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Exo:wght@700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0b1e;
+      --bg-2: #12142e;
+      --panel: #1a1d3a;
+      --navy: #314c72;
+      --steel: #869fb2;
+      --glow: #8fffff;
+      --cyan: #22d3ee;
+      --violet: #a06fd6;
+      --text: #e8eaf6;
+      --text-dim: #9aa0c9;
+      --text-disabled: #5a5f7a;
+      --line: rgba(34, 211, 238, 0.15);
+      --line-strong: rgba(34, 211, 238, 0.3);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: radial-gradient(ellipse at 20% -10%, #1a3a5a 0%, transparent 55%),
+        radial-gradient(ellipse at 110% 110%, #251540 0%, transparent 50%),
+        linear-gradient(180deg, var(--bg-2), var(--bg));
+      background-attachment: fixed;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.5;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(0deg, rgba(143, 255, 255, 0.015) 0 1px, transparent 1px 3px);
+      z-index: 99;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 36px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    .header {
+      margin-bottom: 48px;
+    }
+
+    .tag {
+      font-family: var(--font-display);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--glow);
+      text-shadow: 0 0 20px rgba(143, 255, 255, 0.4);
+      font-size: 32px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .lede {
+      color: var(--text-dim);
+      font-size: 15px;
+      line-height: 1.6;
+      max-width: 600px;
+      margin-bottom: 0;
+    }
+
+    /* Learning Paths Grid */
+    .paths-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-bottom: 40px;
+    }
+
+    .path-card {
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 28px;
+      background: linear-gradient(135deg, rgba(26, 29, 58, 0.8), rgba(26, 29, 58, 0.4));
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .path-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .path-card.laser {
+      border-color: rgba(160, 111, 214, 0.3);
+    }
+
+    .path-card.laser:hover {
+      border-color: rgba(160, 111, 214, 0.5);
+      box-shadow: inset 0 0 20px rgba(160, 111, 214, 0.05);
+    }
+
+    .path-card.plasma {
+      border-color: rgba(34, 211, 238, 0.3);
+    }
+
+    .path-card.plasma:hover {
+      border-color: rgba(34, 211, 238, 0.5);
+      box-shadow: inset 0 0 20px rgba(34, 211, 238, 0.05);
+    }
+
+    .path-content {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .path-header {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .path-schematic {
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+    }
+
+    .path-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      line-height: 1.3;
+    }
+
+    .path-card.laser .path-title {
+      color: var(--violet);
+    }
+
+    .path-card.plasma .path-title {
+      color: var(--cyan);
+    }
+
+    .path-outcomes {
+      margin-bottom: 16px;
+    }
+
+    .path-outcomes-label {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    .path-outcomes-text {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text-dim);
+    }
+
+    /* Track list */
+    .track-list {
+      margin-bottom: 20px;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+    }
+
+    .track-list-label {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    .tracks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .track-item {
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid;
+      background: rgba(255, 255, 255, 0.02);
+      transition: all 0.2s;
+    }
+
+    .track-item.available {
+      border-color: var(--line-strong);
+      color: var(--text);
+    }
+
+    .track-item.unavailable {
+      border-color: rgba(90, 95, 122, 0.3);
+      color: var(--text-disabled);
+      opacity: 0.6;
+    }
+
+    .track-progress {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    /* Primary Action */
+    .path-action {
+      margin-top: auto;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 10px 16px;
+      border: 1px solid;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font-display);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .path-card.laser .btn-primary {
+      border-color: rgba(160, 111, 214, 0.5);
+      color: var(--violet);
+    }
+
+    .path-card.laser .btn-primary:hover:not(:disabled) {
+      border-color: rgba(160, 111, 214, 0.8);
+      background: rgba(160, 111, 214, 0.1);
+      box-shadow: 0 0 12px rgba(160, 111, 214, 0.2);
+    }
+
+    .path-card.plasma .btn-primary {
+      border-color: rgba(34, 211, 238, 0.5);
+      color: var(--cyan);
+    }
+
+    .path-card.plasma .btn-primary:hover:not(:disabled) {
+      border-color: rgba(34, 211, 238, 0.8);
+      background: rgba(34, 211, 238, 0.1);
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.2);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary:focus-visible {
+      outline: 2px solid var(--glow);
+      outline-offset: -1px;
+    }
+
+    /* Progress Console */
+    .progress-console {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 40px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .console-item {
+      padding: 12px;
+      background: rgba(26, 29, 58, 0.6);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .console-label {
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+
+    .console-value {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--glow);
+      text-shadow: 0 0 10px rgba(143, 255, 255, 0.3);
+    }
+
+    .console-meta {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    .console-action {
+      font-size: 11px;
+      margin-top: 6px;
+    }
+
+    .console-action a {
+      color: var(--glow);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .console-action a:hover {
+      opacity: 0.8;
+    }
+
+    .not-started {
+      color: var(--text-dim);
+      opacity: 0.7;
+    }
+
+    @media (max-width: 900px) {
+      .paths-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .progress-console {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .container {
+        padding: 24px 20px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <span class="tag">Mission control</span>
+      <h1>Master Physics</h1>
+      <p class="lede">Two independent learning paths. Each builds a complete understanding: laser physics from photon emission to ultrafast pulses, and plasma physics from gas behavior to relativistic regimes.</p>
+    </div>
+
+    <!-- Learning Paths -->
+    <div class="paths-grid">
+      <!-- Laser Physics Path -->
+      <div class="path-card laser">
+        <div class="path-content">
+          <div class="path-header">
+            <svg class="path-schematic" viewBox="0 0 80 80" aria-hidden="true">
+              <!-- Optical pulse schematic: mode-locked laser producing pulses -->
+              <defs>
+                <style>.pulse-grid { stroke: rgba(160, 111, 214, 0.2); stroke-width: 0.5; } .pulse-wave { stroke: #a06fd6; stroke-width: 1.2; fill: none; } .pulse-envelope { stroke: #a06fd6; stroke-width: 1.5; fill: none; opacity: 0.7; } .pulse-label { font-size: 6px; font-family: monospace; fill: rgba(160, 111, 214, 0.6); }</style>
+              </defs>
+              <!-- Grid background -->
+              <g class="pulse-grid">
+                <line x1="10" y1="40" x2="70" y2="40" />
+                <line x1="40" y1="10" x2="40" y2="70" />
+                <line x1="20" y1="30" x2="20" y2="50" />
+                <line x1="30" y1="30" x2="30" y2="50" />
+                <line x1="50" y1="30" x2="50" y2="50" />
+                <line x1="60" y1="30" x2="60" y2="50" />
+              </g>
+              <!-- Oscillating carrier wave -->
+              <path class="pulse-wave" d="M 15 40 Q 17 35 19 40 Q 21 45 23 40 Q 25 35 27 40 Q 29 45 31 40 Q 33 35 35 40 Q 37 45 39 40 Q 41 35 43 40 Q 45 45 47 40 Q 49 35 51 40 Q 53 45 55 40 Q 57 35 59 40 Q 61 45 63 40 Q 65 35 67 40" />
+              <!-- Pulse envelope -->
+              <path class="pulse-envelope" d="M 15 40 Q 27 20 40 40 Q 53 60 65 40" />
+              <!-- Mode locking indicator -->
+              <circle cx="40" cy="65" r="3" fill="none" stroke="#a06fd6" stroke-width="1" />
+              <text class="pulse-label" x="32" y="68">mode-lock</text>
+            </svg>
+            <div>
+              <div class="path-title">Laser<br/>Physics</div>
+            </div>
+          </div>
+
+          <div class="path-outcomes">
+            <div class="path-outcomes-label">Learning outcomes</div>
+            <div class="path-outcomes-text">Understand light generation, pulse formation, and ultrafast phenomena through interactive simulations and theory.</div>
+          </div>
+
+          <div class="track-list">
+            <div class="track-list-label">Available tracks</div>
+            <div class="tracks">
+              <div class="track-item available">Track L · Trial (3 lessons)</div>
+            </div>
+            <div class="track-progress">0% of this subject mastered</div>
+
+            <div style="margin-top: 10px; color: var(--text-disabled); font-size: 12px;">
+              <strong>Coming:</strong> Tracks E–H (fundamentals, ultrafast, fiber optics, instrumentation)
+            </div>
+          </div>
+        </div>
+
+        <div class="path-action">
+          <button class="btn-primary">Start Track L</button>
+        </div>
+      </div>
+
+      <!-- Plasma Physics Path -->
+      <div class="path-card plasma">
+        <div class="path-content">
+          <div class="path-header">
+            <svg class="path-schematic" viewBox="0 0 80 80" aria-hidden="true">
+              <!-- Plasma particle diagram: particle trajectory in electromagnetic field -->
+              <defs>
+                <style>.plasma-grid { stroke: rgba(34, 211, 238, 0.2); stroke-width: 0.5; } .plasma-particle { fill: #22d3ee; } .plasma-field { stroke: #22d3ee; stroke-width: 1; fill: none; opacity: 0.6; } .plasma-label { font-size: 6px; font-family: monospace; fill: rgba(34, 211, 238, 0.6); }</style>
+              </defs>
+              <!-- Field lines (magnetic field visualization) -->
+              <g class="plasma-field">
+                <path d="M 30 15 Q 35 25, 30 35" />
+                <path d="M 40 15 Q 45 25, 40 35" />
+                <path d="M 50 15 Q 55 25, 50 35" />
+                <path d="M 30 45 Q 35 55, 30 65" />
+                <path d="M 40 45 Q 45 55, 40 65" />
+                <path d="M 50 45 Q 55 55, 50 65" />
+              </g>
+              <!-- Particle trajectory (helical motion in B field) -->
+              <path class="plasma-field" d="M 25 25 Q 28 22 30 25 Q 32 28 30 32 Q 28 35 25 35 Q 22 32 20 28" stroke-width="1.2" />
+              <!-- Particles -->
+              <circle class="plasma-particle" cx="25" cy="40" r="2" />
+              <circle class="plasma-particle" cx="55" cy="50" r="1.8" opacity="0.7" />
+              <circle class="plasma-particle" cx="35" cy="60" r="1.5" opacity="0.5" />
+              <!-- Labels -->
+              <text class="plasma-label" x="62" y="25">B</text>
+              <text class="plasma-label" x="15" y="42">e⁻</text>
+              <text class="plasma-label" x="58" y="53">e⁺</text>
+            </svg>
+            <div>
+              <div class="path-title">Plasma<br/>Physics</div>
+            </div>
+          </div>
+
+          <div class="path-outcomes">
+            <div class="path-outcomes-label">Learning outcomes</div>
+            <div class="path-outcomes-text">From gas behavior through fusion: particle dynamics, waves, nonlinear effects, and laser-plasma interactions.</div>
+          </div>
+
+          <div class="track-list">
+            <div class="track-list-label">Available tracks</div>
+            <div class="tracks">
+              <div class="track-item available">Track A · Foundations (11 lessons)</div>
+              <div class="track-item available">Track B · Laser–Plasma (9 lessons)</div>
+              <div class="track-item available">Track C · Short-Pulse (8 lessons)</div>
+            </div>
+            <div class="track-progress">0% of this subject mastered</div>
+          </div>
+        </div>
+
+        <div class="path-action">
+          <button class="btn-primary">Start Track A</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Console -->
+    <div class="progress-console">
+      <div class="console-item">
+        <div class="console-label">Rank</div>
+        <div class="console-value not-started">—</div>
+        <div class="console-meta">No progress yet</div>
+      </div>
+      <div class="console-item">
+        <div class="console-label">XP</div>
+        <div class="console-value not-started">0</div>
+        <div class="console-meta">Start a lesson to begin</div>
+      </div>
+      <div class="console-item">
+        <div class="console-label">Streak</div>
+        <div class="console-value not-started">0 days</div>
+        <div class="console-meta">Study daily</div>
+      </div>
+      <div class="console-item">
+        <div class="console-label">Cards Due</div>
+        <div class="console-value">0</div>
+        <div class="console-meta">All caught up</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
