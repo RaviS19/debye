@@ -1,7 +1,8 @@
-import { Fragment, useEffect, useState } from 'react'
-import { HashRouter, NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { HashRouter, Link, Navigate, NavLink, Route, Routes, useLocation } from 'react-router-dom'
 import { Celebrations, Circuit, Logo } from './components/Hud'
 import { Home } from './pages/Home'
+import { ContentsPage } from './pages/Contents'
 import { LessonPage } from './pages/LessonPage'
 import { MapPage, PlotPage, ReviewPage, SettingsPage } from './pages/Other'
 import { YouPage } from './pages/You'
@@ -10,12 +11,11 @@ import { initTutor } from './tutor/state'
 import { startSync, useSyncStatus } from './store/sync'
 import { dueCards, levelFor, useStore } from './store/store'
 import { nudge, reminderDue, tickReminder } from './store/reminders'
-import { READY_TRACKS, TRACKS, lessonsOf } from './lessons'
-import { Link } from 'react-router-dom'
+import { lessonById, lessonsOf, trackOf } from './lessons'
 
 const NAV = [
   { to: '/', label: 'Home', icon: '◈' },
-  { to: '/learn/A1', label: 'Learn', icon: '⚛' },
+  { to: '/contents', label: 'Contents', icon: '▤' },
   { to: '/map', label: 'Map', icon: '⌬' },
   { to: '/plot', label: 'Plot', icon: '∿' },
   { to: '/review', label: 'Review', icon: '↻' },
@@ -44,10 +44,11 @@ function Shell() {
     if (!loc.hash) window.scrollTo(0, 0)
   }, [loc.pathname, loc.hash])
 
-  // keep the current lesson visible in the (scrollable) sidebar
+  // A lesson gets the whole screen: no main navigation, only the way back to the contents.
+  const inLesson = loc.pathname.startsWith('/learn/')
   useEffect(() => {
-    document.querySelector('.nav a.lesson-item.active')?.scrollIntoView({ block: 'nearest' })
-  }, [loc.pathname])
+    document.documentElement.classList.toggle('lesson-mode', inLesson)
+  }, [inLesson])
 
   useEffect(() => {
     initTutor()
@@ -57,41 +58,35 @@ function Shell() {
 
   const lvl = levelFor(s.xp)
   const due = dueCards().length
-  const learnActive = loc.pathname.startsWith('/learn')
 
   return (
     <>
       <Circuit className="tl" />
       <Circuit className="br" />
       <div className="shell">
-        <aside className="nav">
-          <Link to="/" className="brand">
-            <Logo />
-            <span className="brand-name">DEBYE</span>
-          </Link>
-          {NAV.map((n) => (
-            <NavLink key={n.to} to={n.to} end={n.to === '/'} className={({ isActive }) => `item ${isActive || (n.label === 'Learn' && learnActive) ? 'active' : ''}`}>
-              <span aria-hidden="true">{n.icon}</span> {n.label}
-              {n.to === '/review' && due > 0 && <span className="pill" style={{ marginLeft: 'auto', padding: '0 8px' }}>{due}</span>}
-            </NavLink>
-          ))}
-          {READY_TRACKS.map((t) => (
-            <Fragment key={t}>
-              <div className="tag" style={{ margin: '16px 12px 4px' }}>{t === 'L' ? 'Track L · Laser trial' : `Track ${t} · ${TRACKS[t].book}`}</div>
-              {lessonsOf(t).map((l) => (
-                <NavLink key={l.id} to={`/learn/${l.id}`} className="item lesson-item" title={`${l.id} ${l.title}`}>
-                  {s.lessons[l.id]?.completed ? '●' : '○'} {l.id} {l.title}
+        {inLesson ? (
+          <LessonBar id={loc.pathname.split('/')[2] ?? ''} />
+        ) : (
+          <header className="topbar">
+            <Link to="/" className="brand">
+              <Logo />
+              <span className="brand-name">DEBYE</span>
+            </Link>
+            <nav className="topnav" aria-label="Main">
+              {NAV.map((n) => (
+                <NavLink key={n.to} to={n.to} end={n.to === '/'} className="item">
+                  <span aria-hidden="true">{n.icon}</span> {n.label}
+                  {n.to === '/review' && due > 0 && <span className="pill">{due}</span>}
                 </NavLink>
               ))}
-            </Fragment>
-          ))}
-          <div className="spacer" />
-          <div className="nav-stats">
-            <span>Rank <b>{lvl.name}</b></span>
-            <span><b>{s.xp}</b> XP · 🔥 <b>{s.streak.count}</b> day{s.streak.count === 1 ? '' : 's'}</span>
-            {(sync.state === 'synced' || sync.state === 'saving') && <span className="kbd">☁ {sync.state === 'saving' ? 'saving…' : 'synced across devices'}</span>}
-          </div>
-        </aside>
+            </nav>
+            <div className="top-stats">
+              <span className="rank">Rank <b>{lvl.name}</b></span>
+              <span><b>{s.xp}</b> XP · 🔥 <b>{s.streak.count}</b></span>
+              {(sync.state === 'synced' || sync.state === 'saving') && <span className="kbd" title="Progress syncs across your devices">☁ {sync.state === 'saving' ? 'saving…' : 'synced'}</span>}
+            </div>
+          </header>
+        )}
         <main className="main">
           {showBanner && (
             <div className="banner">
@@ -104,6 +99,8 @@ function Shell() {
           )}
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/contents" element={<ContentsPage />} />
+            <Route path="/learn" element={<Navigate to="/contents" replace />} />
             <Route path="/learn/:id" element={<LessonPage />} />
             <Route path="/map" element={<MapPage />} />
             <Route path="/plot" element={<PlotPage />} />
@@ -116,18 +113,37 @@ function Shell() {
           </Routes>
         </main>
       </div>
-      <nav className="tabbar" aria-label="Main">
+      {!inLesson && <nav className="tabbar" aria-label="Main">
         {NAV.filter((n) => n.label !== 'Remind').map((n) => (
-          <NavLink key={n.to} to={n.to} end={n.to === '/'} className={({ isActive }) => (isActive || (n.label === 'Learn' && learnActive) ? 'active' : '')}>
+          <NavLink key={n.to} to={n.to} end={n.to === '/'}>
             <span style={{ fontSize: 18 }} aria-hidden="true">{n.icon}</span>
             {n.label}
           </NavLink>
         ))}
-      </nav>
+      </nav>}
       <TutorFab />
       <TutorPanel />
       <Celebrations />
     </>
+  )
+}
+
+/** The only navigation inside a lesson: back to the contents, where any other lesson is picked. */
+function LessonBar({ id }: { id: string }) {
+  const lesson = lessonById(id)
+  const track = trackOf(id)
+  const list = lessonsOf(track)
+  const n = list.findIndex((l) => l.id === id)
+  return (
+    <header className="lessonbar">
+      <Link to={`/contents#${id}`} className="btn small">← Contents</Link>
+      {lesson && (
+        <span className="lessonbar-title">
+          <b>{lesson.id}</b> {lesson.title}
+          <span className="dim"> · Track {track}, lesson {n + 1} of {list.length}</span>
+        </span>
+      )}
+    </header>
   )
 }
 
