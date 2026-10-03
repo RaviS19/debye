@@ -448,3 +448,7 @@ button.chip { font-family: var(--font-body); }
 .prep { display: grid; gap: 4px; margin: 0 0 16px; padding: 8px 14px; border-left: 2px solid var(--violet); border-radius: 0 10px 10px 0; background: rgba(160, 111, 214, 0.06); }
 .prep-chips { gap: 6px; margin-top: 4px; }
 .prep .chip { gap: 4px; }
+
+/* ---------- laser trial module on Home ---------- */
+.card.trial { border-color: rgba(160, 111, 214, 0.75); box-shadow: 0 0 calc(24px * var(--glow-strength)) rgba(160, 111, 214, 0.22), inset 0 0 30px rgba(160, 111, 214, 0.07); margin-bottom: 18px; }
+.card.trial h2 { margin-bottom: 6px; }

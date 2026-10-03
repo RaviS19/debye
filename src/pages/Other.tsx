@@ -14,10 +14,10 @@ import { tex } from '../components/Eq'
 import { TutorModelCard } from '../tutor/ModelSettings'
 
 // ---------- concept map ----------
-// One row per track. Each later row starts under the lesson it branches from (Track B leaves Track A after A6),
+// One row per track; the laser trial (L) sits on top on its own. Each later row starts under the lesson it branches from (Track B leaves Track A after A6),
 // so the cross-track prerequisites (A6, A9, A10 into B; B into C) run short and downwards instead of across the map.
 const COL_W = 112
-const ROWS = { A: { y: 86, x0: 56 }, B: { y: 221, x0: 560 }, C: { y: 356, x0: 672 } }
+const ROWS = { L: { y: 86, x0: 56 }, A: { y: 241, x0: 56 }, B: { y: 376, x0: 560 }, C: { y: 511, x0: 672 } }
 const nodePos = (id: string) => {
   const m = MODULES.find((x) => x.id === id)!
   return { x: ROWS[m.track].x0 + (+m.id.slice(1) - 1) * COL_W, y: ROWS[m.track].y }

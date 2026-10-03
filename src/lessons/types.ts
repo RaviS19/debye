@@ -16,7 +16,7 @@ export interface Lesson {
 
 export interface ModuleInfo {
   id: string
-  track: 'A' | 'B' | 'C'
+  track: 'L' | 'A' | 'B' | 'C'
   title: string
   prereqs: string[]
 }

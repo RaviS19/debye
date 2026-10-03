@@ -18,6 +18,13 @@ Android shell (`npx cap add android`) when you want a Play Store app.
 
 ## What is in the app
 
+**Track L, a laser physics trial, lessons L1 to L3**, shown first on Home, in the sidebar and on the map. It is a
+short taste of the laser tracks planned in `../plans/laser-plan.html`, in the same lesson format: gain, population
+inversion, the threshold and relaxation oscillations from the laser rate equations (L1); cavity modes and
+mode-locking as a sum of phase-locked modes (L2); and an ultrashort pulse's spectrum, spectral phase, GDD, TOD and
+glass dispersion through a live FFT (L3). Follows Silfvast, Keller and Weiner; each simulation is checked against its
+analytic result in `src/physics/laserTrial.test.ts`.
+
 **Track A (Chen), lessons A1 to A11**, each with equation explainers, a step-through derivation,
 at least one live simulation checked against its analytic result in `npm test`, plotter presets,
 six problems and six flashcards.
@@ -58,7 +65,7 @@ scattering (B9). It builds on A5, A6, A9 and A10 (the map draws the direct links
 - Cross-device sync on claude.ai through the artifact's private per-user store (`db` + `user`), with a
   merge that never loses progress (per-device counters, unions, newest record wins, resets propagate),
   and a copy-and-paste progress code for anywhere else.
-- XP, ranks, streaks with freezes, 33 badges (one per lesson and one per finished track among them), confetti;
+- XP, ranks, streaks with freezes, 36 badges (one per lesson and one per finished track among them), confetti;
   reminders by calendar alarm, banner and notification.
 
 ## Use a local model
@@ -121,7 +128,7 @@ node scripts/sync-test.mjs <port>     # two simulated devices sharing a mocked s
 src/physics/     numerical methods (pure TS) and their Vitest benchmarks
 src/sims/        simulation components
 src/components/  Eq (explainers), Plotter, Learning (derivations, problems, cards), Digest, Hud (theme widgets)
-src/lessons/     A1–A11 and B1–B9 content (auto-registered), plot presets, curriculum and tracks, mastery rules
+src/lessons/     L1–L3, A1–A11 and B1–B9 content (auto-registered), plot presets, curriculum and tracks, mastery rules
 src/learner/     concept mastery (BKT), struggle predictor, personal memory curve, digest and suggestions, prep check
 src/tutor/       AI tutor panel, prompt building, reply rendering, local model clients and settings
 src/store/       state and event logs, XP/streaks/FSRS, badges, reminders, sync and merge

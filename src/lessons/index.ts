@@ -1,9 +1,9 @@
 import type { Lesson, ModuleInfo } from './types'
 
-// Every src/lessons/A*.tsx (and later B*, C*) that exports a Lesson is registered automatically.
-const files = import.meta.glob<Record<string, unknown>>(['./A*.tsx', './B*.tsx', './C*.tsx'], { eager: true })
+// Every src/lessons/L*.tsx, A*.tsx, B*.tsx and C*.tsx that exports a Lesson is registered automatically.
+const files = import.meta.glob<Record<string, unknown>>(['./L*.tsx', './A*.tsx', './B*.tsx', './C*.tsx'], { eager: true })
 const isLesson = (x: unknown): x is Lesson => !!x && typeof x === 'object' && 'id' in x && 'body' in x && 'problems' in x
-const order = (id: string) => 'ABC'.indexOf(id[0]) * 100 + Number(id.slice(1))
+const order = (id: string) => 'LABC'.indexOf(id[0]) * 100 + Number(id.slice(1))
 
 export const LESSONS: Lesson[] = Object.values(files)
   .flatMap((m) => Object.values(m).filter(isLesson))
@@ -11,6 +11,8 @@ export const LESSONS: Lesson[] = Object.values(files)
 export const lessonById = (id: string) => LESSONS.find((l) => l.id === id)
 
 export const TRACKS = {
+  // The laser-physics trial: a short taste of the laser tracks planned in plans/laser-plan.html, shown first in the app.
+  L: { name: 'Laser Physics Trial', book: 'Silfvast · Keller · Weiner' },
   A: { name: 'Foundations', book: 'Chen' },
   B: { name: 'Laser–Plasma', book: 'Kruer' },
   C: { name: 'Short-Pulse & Relativistic', book: 'Gibbon' },
@@ -20,6 +22,9 @@ export const TRACK_IDS = Object.keys(TRACKS) as TrackId[]
 
 // The full curriculum from the plan. Modules without a Lesson are shown as "coming".
 export const MODULES: ModuleInfo[] = [
+  { id: 'L1', track: 'L', title: 'How a laser makes light', prereqs: [] },
+  { id: 'L2', track: 'L', title: 'From modes to pulses', prereqs: ['L1'] },
+  { id: 'L3', track: 'L', title: 'Anatomy of an ultrashort pulse', prereqs: ['L2'] },
   { id: 'A1', track: 'A', title: 'What is a plasma', prereqs: [] },
   { id: 'A2', track: 'A', title: 'Single-particle motion', prereqs: ['A1'] },
   { id: 'A3', track: 'A', title: 'Adiabatic invariants', prereqs: ['A2'] },
