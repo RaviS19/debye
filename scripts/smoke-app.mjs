@@ -169,8 +169,18 @@ for (const [name, viewport] of [['desk', { width: 1280, height: 860 }], ['phone'
     await p.locator('.contents-tools input').fill('')
     await p.goto(`http://localhost:${port}/#/`)
     await p.waitForTimeout(500)
-    const overview = await p.locator('.overview-row').count()
-    if (overview !== firsts.length) problems.push(`Home: ${overview} track rows in the contents overview, ${firsts.length} tracks with lessons`)
+    const readyRows = await p.locator('.hm-track:not(.soon)').count()
+    if (readyRows !== firsts.length) problems.push(`Home: ${readyRows} ready track rows, ${firsts.length} tracks with lessons`)
+    // A1 and A2 are mastered and every track's first lesson is open by now, so each path continues where it stopped.
+    const paths = await p.locator('.hm-path').evaluateAll((els) => els.map((e) => [e.querySelector('h2')?.textContent, e.querySelector('.hm-cta')?.getAttribute('href'), e.querySelector('.hm-cta')?.textContent]))
+    const want = [['Laser Physics', '#/learn/L1', 'Continue L1'], ['Plasma Physics', '#/learn/A3', 'Continue A3']]
+    want.forEach(([title, href, label], i) => {
+      const [t, h, l] = paths[i] ?? []
+      if (t !== title || h !== href || !l?.startsWith(label)) problems.push(`Home: path ${i + 1} is "${t}" with "${l}" to ${h}, expected "${title}" with "${label}" to ${href}`)
+    })
+    const tids = async (path) => (await p.locator(`.hm-path.${path} .hm-tid`).allTextContents()).join(' ')
+    const [laserIds, plasmaIds] = [await tids('laser'), await tids('plasma')]
+    if (laserIds !== 'L E–H' || plasmaIds !== 'A B C') problems.push(`Home: laser path lists ${laserIds}, plasma path lists ${plasmaIds}`)
     console.log(`contents: ${heads.join(' | ')}; first lessons ${firsts.join(', ')}`)
   }
   // struggle + tutor from a problem
