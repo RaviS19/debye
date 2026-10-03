@@ -12,6 +12,11 @@ const count = (n: number) => WORDS[n] ?? String(n)
 
 /** What to say when a track is finished: its scope, and what comes next. */
 const TRACK_DONE: Record<TrackId, { title: string; scope: string; next: string }> = {
+  L: {
+    title: 'Laser trial complete',
+    scope: 'trial lessons, from gain and inversion to femtosecond pulses',
+    next: 'The full laser tracks (fundamentals, ultrafast, fiber lasers and metrology) are planned next. Meanwhile, Track A starts the plasma physics.',
+  },
   A: {
     title: 'Foundations mastered',
     scope: 'core topics, from Debye shielding to fusion',
@@ -61,6 +66,43 @@ function TrackBanners({ s }: { s: State }) {
   )
 }
 
+/** The laser-physics trial: its own module, pinned above everything else on Home. */
+function TrialModule({ s }: { s: State }) {
+  const lessons = lessonsOf('L')
+  if (!lessons.length) return null
+  const done = lessons.filter((l) => s.lessons[l.id]?.completed).length
+  const next = lessons.find((l) => !s.lessons[l.id]?.completed) ?? lessons[0]
+  return (
+    <section aria-label="Track L" className="card glow trial">
+      <div className="row" style={{ alignItems: 'center', gap: 10 }}>
+        <span className="pill violet">New · Trial module</span>
+        <span className="dim small">{done} of {count(lessons.length)} done</span>
+      </div>
+      <h2 style={{ marginTop: 10 }}>Track L · <span style={{ whiteSpace: 'nowrap' }}>{TRACKS.L.name}</span></h2>
+      <p className="dim" style={{ marginTop: 0 }}>
+        A first taste of the laser physics coming to Debye: how a laser makes light, how locked modes become a pulse train, and what a
+        femtosecond pulse is made of. {count(lessons.length).replace(/^./, (c) => c.toUpperCase())} short lessons with live simulations, following Silfvast, Keller and Weiner.
+      </p>
+      <div className="grid three">
+        {lessons.map((l) => (
+          <Link key={l.id} to={`/learn/${l.id}`} className="card" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', gap: 14, alignItems: 'center' }}>
+            <Ring value={mastery(s, l)} size={64} label={l.id} color="#a06fd6" />
+            <div>
+              <div className="hud-title" style={{ fontSize: 14 }}>{l.title}</div>
+              <div className="dim small">{s.lessons[l.id]?.completed ? 'Mastered' : `${Math.round(mastery(s, l) * 100)}% mastered`}</div>
+            </div>
+          </Link>
+        ))}
+      </div>
+      <div className="row" style={{ marginTop: 14 }}>
+        <Link className="btn primary" to={`/learn/${next.id}`}>
+          {done === lessons.length ? 'Revisit' : s.lessons[next.id] ? 'Continue' : 'Start'} {next.id} · {next.title}
+        </Link>
+      </div>
+    </section>
+  )
+}
+
 export function Home() {
   const s = useStore((s) => s)
   const lvl = levelFor(s.xp)
@@ -73,6 +115,8 @@ export function Home() {
       <span className="tag">Mission control</span>
       <h1>Plasma physics</h1>
       <p className="lede">{s.xp === 0 ? 'From a hot gas to fusion and laser plasmas, one interactive lesson at a time.' : nudge()}</p>
+
+      <TrialModule s={s} />
 
       <div className="grid four">
         <div className="card glow" style={{ display: 'grid', placeItems: 'center', textAlign: 'center' }}>
@@ -103,7 +147,7 @@ export function Home() {
 
       <WeekDigest s={s} />
 
-      {READY_TRACKS.map((t) => (
+      {READY_TRACKS.filter((t) => t !== 'L').map((t) => (
         <section key={t} aria-label={`Track ${t}`}>
           <h2>Track {t} · <span style={{ whiteSpace: 'nowrap' }}>{TRACKS[t].name}</span></h2>
           <div className="grid three">

@@ -14,9 +14,13 @@ const derivs = (s: State) => Object.values(s.lessons).reduce((n, l) => n + l.der
 const mastered = (id: string) => (s: State) => !!s.lessons[id]?.completed
 export const TRACK_A = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11']
 export const TRACK_B = ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B9']
+export const TRACK_L = ['L1', 'L2', 'L3']
 
 export const BADGES: Badge[] = [
   { id: 'first-light', name: 'First Light', blurb: 'Earned your first XP. The discharge has struck.', glyph: '✦', test: (s) => s.xp > 0 },
+  { id: 'lasing', name: 'Above Threshold', blurb: 'Mastered L1: gain, inversion and the laser threshold.', glyph: 'hν', test: mastered('L1') },
+  { id: 'mode-locker', name: 'Mode Locker', blurb: 'Mastered L2: locked modes become a pulse train.', glyph: 'Δν', test: mastered('L2') },
+  { id: 'track-l', name: 'Laser Trial Complete', blurb: 'Mastered all three laser trial lessons, down to the femtosecond.', glyph: 'fs', test: (s) => TRACK_L.every((id) => s.lessons[id]?.completed) },
   { id: 'shielded', name: 'Debye Shielded', blurb: 'Mastered A1: what makes a gas a plasma.', glyph: 'λ', test: mastered('A1') },
   { id: 'drifter', name: 'Master of Drifts', blurb: 'Mastered A2: gyration and guiding-centre drifts.', glyph: '⟳', test: mastered('A2') },
   { id: 'trapped', name: 'Mirror Trapped', blurb: 'Mastered A3: adiabatic invariants and magnetic mirrors.', glyph: 'μ', test: mastered('A3') },

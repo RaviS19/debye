@@ -13,7 +13,7 @@ The app is a Vite + React 19 + TypeScript static site. Theme: dark navy HUD, glo
 
 ## Files you may create (and nothing else)
 
-Lesson ids are a track letter and a number: `A1`–`A11` (Chen), `B1`–`B9` (Kruer), `C1`–`C8` (Gibbon).
+Lesson ids are a track letter and a number: `L1`–`L3` (laser physics trial: Silfvast, Keller, Weiner), `A1`–`A11` (Chen), `B1`–`B9` (Kruer), `C1`–`C8` (Gibbon).
 Below, `<L>` stands for your lesson id (for example `B3`).
 
 | File | Contents |

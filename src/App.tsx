@@ -77,7 +77,7 @@ function Shell() {
           ))}
           {READY_TRACKS.map((t) => (
             <Fragment key={t}>
-              <div className="tag" style={{ margin: '16px 12px 4px' }}>Track {t} · {TRACKS[t].book}</div>
+              <div className="tag" style={{ margin: '16px 12px 4px' }}>{t === 'L' ? 'Track L · Laser trial' : `Track ${t} · ${TRACKS[t].book}`}</div>
               {lessonsOf(t).map((l) => (
                 <NavLink key={l.id} to={`/learn/${l.id}`} className="item lesson-item" title={`${l.id} ${l.title}`}>
                   {s.lessons[l.id]?.completed ? '●' : '○'} {l.id} {l.title}
